@@ -1,0 +1,13 @@
+version.go
+version.yml
+build
+right_pt
+*.coverprofile
+*.bak
+*.old
+
+# vim
+.*.sw[nmop]
+
+# evil macOS
+.DS_Store

@@ -1,0 +1,16 @@
+language: go
+go:
+  - 1.11.x
+os:
+  - linux
+  - osx
+  - windows
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
+install:
+  - make depend
+script:
+  - make test
+  - make build
