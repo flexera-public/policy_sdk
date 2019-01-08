@@ -1,16 +1,20 @@
 language: go
 go:
   - 1.11.x
-os:
-  - linux
-  - osx
-  - windows
+matrix:
+  include:
+    - os: linux
+      env: MAKE=make
+    - os: osx
+      env: MAKE=make
+    - os: windows
+      env: MAKE=mingw32-make
 cache:
   directories:
     - $HOME/.cache/go-build
     - $HOME/gopath/pkg/mod
 install:
-  - make depend
+  - $MAKE depend
 script:
-  - make test
-  - make build
+  - $MAKE test
+  - $MAKE build

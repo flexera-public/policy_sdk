@@ -69,7 +69,7 @@ else
 UPLOADS:=build/$(NAME)-$(GOOS)-$(GOARCH).tgz
 endif
 
-GO_SOURCE=$(shell find -name '*.go')
+GO_SOURCE:=$(shell find . -name '*.go')
 
 default: $(EXE)
 $(EXE): $(GO_SOURCE) version

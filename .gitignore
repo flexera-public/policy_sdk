@@ -5,6 +5,7 @@ right_pt
 *.coverprofile
 *.bak
 *.old
+*.exe
 
 # vim
 .*.sw[nmop]
