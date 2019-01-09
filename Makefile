@@ -1,9 +1,9 @@
 #!/usr/bin/make
 #
-# Makefile for Golang projects. Dependent on Go 1.11.x module supoort
+# Makefile for Golang projects. Dependent on Go 1.11.x module support
 #
 # Features:
-# - runs tests recursively, computes coverage report
+# - runs tests recursively, computes code coverage report
 # - code coverage ready for travis-ci to upload and produce badges for README.md
 # - build for linux/amd64, darwin/amd64, windows/amd64
 # - produces .tgz/.zip build output
@@ -17,7 +17,7 @@
 #
 # Top-level targets:
 # default: compile the program, you can thus use make && ./NAME -options ...
-# build: builds builds binaries for the current platform
+# build: builds binaries for the current platform
 # test: runs unit tests recursively and produces code coverage stats and shows them
 # depend: installs executable dependencies
 # clean: removes build stuff
@@ -38,7 +38,7 @@ GOARCH=$(shell go env GOARCH)
 # Dependencies that need to be installed
 INSTALL_DEPEND= github.com/rlmcpherson/s3gof3r/gof3r
 
-# == below this line ideally remains unchanged, add new targets at the end ===
+# === below this line ideally remains unchanged, add new targets at the end ===
 
 TRAVIS_BRANCH?=dev
 DATE=$(shell date '+%F %T')
