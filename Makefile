@@ -92,7 +92,7 @@ build/$(NAME)-%.tgz: $(GO_SOURCE) version
 
 # create a zip with the binary and any artifacts that are necessary
 # note the hack to allow for various GOOS & GOARCH combos, sigh
-build/$(NAME)-%.zip: *.go version
+build/$(NAME)-%.zip: $(GO_SOURCE) version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
 	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
