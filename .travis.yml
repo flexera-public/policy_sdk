@@ -14,8 +14,17 @@ cache:
     - $HOME/.cache/go-build
     - $HOME/gopath/pkg/mod
 before_install:
-  - "[[ $TRAVIS_OS_NAME != osx ]] || brew list bash || brew install bash"
-  - "[[ $TRAVIS_OS_NAME != osx ]] || brew list coreutils || brew install coreutils"
+  # install latest mercurial client on Linux. Older clients have issues https://bitbucket.org/blog/deprecating-tlsv1-tlsv1-1-2018-12-01
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then pyenv install --skip-existing 2.7.14 && pyenv rehash && pyenv local 2.7.14; fi
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then virtualenv -p python2.7.14 python_env; fi
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then source python_env/bin/activate; fi
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install --upgrade pip; fi
+  - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install mercurial --upgrade; fi
+  # install modern bash and coreutils on macOS so that version.sh script works correctly
+  - if [[ $TRAVIS_OS_NAME == osx ]]; then brew list bash || brew install bash; fi
+  - if [[ $TRAVIS_OS_NAME == osx ]]; then brew list coreutils || brew install coreutils; fi
+  # install mercurial on Windows as some Go dependencies need it
+  - if [[ $TRAVIS_OS_NAME == windows ]]; then choco install -y hg; fi
 install:
   - $MAKE depend
 script:
