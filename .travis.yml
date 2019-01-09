@@ -16,6 +16,5 @@ cache:
 install:
   - $MAKE depend
 script:
-  - gofmt -d *.go
   - $MAKE test
   - $MAKE build
