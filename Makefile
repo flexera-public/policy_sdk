@@ -96,6 +96,7 @@ build/$(NAME)-%.zip: *.go version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
 	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
+	chmod +x build/$(NAME)/$(NAME)*
 	cd build; 7z a -r $(notdir $@) $(NAME)
 	rm -r build/$(NAME)
 
