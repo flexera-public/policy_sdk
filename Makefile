@@ -44,7 +44,7 @@ TRAVIS_BRANCH?=dev
 DATE=$(shell date '+%F %T')
 TRAVIS_COMMIT?=$(shell git rev-parse HEAD)
 GIT_BRANCH:=$(shell git symbolic-ref --short -q HEAD || echo 'master')
-SHELL:=/bin/bash
+SHELL:=$(shell which bash)
 
 # if we are building a tag overwrite TRAVIS_BRANCH with TRAVIS_TAG
 ifneq ($(TRAVIS_TAG),)
@@ -69,7 +69,7 @@ else
 UPLOADS:=build/$(NAME)-$(GOOS)-$(GOARCH).tgz
 endif
 
-GO_SOURCE:=$(shell find . -name '*.go')
+GO_SOURCE:=$(shell find . -name "*.go")
 
 default: $(EXE)
 $(EXE): $(GO_SOURCE) version
@@ -85,8 +85,8 @@ build: $(EXE) $(UPLOADS)
 build/$(NAME)-%.tgz: $(GO_SOURCE) version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
-	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(NAME) .
-	chmod +x build/$(NAME)/$(NAME)
+	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
+	chmod +x build/$(NAME)/$(NAME)*
 	tar -zcf $@ -C build $(NAME)
 	rm -r build/$(NAME)
 
@@ -95,8 +95,8 @@ build/$(NAME)-%.tgz: $(GO_SOURCE) version
 build/$(NAME)-%.zip: *.go version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
-	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(EXE) .
-	cd build; zip -r $(notdir $@) $(NAME)
+	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
+	cd build; 7z a -r $(notdir $@) $(NAME)
 	rm -r build/$(NAME)
 
 # upload assumes you have AWS_ACCESS_KEY_ID and AWS_SECRET_KEY env variables set,
