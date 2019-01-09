@@ -73,7 +73,7 @@ GO_SOURCE:=$(shell find . -name "*.go")
 
 default: $(EXE)
 $(EXE): $(GO_SOURCE) version
-	go build -tags make -o $(EXE) .
+	go build -tags $(NAME)_make -o $(EXE) .
 
 install: $(EXE)
 	go install
@@ -85,7 +85,7 @@ build: $(EXE) $(UPLOADS)
 build/$(NAME)-%.tgz: $(GO_SOURCE) version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
-	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
+	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags $(NAME)_make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
 	chmod +x build/$(NAME)/$(NAME)*
 	tar -zcf $@ -C build $(NAME)
 	rm -r build/$(NAME)
@@ -95,7 +95,7 @@ build/$(NAME)-%.tgz: $(GO_SOURCE) version
 build/$(NAME)-%.zip: $(GO_SOURCE) version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
-	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
+	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags $(NAME)_make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
 	chmod +x build/$(NAME)/$(NAME)*
 	cd build; 7z a -r $(notdir $@) $(NAME)
 	rm -r build/$(NAME)
@@ -127,7 +127,7 @@ upload:
 # produce a version string that is embedded into the binary that captures the branch, the date
 # and the commit we're building
 version:
-	@echo -e "// +build make\n\npackage main\n\nconst VV = \"$(NAME) $(TRAVIS_BRANCH) - $(DATE) - $(TRAVIS_COMMIT)\"" \
+	@echo -e "// +build $(NAME)_make\n\npackage main\n\nconst VV = \"$(NAME) $(TRAVIS_BRANCH) - $(DATE) - $(TRAVIS_COMMIT)\"" \
 	  >version.go
 	@echo "version.go: `tail -1 version.go`"
 

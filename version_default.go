@@ -1,4 +1,4 @@
-// +build !make
+// +build !right_pt_make
 
 package main
 
