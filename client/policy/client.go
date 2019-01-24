@@ -26,6 +26,8 @@ type (
 		DeleteAppliedPolicy(ctx context.Context, id string) error
 		ShowAppliedPolicy(ctx context.Context, id string, view string) (*appliedpolicy.AppliedPolicy, error)
 		IndexAppliedPolicies(ctx context.Context, names []string, view, etag string) (*appliedpolicy.AppliedPolicyList, error)
+		ShowAppliedPolicyLog(ctx context.Context, id string, etag string) (*appliedpolicy.AppliedPolicyLog, error)
+		ShowAppliedPolicyStatus(ctx context.Context, id string) (*appliedpolicy.AppliedPolicyStatus, error)
 
 		ShowIncident(ctx context.Context, id string, view string) (*incident.Incident, error)
 		IndexIncidents(ctx context.Context, id string, view string) (*incident.IncidentList, error)
@@ -43,6 +45,7 @@ type (
 	}
 
 	client struct {
+		host      string
 		projectID uint
 		ts        auth.TokenSource
 		ape       appliedPolicyEndpoints
@@ -52,10 +55,12 @@ type (
 
 	// appliedPolicyEndpoints implements the applied policy pkg client wrapper
 	appliedPolicyEndpoints struct {
-		create goa.Endpoint
-		delete goa.Endpoint
-		show   goa.Endpoint
-		index  goa.Endpoint
+		create     goa.Endpoint
+		delete     goa.Endpoint
+		show       goa.Endpoint
+		index      goa.Endpoint
+		showLog    goa.Endpoint
+		showStatus goa.Endpoint
 	}
 
 	// policyTemplateEndpoints implements the applied policy pkg client wrapper
@@ -84,17 +89,21 @@ func NewClient(host string, projectID uint, ts auth.TokenSource, debug bool) Cli
 	// }
 	// doer = clientwrappers.NewDefaultBackoffDoerV2(doer)
 	apc := apclient.NewClient("https", host, doer, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
+	apcCustom := apclient.NewClient("https", host, doer, goahttp.RequestEncoder, showLogResponseDecoder, false)
 	ic := iclient.NewClient("https", host, doer, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
 	ptc := ptclient.NewClient("https", host, doer, goahttp.RequestEncoder, goahttp.ResponseDecoder, false)
 
 	return &client{
+		host:      host,
 		projectID: projectID,
 		ts:        ts,
 		ape: appliedPolicyEndpoints{
-			create: apc.Create(),
-			delete: apc.Delete(),
-			show:   apc.Show(),
-			index:  apc.Index(),
+			create:     apc.Create(),
+			delete:     apc.Delete(),
+			show:       apc.Show(),
+			index:      apc.Index(),
+			showLog:    apcCustom.ShowLog(),
+			showStatus: apc.ShowStatus(),
 		},
 		pte: policyTemplateEndpoints{
 			compile: ptc.Compile(),

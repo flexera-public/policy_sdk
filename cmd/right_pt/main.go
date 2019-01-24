@@ -32,8 +32,9 @@ var (
 	chkFiles = chkCmd.Arg("file", "Policy Template file name.").Required().ExistingFiles()
 
 	// ----- Run policy template -----
-	runCmd   = app.Command("run", "Run a Policy Template once, streaming back results.")
-	runFiles = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFiles()
+	runCmd     = app.Command("run", "Run a Policy Template once, streaming back results.")
+	runFile    = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
+	runOptions = runCmd.Arg("options", "Parameter values.").Strings()
 
 	// ----- Configuration -----
 	configCmd = app.Command("config", "Manage Configuration")
@@ -126,14 +127,7 @@ func main() {
 			fatalError("%s\n", err.Error())
 		}
 	case runCmd.FullCommand():
-		files, err := walkPaths(*runFiles)
-		if err != nil {
-			fatalError("%s\n", err.Error())
-		}
-		if len(files) != 1 {
-			fatalError("only one file may be supplied to run")
-		}
-		err = policyTemplateRun(ctx, client, files[0])
+		err = policyTemplateRun(ctx, client, *runFile, *runOptions)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}
@@ -179,4 +173,11 @@ func fatalError(format string, v ...interface{}) {
 	fmt.Fprintf(os.Stderr, "%s\n", msg)
 
 	os.Exit(1)
+}
+
+func strsVal(in *[]string) []string {
+	if in == nil {
+		return []string{}
+	}
+	return *in
 }

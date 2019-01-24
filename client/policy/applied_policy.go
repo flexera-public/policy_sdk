@@ -4,9 +4,14 @@ package policy
 
 import (
 	"context"
+	"io"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/pkg/errors"
 	"github.com/rightscale/right_pt/sdk/applied_policy"
+	apclient "github.com/rightscale/right_pt/sdk/http/applied_policy/client"
+	goahttp "goa.design/goa/http"
 )
 
 // CreateAppliedPolicy an applied policy
@@ -104,4 +109,118 @@ func (c *client) IndexAppliedPolicies(ctx context.Context, names []string, view,
 
 	}
 	return apList, nil
+}
+
+// ShowAppliedPolicyLog shows an applied policy
+func (c *client) ShowAppliedPolicyLog(ctx context.Context, id, etag string) (*appliedpolicy.AppliedPolicyLog, error) {
+	token, err := c.getToken()
+	if err != nil {
+		return nil, err
+	}
+	p := &appliedpolicy.ShowLogPayload{
+		Token:      token,
+		ProjectID:  c.projectID,
+		APIVersion: apiVersion,
+		PolicyID:   id,
+	}
+	if etag != "" {
+		p.Etag = &etag
+	}
+	logIF, err := c.ape.showLog(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+	log, ok := logIF.(*appliedpolicy.AppliedPolicyLog)
+	if !ok {
+		return nil, errors.New("error interpreting applied policy log")
+
+	}
+	return log, nil
+}
+
+func showLogResponseDecoder(resp *http.Response) goahttp.Decoder {
+	return &showLogDecoder{resp.Body}
+}
+
+type showLogDecoder struct {
+	body io.Reader
+}
+
+func (d *showLogDecoder) Decode(v interface{}) error {
+	res, ok := v.(*apclient.ShowLogOKResponseBody)
+	if !ok {
+		return errors.Errorf("expected type to be *ShowLogOKResponseBody, got %T", v)
+	}
+	bodyBytes, _ := ioutil.ReadAll(d.body)
+	body := string(bodyBytes)
+	res.ResponseBody = &body
+	return nil
+}
+
+// ShowAppliedPolicyLog shows an applied policy
+// func (c *client) ShowAppliedPolicyLog(ctx context.Context, id, etag string) ([]byte, string, error) {
+// 	token, err := c.getToken()
+// 	if err != nil {
+// 		return nil, "", err
+// 	}
+// 	p := &appliedpolicy.ShowLogPayload{
+// 		Token:      token,
+// 		ProjectID:  c.projectID,
+// 		APIVersion: apiVersion,
+// 		PolicyID:   id,
+// 	}
+// 	if etag != "" {
+// 		p.Etag = &etag
+// 	}
+// 	u := &url.URL{
+// 		Scheme: "https",
+// 		Host:   c.host,
+// 		Path:   apclient.ShowLogAppliedPolicyPath(p.ProjectID, p.PolicyID)}
+// 	req, err := http.NewRequest("GET", u.String(), nil)
+// 	if err != nil {
+// 		return nil, "", goahttp.ErrInvalidURL("AppliedPolicy", "log", u.String(), err)
+// 	}
+// 	if ctx != nil {
+// 		req = req.WithContext(ctx)
+// 	}
+
+// 	var encodeRequest = apclient.EncodeShowLogRequest(goahttp.RequestEncoder)
+// 	if err = encodeRequest(req, p); err != nil {
+// 		return nil, "", err
+// 	}
+
+// 	resp, err := c.showLogDoer.Do(req)
+// 	if err != nil {
+// 		return nil, "", goahttp.ErrRequestError("AppliedPolicy", "log", err)
+// 	}
+// 	body, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return nil, "", err
+// 	}
+// 	etag = resp.Header.Get("ETag")
+// 	return body, etag, nil
+// }
+
+// ShowAppliedPolicyStatus shows an applied policy
+func (c *client) ShowAppliedPolicyStatus(ctx context.Context, id string) (*appliedpolicy.AppliedPolicyStatus, error) {
+	token, err := c.getToken()
+	if err != nil {
+		return nil, err
+	}
+	p := &appliedpolicy.ShowStatusPayload{
+		Token:      token,
+		ProjectID:  c.projectID,
+		APIVersion: apiVersion,
+		PolicyID:   id,
+	}
+	statusIF, err := c.ape.showStatus(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+	status, ok := statusIF.(*appliedpolicy.AppliedPolicyStatus)
+	if !ok {
+		return nil, errors.New("error interpreting applied policy")
+
+	}
+	return status, nil
 }
