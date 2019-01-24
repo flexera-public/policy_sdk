@@ -31,8 +31,6 @@ NAME=right_pt
 EXE:=$(NAME)$(shell go env GOEXE)
 BUCKET=rightscale-binaries
 ACL=public-read
-# Dependencies handled by go modules
-export GO111MODULE=on
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
 # Dependencies that need to be installed
@@ -131,11 +129,21 @@ version:
 	  >version.go
 	@echo "version.go: `tail -1 version.go`"
 
-depend:
+
+# installs dep binary, if not present
+# TBD: move to go modules post https://github.com/goadesign/goa/issues/1959
+$(GOPATH)/bin/dep:
+	go get -u github.com/golang/dep/cmd/dep
+
+depend: vendor
 	for d in $(INSTALL_DEPEND); do go install $$d; done
 
-update:
-	go get -u
+# install vendored dependencies, as needed
+vendor: $(GOPATH)/bin/dep Gopkg.lock Gopkg.toml
+	'$(GOPATH)/bin/dep' ensure -vendor-only
+	# Keep Windows dep from changing the permissions on Gopkg.lock
+	chmod a-x Gopkg.lock
+	touch vendor
 
 clean:
 	rm -rf build $(EXE)
@@ -153,6 +161,11 @@ lint:
 test: lint
 	go test -cover -race
 
+sdk:
+	rm -rf sdk
+	cp -af $(GOPATH)/src/github.com/rightscale/governance/front_service/gen sdk
+	find sdk -type f -name '*.go' -exec sed -i -e 's#github.com/rightscale/governance/front_service/gen#github.com/rightscale/right_pt/sdk#' {} \;
+
 # ===== SPECIAL TARGETS FOR right_pt =====
 
-.PHONY: right_pt test
+.PHONY: right_pt test sdk
