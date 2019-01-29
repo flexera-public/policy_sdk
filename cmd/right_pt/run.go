@@ -4,8 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
+	"github.com/pkg/errors"
 	"strconv"
 	"strings"
 	"time"
@@ -103,8 +102,8 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	if lastStatus.EvaluationError == nil {
 		fmt.Printf("\nPolicy evaluation successful\n")
 	} else {
-		fmt.Printf("\nPolicy evaluation failed\n", lastStatus.EvaluationError)
-		return errors.New(lastStatus.EvaluationError)
+		fmt.Printf("\nPolicy evaluation failed\n")
+		return errors.New(*lastStatus.EvaluationError)
 	}
 
 	return nil
@@ -154,30 +153,6 @@ func coerceOption(name, val, typ string) (interface{}, error) {
 		return n, nil
 	}
 	return nil, fmt.Errorf("unknown option type %q", typ)
-}
-
-func doUpload(ctx context.Context, cli policy.Client, file string) (*policytemplate.PolicyTemplate, error) {
-	rd, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	srcBytes, err := ioutil.ReadAll(rd)
-	if err != nil {
-		return nil, err
-	}
-
-	pt, err := cli.UploadPolicyTemplate(ctx, file, string(srcBytes))
-	verb := "Created"
-	if err != nil && errorName(err) == "conflict" {
-		errTyped := err.(*policytemplate.ConflictError)
-		pt, err = cli.UpdatePolicyTemplate(ctx, idFromHref(errTyped.Location), file, string(srcBytes))
-		verb = "Updated"
-		if err != nil {
-			return nil, err
-		}
-	}
-	fmt.Printf("%s PolicyTemplate %q (%s) from %s\n", verb, pt.Name, pt.Href, file)
-	return pt, nil
 }
 
 func dump(v interface{}) string {

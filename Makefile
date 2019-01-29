@@ -159,7 +159,7 @@ lint:
 	go tool vet -composites=false *.go
 
 test: lint
-	go test -cover -race
+	go test -cover -race ./...
 
 sdk:
 	rm -rf sdk
