@@ -37,6 +37,7 @@ type (
 		UploadPolicyTemplate(ctx context.Context, filename string, source string) (*policytemplate.PolicyTemplate, error)
 		UpdatePolicyTemplate(ctx context.Context, id, filename string, source string) (*policytemplate.PolicyTemplate, error)
 		ShowPolicyTemplate(ctx context.Context, id string, view string) (*policytemplate.PolicyTemplate, error)
+		RetrieveData(ctx context.Context, templateID string, names []string, options []*policytemplate.ConfigurationOptionCreateType) ([]*policytemplate.Data, error)
 		DeletePolicyTemplate(ctx context.Context, id string) error
 
 		// CreatePublishedTemplate(ctx context.Context, orgID uint, templateHref string) (*publishedtemplate.CreateResult, error)
@@ -65,11 +66,12 @@ type (
 
 	// policyTemplateEndpoints implements the applied policy pkg client wrapper
 	policyTemplateEndpoints struct {
-		compile goa.Endpoint
-		upload  goa.Endpoint
-		update  goa.Endpoint
-		show    goa.Endpoint
-		delete  goa.Endpoint
+		compile      goa.Endpoint
+		upload       goa.Endpoint
+		update       goa.Endpoint
+		show         goa.Endpoint
+		delete       goa.Endpoint
+		retrieveData goa.Endpoint
 	}
 
 	// incidentEndpoints implements the applied policy pkg client wrapper
@@ -106,11 +108,12 @@ func NewClient(host string, projectID uint, ts auth.TokenSource, debug bool) Cli
 			showStatus: apc.ShowStatus(),
 		},
 		pte: policyTemplateEndpoints{
-			compile: ptc.Compile(),
-			upload:  ptc.Upload(),
-			update:  ptc.Update(),
-			delete:  ptc.Delete(),
-			show:    ptc.Show(),
+			compile:      ptc.Compile(),
+			upload:       ptc.Upload(),
+			update:       ptc.Update(),
+			delete:       ptc.Delete(),
+			show:         ptc.Show(),
+			retrieveData: ptc.RetrieveData(),
 		},
 		ie: incidentEndpoints{
 			show:        ic.Show(),

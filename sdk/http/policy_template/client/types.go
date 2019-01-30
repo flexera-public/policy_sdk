@@ -40,6 +40,16 @@ type UpdateRequestBody struct {
 	Source string `form:"source" json:"source" xml:"source"`
 }
 
+// RetrieveDataRequestBody is the type of the "PolicyTemplate" service
+// "retrieve_data" endpoint HTTP request body.
+type RetrieveDataRequestBody struct {
+	// options lists the configuration options used to parameterize the policy.
+	Options []*ConfigurationOptionCreateTypeRequestBody `form:"options,omitempty" json:"options,omitempty" xml:"options,omitempty"`
+	// names is a filter to only retrieve datasources or resources that match the
+	// given names
+	Names []string `form:"names,omitempty" json:"names,omitempty" xml:"names,omitempty"`
+}
+
 // UploadResponseBody is the type of the "PolicyTemplate" service "upload"
 // endpoint HTTP response body.
 type UploadResponseBody struct {
@@ -151,6 +161,10 @@ type UpdateResponseBody struct {
 	// kind is "gov#policy_template".
 	Kind *string `form:"kind,omitempty" json:"kind,omitempty" xml:"kind,omitempty"`
 }
+
+// RetrieveDataResponseBody is the type of the "PolicyTemplate" service
+// "retrieve_data" endpoint HTTP response body.
+type RetrieveDataResponseBody []*DataResponse
 
 // ShowResponseBody is the type of the "PolicyTemplate" service "show" endpoint
 // HTTP response body.
@@ -559,6 +573,120 @@ type UpdateInvalidTemplateResponseBody struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
+// RetrieveDataUnprocessableEntityResponseBody is the type of the
+// "PolicyTemplate" service "retrieve_data" endpoint HTTP response body for the
+// "unprocessable_entity" error.
+type RetrieveDataUnprocessableEntityResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RetrieveDataUnauthorizedResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "unauthorized"
+// error.
+type RetrieveDataUnauthorizedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RetrieveDataForbiddenResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "forbidden"
+// error.
+type RetrieveDataForbiddenResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RetrieveDataBadRequestResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "bad_request"
+// error.
+type RetrieveDataBadRequestResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RetrieveDataBadGatewayResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "bad_gateway"
+// error.
+type RetrieveDataBadGatewayResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RetrieveDataInternalErrorResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "internal_error"
+// error.
+type RetrieveDataInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // ShowNotFoundResponseBody is the type of the "PolicyTemplate" service "show"
 // endpoint HTTP response body for the "not_found" error.
 type ShowNotFoundResponseBody struct {
@@ -943,6 +1071,25 @@ type RegexpResponseBody struct {
 	Options *string `json:"options"`
 }
 
+// ConfigurationOptionCreateTypeRequestBody is used to define fields on request
+// body types.
+type ConfigurationOptionCreateTypeRequestBody struct {
+	// name of option
+	Name string `form:"name" json:"name" xml:"name"`
+	// value of option
+	Value interface{} `form:"value" json:"value" xml:"value"`
+}
+
+// DataResponse is used to define fields on response body types.
+type DataResponse struct {
+	// name is the unique name of the datasource.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// type is is either Resource or Datasource
+	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	// is the extracted data
+	Data *interface{} `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
+}
+
 // PolicyTemplateCollectionResponseBody is used to define fields on response
 // body types.
 type PolicyTemplateCollectionResponseBody []*PolicyTemplateResponseBody
@@ -1028,6 +1175,28 @@ func NewUpdateRequestBody(p *policytemplate.UpdatePayload) *UpdateRequestBody {
 	body := &UpdateRequestBody{
 		Filename: p.Filename,
 		Source:   p.Source,
+	}
+	return body
+}
+
+// NewRetrieveDataRequestBody builds the HTTP request body from the payload of
+// the "retrieve_data" endpoint of the "PolicyTemplate" service.
+func NewRetrieveDataRequestBody(p *policytemplate.RetrieveDataPayload) *RetrieveDataRequestBody {
+	body := &RetrieveDataRequestBody{}
+	if p.Options != nil {
+		body.Options = make([]*ConfigurationOptionCreateTypeRequestBody, len(p.Options))
+		for i, val := range p.Options {
+			body.Options[i] = &ConfigurationOptionCreateTypeRequestBody{
+				Name:  val.Name,
+				Value: val.Value,
+			}
+		}
+	}
+	if p.Names != nil {
+		body.Names = make([]string, len(p.Names))
+		for i, val := range p.Names {
+			body.Names[i] = val
+		}
 	}
 	return body
 }
@@ -1517,6 +1686,104 @@ func NewUpdateInvalidTemplate(body *UpdateInvalidTemplateResponseBody) *policyte
 			Summary:    *val.Summary,
 			Resolution: *val.Resolution,
 		}
+	}
+	return v
+}
+
+// NewRetrieveDataDataOK builds a "PolicyTemplate" service "retrieve_data"
+// endpoint result from a HTTP "OK" response.
+func NewRetrieveDataDataOK(body []*DataResponse) []*policytemplate.Data {
+	v := make([]*policytemplate.Data, len(body))
+	for i, val := range body {
+		v[i] = &policytemplate.Data{
+			Name: *val.Name,
+			Type: *val.Type,
+			Data: *val.Data,
+		}
+	}
+	return v
+}
+
+// NewRetrieveDataUnprocessableEntity builds a PolicyTemplate service
+// retrieve_data endpoint unprocessable_entity error.
+func NewRetrieveDataUnprocessableEntity(body *RetrieveDataUnprocessableEntityResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+	return v
+}
+
+// NewRetrieveDataUnauthorized builds a PolicyTemplate service retrieve_data
+// endpoint unauthorized error.
+func NewRetrieveDataUnauthorized(body *RetrieveDataUnauthorizedResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+	return v
+}
+
+// NewRetrieveDataForbidden builds a PolicyTemplate service retrieve_data
+// endpoint forbidden error.
+func NewRetrieveDataForbidden(body *RetrieveDataForbiddenResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+	return v
+}
+
+// NewRetrieveDataBadRequest builds a PolicyTemplate service retrieve_data
+// endpoint bad_request error.
+func NewRetrieveDataBadRequest(body *RetrieveDataBadRequestResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+	return v
+}
+
+// NewRetrieveDataBadGateway builds a PolicyTemplate service retrieve_data
+// endpoint bad_gateway error.
+func NewRetrieveDataBadGateway(body *RetrieveDataBadGatewayResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+	return v
+}
+
+// NewRetrieveDataInternalError builds a PolicyTemplate service retrieve_data
+// endpoint internal_error error.
+func NewRetrieveDataInternalError(body *RetrieveDataInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
 	}
 	return v
 }
@@ -2418,6 +2685,147 @@ func (body *UpdateInvalidTemplateResponseBody) Validate() (err error) {
 	return
 }
 
+// Validate runs the validations defined on
+// RetrieveDataUnprocessableEntityResponseBody.
+func (body *RetrieveDataUnprocessableEntityResponseBody) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// Validate runs the validations defined on
+// RetrieveDataUnauthorizedResponseBody.
+func (body *RetrieveDataUnauthorizedResponseBody) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// Validate runs the validations defined on RetrieveDataForbiddenResponseBody.
+func (body *RetrieveDataForbiddenResponseBody) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// Validate runs the validations defined on RetrieveDataBadRequestResponseBody.
+func (body *RetrieveDataBadRequestResponseBody) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// Validate runs the validations defined on RetrieveDataBadGatewayResponseBody.
+func (body *RetrieveDataBadGatewayResponseBody) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// Validate runs the validations defined on
+// RetrieveDataInternalErrorResponseBody.
+func (body *RetrieveDataInternalErrorResponseBody) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // Validate runs the validations defined on ShowNotFoundResponseBody.
 func (body *ShowNotFoundResponseBody) Validate() (err error) {
 	if body.Name == nil {
@@ -2888,6 +3296,34 @@ func (body *ParameterResponseBody) Validate() (err error) {
 func (body *RegexpResponseBody) Validate() (err error) {
 	if body.Pattern == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("pattern", "body"))
+	}
+	return
+}
+
+// Validate runs the validations defined on
+// ConfigurationOptionCreateTypeRequestBody.
+func (body *ConfigurationOptionCreateTypeRequestBody) Validate() (err error) {
+	if body.Value == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("value", "body"))
+	}
+	return
+}
+
+// Validate runs the validations defined on DataResponse.
+func (body *DataResponse) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
+	}
+	if body.Data == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("data", "body"))
+	}
+	if body.Type != nil {
+		if !(*body.Type == "resource" || *body.Type == "datasource") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"resource", "datasource"}))
+		}
 	}
 	return
 }

@@ -41,6 +41,13 @@ Execution of the policy will then be followed. Execution log will be tailed and 
 	runKeep        = runCmd.Flag("keep", "Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.").Short('k').Bool()
 	runEscalations = runCmd.Flag("run-escalations", "If set, escalations will be run. Normally dry_run is set to avoid running any escalations.").Short('r').Bool()
 
+	// ----- RetrieveData policy template -----
+	rdCmd     = app.Command("retrieve_data", "Retrieve data from a Policy Template.")
+	rdFile    = rdCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
+	rdOptions = rdCmd.Arg("options", "Parameter values.").Strings()
+	rdNames   = rdCmd.Flag("names", "Names of resources/datasources to retrieve.").Short('n').Strings()
+	rdOD      = rdCmd.Flag("outputDir", "Directory to store retrieved datasources.").Short('o').String()
+
 	// ----- Configuration -----
 	configCmd = app.Command("config", "Manage Configuration")
 
@@ -109,6 +116,11 @@ func main() {
 		}
 	case runCmd.FullCommand():
 		err = policyTemplateRun(ctx, client, *runFile, *runOptions, *runKeep, !*runEscalations, *runNoLog)
+		if err != nil {
+			fatalError("%s\n", err.Error())
+		}
+	case rdCmd.FullCommand():
+		err = policyTemplateRetrieveData(ctx, client, *rdFile, *rdOptions, *rdNames, *rdOD)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}

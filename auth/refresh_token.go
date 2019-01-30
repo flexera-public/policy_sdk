@@ -96,6 +96,6 @@ func (ts *refreshTokenSource) tokenValid() bool {
 }
 
 func validHost(host string) bool {
-	hostRe := regexp.MustCompile(`(us|telstra)-(\d+)\.(test.)?rightscale\.com`)
+	hostRe := regexp.MustCompile(`(us|telstra|moo)-(\d+)\.(test.)?rightscale\.com`)
 	return hostRe.MatchString(host)
 }

@@ -26,6 +26,11 @@ func UpdatePolicyTemplatePath(projectID uint, templateID string) string {
 	return fmt.Sprintf("/api/governance/projects/%v/policy_templates/%v", projectID, templateID)
 }
 
+// RetrieveDataPolicyTemplatePath returns the URL path to the PolicyTemplate service retrieve_data HTTP endpoint.
+func RetrieveDataPolicyTemplatePath(projectID uint, templateID string) string {
+	return fmt.Sprintf("/api/governance/projects/%v/policy_templates/%v/retrieve_data", projectID, templateID)
+}
+
 // ShowPolicyTemplatePath returns the URL path to the PolicyTemplate service show HTTP endpoint.
 func ShowPolicyTemplatePath(projectID uint, templateID string) string {
 	return fmt.Sprintf("/api/governance/projects/%v/policy_templates/%v", projectID, templateID)

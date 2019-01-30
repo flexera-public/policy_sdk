@@ -31,7 +31,7 @@ func UsageCommands() string {
 	return `applied-policy (create|delete|show|show-status|show-log|index|evaluate)
 approval (show|index|approve|deny)
 incident (show|index|resolve|index-escalations|index-resolutions)
-policy-template (compile|upload|update|show|index|delete)
+policy-template (compile|upload|update|retrieve-data|show|index|delete)
 published-template (create|update|hide|unhide|delete|show|index)
 health (check|report)
 `
@@ -239,6 +239,13 @@ func ParseEndpoint(
 		policyTemplateUpdateAPIVersionFlag = policyTemplateUpdateFlags.String("api-version", "REQUIRED", "")
 		policyTemplateUpdateTokenFlag      = policyTemplateUpdateFlags.String("token", "", "")
 
+		policyTemplateRetrieveDataFlags          = flag.NewFlagSet("retrieve-data", flag.ExitOnError)
+		policyTemplateRetrieveDataBodyFlag       = policyTemplateRetrieveDataFlags.String("body", "REQUIRED", "")
+		policyTemplateRetrieveDataProjectIDFlag  = policyTemplateRetrieveDataFlags.String("projectid", "REQUIRED", "project_id identifies a project by ID.")
+		policyTemplateRetrieveDataTemplateIDFlag = policyTemplateRetrieveDataFlags.String("templateid", "REQUIRED", "template_id identifies a policy template by ID.")
+		policyTemplateRetrieveDataAPIVersionFlag = policyTemplateRetrieveDataFlags.String("api-version", "REQUIRED", "")
+		policyTemplateRetrieveDataTokenFlag      = policyTemplateRetrieveDataFlags.String("token", "", "")
+
 		policyTemplateShowFlags          = flag.NewFlagSet("show", flag.ExitOnError)
 		policyTemplateShowProjectIDFlag  = policyTemplateShowFlags.String("projectid", "REQUIRED", "project_id identifies a project by ID.")
 		policyTemplateShowTemplateIDFlag = policyTemplateShowFlags.String("templateid", "REQUIRED", "template_id identifies a policy template by ID.")
@@ -339,6 +346,7 @@ func ParseEndpoint(
 	policyTemplateCompileFlags.Usage = policyTemplateCompileUsage
 	policyTemplateUploadFlags.Usage = policyTemplateUploadUsage
 	policyTemplateUpdateFlags.Usage = policyTemplateUpdateUsage
+	policyTemplateRetrieveDataFlags.Usage = policyTemplateRetrieveDataUsage
 	policyTemplateShowFlags.Usage = policyTemplateShowUsage
 	policyTemplateIndexFlags.Usage = policyTemplateIndexUsage
 	policyTemplateDeleteFlags.Usage = policyTemplateDeleteUsage
@@ -468,6 +476,9 @@ func ParseEndpoint(
 
 			case "update":
 				epf = policyTemplateUpdateFlags
+
+			case "retrieve-data":
+				epf = policyTemplateRetrieveDataFlags
 
 			case "show":
 				epf = policyTemplateShowFlags
@@ -607,6 +618,9 @@ func ParseEndpoint(
 			case "update":
 				endpoint = c.Update()
 				data, err = policytemplatec.BuildUpdatePayload(*policyTemplateUpdateBodyFlag, *policyTemplateUpdateProjectIDFlag, *policyTemplateUpdateTemplateIDFlag, *policyTemplateUpdateAPIVersionFlag, *policyTemplateUpdateTokenFlag)
+			case "retrieve-data":
+				endpoint = c.RetrieveData()
+				data, err = policytemplatec.BuildRetrieveDataPayload(*policyTemplateRetrieveDataBodyFlag, *policyTemplateRetrieveDataProjectIDFlag, *policyTemplateRetrieveDataTemplateIDFlag, *policyTemplateRetrieveDataAPIVersionFlag, *policyTemplateRetrieveDataTokenFlag)
 			case "show":
 				endpoint = c.Show()
 				data, err = policytemplatec.BuildShowPayload(*policyTemplateShowProjectIDFlag, *policyTemplateShowTemplateIDFlag, *policyTemplateShowViewFlag, *policyTemplateShowAPIVersionFlag, *policyTemplateShowTokenFlag)
@@ -1007,6 +1021,7 @@ COMMAND:
     compile: Compile compiles a policy template for a project. This is only to be used for checking the syntax of a policy template; the results are not stored.
     upload: Upload uploads a policy template for a project, first compiling it. On failure, an array of syntax errors will be returned.
     update: Update updates a policy template in place for a project, by replacing it. Any existing applied policies using the template will not be updated; they must be deleted and recreated again.
+    retrieve-data: Retrieve Data retrieves the data sources specified in a give policy template.
     show: Show retrieves the details of a policy template.
     index: IndexPolicyTemplates retrieves the list of policy templates in a project.
     delete: Delete deletes a policy template from a project. Deleting a policy template will not delete any applied policies created from the template, they must be stopped explicitly.
@@ -1063,6 +1078,38 @@ Example:
     `+os.Args[0]+` policy-template update --body '{
       "filename": "tag_checker.pt",
       "source": "policy unattached_volumes do\n\t\t\t\t\t# ...\n\t\t\t\t\tend"
+   }' --projectid 60073 --templateid "5b06ead5e0dacc007058c784" --api-version "1.0" --token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+`, os.Args[0])
+}
+
+func policyTemplateRetrieveDataUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] policy-template retrieve-data -body JSON -projectid UINT -templateid STRING -api-version STRING -token STRING
+
+Retrieve Data retrieves the data sources specified in a give policy template.
+    -body JSON: 
+    -projectid UINT: project_id identifies a project by ID.
+    -templateid STRING: template_id identifies a policy template by ID.
+    -api-version STRING: 
+    -token STRING: 
+
+Example:
+    `+os.Args[0]+` policy-template retrieve-data --body '{
+      "names": [
+         "azure_resources"
+      ],
+      "options": [
+         {
+            "name": "cloud_vendor",
+            "value": "AWS"
+         },
+         {
+            "name": "email_list",
+            "value": [
+               "person1@domain.com",
+               "person2@domain.com"
+            ]
+         }
+      ]
    }' --projectid 60073 --templateid "5b06ead5e0dacc007058c784" --api-version "1.0" --token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
 `, os.Args[0])
 }

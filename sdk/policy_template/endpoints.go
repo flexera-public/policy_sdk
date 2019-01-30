@@ -16,12 +16,13 @@ import (
 
 // Endpoints wraps the "PolicyTemplate" service endpoints.
 type Endpoints struct {
-	Compile goa.Endpoint
-	Upload  goa.Endpoint
-	Update  goa.Endpoint
-	Show    goa.Endpoint
-	Index   goa.Endpoint
-	Delete  goa.Endpoint
+	Compile      goa.Endpoint
+	Upload       goa.Endpoint
+	Update       goa.Endpoint
+	RetrieveData goa.Endpoint
+	Show         goa.Endpoint
+	Index        goa.Endpoint
+	Delete       goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "PolicyTemplate" service with
@@ -30,12 +31,13 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		Compile: NewCompileEndpoint(s, a.JWTAuth),
-		Upload:  NewUploadEndpoint(s, a.JWTAuth),
-		Update:  NewUpdateEndpoint(s, a.JWTAuth),
-		Show:    NewShowEndpoint(s, a.JWTAuth),
-		Index:   NewIndexEndpoint(s, a.JWTAuth),
-		Delete:  NewDeleteEndpoint(s, a.JWTAuth),
+		Compile:      NewCompileEndpoint(s, a.JWTAuth),
+		Upload:       NewUploadEndpoint(s, a.JWTAuth),
+		Update:       NewUpdateEndpoint(s, a.JWTAuth),
+		RetrieveData: NewRetrieveDataEndpoint(s, a.JWTAuth),
+		Show:         NewShowEndpoint(s, a.JWTAuth),
+		Index:        NewIndexEndpoint(s, a.JWTAuth),
+		Delete:       NewDeleteEndpoint(s, a.JWTAuth),
 	}
 }
 
@@ -45,6 +47,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Compile = m(e.Compile)
 	e.Upload = m(e.Upload)
 	e.Update = m(e.Update)
+	e.RetrieveData = m(e.RetrieveData)
 	e.Show = m(e.Show)
 	e.Index = m(e.Index)
 	e.Delete = m(e.Delete)
@@ -58,7 +61,7 @@ func NewCompileEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 		var err error
 		sc := security.JWTScheme{
 			Name:           "GlobalSession",
-			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
+			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:policy_template:retrieve_data", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
 			RequiredScopes: []string{"governance:policy_template:compile"},
 		}
 		var token string
@@ -81,7 +84,7 @@ func NewUploadEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "GlobalSession",
-			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
+			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:policy_template:retrieve_data", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
 			RequiredScopes: []string{"governance:policy_template:upload"},
 		}
 		var token string
@@ -109,7 +112,7 @@ func NewUpdateEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "GlobalSession",
-			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
+			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:policy_template:retrieve_data", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
 			RequiredScopes: []string{"governance:policy_template:update"},
 		}
 		var token string
@@ -129,6 +132,29 @@ func NewUpdateEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	}
 }
 
+// NewRetrieveDataEndpoint returns an endpoint function that calls the method
+// "retrieve_data" of service "PolicyTemplate".
+func NewRetrieveDataEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*RetrieveDataPayload)
+		var err error
+		sc := security.JWTScheme{
+			Name:           "GlobalSession",
+			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:policy_template:retrieve_data", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
+			RequiredScopes: []string{"governance:policy_template:retrieve_data"},
+		}
+		var token string
+		if p.Token != nil {
+			token = *p.Token
+		}
+		ctx, err = authJWTFn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		return s.RetrieveData(ctx, p)
+	}
+}
+
 // NewShowEndpoint returns an endpoint function that calls the method "show" of
 // service "PolicyTemplate".
 func NewShowEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
@@ -137,7 +163,7 @@ func NewShowEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "GlobalSession",
-			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
+			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:policy_template:retrieve_data", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
 			RequiredScopes: []string{"governance:policy_template:show"},
 		}
 		var token string
@@ -165,7 +191,7 @@ func NewIndexEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "GlobalSession",
-			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
+			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:policy_template:retrieve_data", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
 			RequiredScopes: []string{"governance:policy_template:index"},
 		}
 		var token string
@@ -193,7 +219,7 @@ func NewDeleteEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		var err error
 		sc := security.JWTScheme{
 			Name:           "GlobalSession",
-			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
+			Scopes:         []string{"governance:policy_template:compile", "governance:policy_template:upload", "governance:policy_template:update", "governance:policy_template:delete", "governance:policy_template:show", "governance:policy_template:index", "governance:policy_template:retrieve_data", "governance:published_template:create", "governance:published_template:update", "governance:published_template:hide", "governance:published_template:unhide", "governance:published_template:delete", "governance:published_template:show", "governance:published_template:index", "governance:applied_policy:create", "governance:applied_policy:delete", "governance:applied_policy:show", "governance:applied_policy:show_log", "governance:applied_policy:index", "governance:applied_policy:evaluate", "governance:incident:resolve", "governance:incident:show", "governance:incident:index", "governance:approval_request:show", "governance:approval_request:index", "governance:approval_request:approve", "governance:approval_request:deny"},
 			RequiredScopes: []string{"governance:policy_template:delete"},
 		}
 		var token string
