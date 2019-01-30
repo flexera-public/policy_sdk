@@ -34,7 +34,7 @@ ACL=public-read
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
 # Dependencies that need to be installed
-INSTALL_DEPEND= github.com/rlmcpherson/s3gof3r/gof3r
+INSTALL_DEPEND=github.com/rlmcpherson/s3gof3r/gof3r
 
 # === below this line ideally remains unchanged, add new targets at the end ===
 
@@ -93,7 +93,7 @@ build/$(NAME)-%.tgz: $(GO_SOURCE) version
 build/$(NAME)-%.zip: $(GO_SOURCE) version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
-	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags $(NAME)_make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
+	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags $(NAME)_make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` ./cmd/$(NAME)
 	chmod +x build/$(NAME)/$(NAME)*
 	cd build; 7z a -r $(notdir $@) $(NAME)
 	rm -r build/$(NAME)
@@ -136,7 +136,7 @@ $(GOPATH)/bin/dep:
 	go get -u github.com/golang/dep/cmd/dep
 
 depend: vendor
-	for d in $(INSTALL_DEPEND); do go install $$d; done
+	for d in $(INSTALL_DEPEND); do go get $$d; done
 
 # install vendored dependencies, as needed
 vendor: $(GOPATH)/bin/dep Gopkg.lock Gopkg.toml
@@ -149,17 +149,14 @@ clean:
 	rm -rf build $(EXE)
 	rm -f version.go
 
-# gofmt uses the awkward *.go */*.go because gofmt -l . descends into the Godeps workspace
-# and then pointlessly complains about bad formatting in imported packages, sigh
-#	check-govers
 lint:
-	@if gofmt -l *.go 2>&1 | grep .go; then \
+	@if gofmt -l $(shell git ls-files | grep .go | grep -v sdk) 2>&1 | grep .go; then \
 	  echo "^- Repo contains improperly formatted go files; run gofmt -w *.go" && exit 1; \
 	  else echo "All .go files formatted correctly"; fi
-	go tool vet -composites=false *.go
+	go vet -composites=false ./...
 
 test: lint
-	go test -cover -race
+	go test -cover -race ./...
 
 sdk:
 	rm -rf sdk

@@ -4,14 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
+	"github.com/pkg/errors"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/rightscale/right_pt/client/policy"
 	"github.com/rightscale/right_pt/sdk/applied_policy"
+	"github.com/rightscale/right_pt/sdk/incident"
 	"github.com/rightscale/right_pt/sdk/policy_template"
 )
 
@@ -21,7 +21,7 @@ import (
 //   3. Print log as we go (if --tail option)
 //   4. Print escalation status as we go (if --tail option)
 //   5. Cleanup (stop applied policy, delete policy template)
-func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string) error {
+func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, keep bool, dryRun bool, noLog bool) error {
 	fmt.Printf("Running %s\n", file)
 	pt, err := doUpload(ctx, cli, file)
 	if err != nil {
@@ -34,6 +34,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		return err
 	}
 
+	// Handle Applied Policy
 	name := pt.Name + " test"
 	apList, err := cli.IndexAppliedPolicies(ctx, []string{name}, "default", "")
 	if err != nil {
@@ -58,7 +59,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	p := &appliedpolicy.CreatePayload{
 		Name:         name,
 		Description:  nil,
-		DryRun:       false,
+		DryRun:       dryRun,
 		TemplateHref: pt.Href,
 		Frequency:    "hourly",
 		Options:      options,
@@ -67,14 +68,20 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	if err != nil {
 		return err
 	}
+	if !keep {
+		defer cleanupRun(ctx, cli, ap)
+	}
+
 	fmt.Printf("Created AppliedPolicy %q (%s)\n", name, ap.Href)
-	fmt.Printf("\nTailing policy logs\n")
+	if !noLog {
+		fmt.Printf("\nTailing policy logs\n")
+	}
 
 	lastLog := ""
 	lastEtag := ""
 	var lastStatus *appliedpolicy.AppliedPolicyStatus
 	for {
-		time.Sleep(5 * time.Second)
+		time.Sleep(3 * time.Second)
 		status, statusErr := cli.ShowAppliedPolicyStatus(ctx, ap.ID)
 		if statusErr != nil {
 			continue
@@ -92,7 +99,9 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		lastSize := len(lastLog)
 		lastEtag = *log.Etag
 		lastLog = *log.ResponseBody
-		fmt.Printf(lastLog[lastSize:])
+		if !noLog {
+			fmt.Printf(lastLog[lastSize:])
+		}
 
 		//fmt.Printf("STATUS: %s\n", dump(status))
 		if status.LastEvaluationFinish != nil {
@@ -103,15 +112,72 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	if lastStatus.EvaluationError == nil {
 		fmt.Printf("\nPolicy evaluation successful\n")
 	} else {
-		fmt.Printf("\nPolicy evaluation failed\n", lastStatus.EvaluationError)
-		return errors.New(lastStatus.EvaluationError)
+		fmt.Printf("\nPolicy evaluation failed\n")
+		return errors.New(*lastStatus.EvaluationError)
+	}
+
+	if checksPassed(lastLog) {
+		what := "were"
+		if dryRun {
+			what = "would have been"
+		}
+		fmt.Printf("All validations passed successfully, no incidents %s created\n", what)
+		return nil
+	}
+
+	// Handle Incidents
+	incList, err := cli.IndexIncidents(ctx, ap.ID, nil, "extended", "")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%d validations failed and created incidents:\n", len(incList.Items))
+
+	for _, inc := range incList.Items {
+		fmt.Printf("Incident %s\n", *inc.Href)
+		fmt.Printf("Severity: %s\n", *inc.Severity)
+		fmt.Printf("Category: %s\n", *inc.Category)
+		fmt.Printf("Items: %d\n", *inc.ViolationDataCount)
+		fmt.Printf("Summary: %s\n", *inc.Summary)
+		fmt.Printf("Detail:\n%s\n\n", *inc.Detail)
+	}
+	if dryRun {
+		return nil
+	}
+
+	finishedCount := 0
+	byIncident := make(map[string]*incident.Escalations)
+	for {
+		for _, inc := range incList.Items {
+			// Escalation states: "queued", "aborted", "pending", "running", "completed", "failed", "denied"
+			escalations, err := cli.IndexEscalations(ctx, inc.ID)
+			if err != nil {
+				continue
+			}
+			if escalations.Status != "running" && escalations.Status != "queued" {
+				finishedCount++
+			}
+			byIncident[*inc.Href] = escalations
+		}
+		if finishedCount == len(incList.Items) {
+			break
+		}
+	}
+
+	for _, inc := range incList.Items {
+		fmt.Printf("Incident %s final escalation status:\n%s\n", *inc.Href, dump(byIncident[*inc.Href]))
 	}
 
 	return nil
 }
 
+func checksPassed(log string) bool {
+	return strings.Contains(log, "Total items failing checks: 0")
+}
+
 func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*appliedpolicy.ConfigurationOptionCreateType, error) {
 	options := []*appliedpolicy.ConfigurationOptionCreateType{}
+	var errors []string
+	var seen = map[string]bool{}
 	for _, o := range runOptions {
 		bits := strings.SplitN(o, "=", 2)
 		name := bits[0]
@@ -121,21 +187,30 @@ func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*ap
 			for _, p := range pt.Parameters {
 				paramNames = append(paramNames, p.Name)
 			}
-
-			return nil, fmt.Errorf("%s does not appear in list of parameters: %s", name, strings.Join(paramNames, ", "))
+			errors = append(errors, fmt.Sprintf("%s does not appear in list of parameters: %s", name, strings.Join(paramNames, ", ")))
 		}
 		var val interface{}
 		var err error
 		if len(bits) > 1 {
 			val, err = coerceOption(name, bits[1], p.Type)
 			if err != nil {
-				return nil, err
+				errors = append(errors, err.Error())
 			}
 		}
 		options = append(options, &appliedpolicy.ConfigurationOptionCreateType{
 			Name:  bits[0],
 			Value: val,
 		})
+		seen[bits[0]] = true
+	}
+	for name, _ := range pt.Parameters {
+		if !seen[name] {
+			errors = append(errors, fmt.Sprintf("%s is required", name))
+		}
+	}
+
+	if len(errors) != 0 {
+		return nil, fmt.Errorf("Parameter errors: \n  %s", strings.Join(errors, "\n  "))
 	}
 	return options, nil
 }
@@ -156,28 +231,10 @@ func coerceOption(name, val, typ string) (interface{}, error) {
 	return nil, fmt.Errorf("unknown option type %q", typ)
 }
 
-func doUpload(ctx context.Context, cli policy.Client, file string) (*policytemplate.PolicyTemplate, error) {
-	rd, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	srcBytes, err := ioutil.ReadAll(rd)
-	if err != nil {
-		return nil, err
-	}
-
-	pt, err := cli.UploadPolicyTemplate(ctx, file, string(srcBytes))
-	verb := "Created"
-	if err != nil && errorName(err) == "conflict" {
-		errTyped := err.(*policytemplate.ConflictError)
-		pt, err = cli.UpdatePolicyTemplate(ctx, idFromHref(errTyped.Location), file, string(srcBytes))
-		verb = "Updated"
-		if err != nil {
-			return nil, err
-		}
-	}
-	fmt.Printf("%s PolicyTemplate %q (%s) from %s\n", verb, pt.Name, pt.Href, file)
-	return pt, nil
+func cleanupRun(ctx context.Context, cli policy.Client, ap *appliedpolicy.AppliedPolicy) {
+	fmt.Println("Cleaning up")
+	fmt.Printf("  Deleting AppliedPolicy %q (%s)\n", ap.Name, ap.Href)
+	cli.DeleteAppliedPolicy(ctx, ap.ID)
 }
 
 func dump(v interface{}) string {

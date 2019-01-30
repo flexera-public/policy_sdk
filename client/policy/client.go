@@ -30,7 +30,7 @@ type (
 		ShowAppliedPolicyStatus(ctx context.Context, id string) (*appliedpolicy.AppliedPolicyStatus, error)
 
 		ShowIncident(ctx context.Context, id string, view string) (*incident.Incident, error)
-		IndexIncidents(ctx context.Context, id string, view string) (*incident.IncidentList, error)
+		IndexIncidents(ctx context.Context, appliedPolicyID string, state []string, view string, etag string) (*incident.IncidentList, error)
 		IndexEscalations(ctx context.Context, id string) (*incident.Escalations, error)
 
 		CompilePolicyTemplate(ctx context.Context, filename string, source string) error

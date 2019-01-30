@@ -1,6 +1,6 @@
 # right_pt
 
-`right_pt` is a command line tool to aid in the development and testing of RightScale Policies. The tool is able to syntax check, upload, and run Policies. 
+`right_pt` is a command line tool to aid in the development and testing of RightScale Policies. The tool is able to syntax check, upload, and run Policies.
 
 [![Travis CI Build Status](https://travis-ci.org/rightscale/right_pt.svg?branch=master)](https://travis-ci.org/rightscale/right_pt?branch=master)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/rightscale/right_pt?branch=master&svg=true)](https://ci.appveyor.com/project/RightScale/right-pt?branch=master)
@@ -37,20 +37,20 @@ Right PT interfaces with the [RightScale Policy API](https://reference.rightscal
 The following Policy related commands are supported:
 
 ```
-right_pt check <path> ...
-  Checks syntax on passed in files. If errors are found, will print out errors and exit with failure status.
+right_pt check <file>...
+  Check syntax for a Policy Template.
 
-right_pt upload <path> ...
-  Upload a PolicyTemplate. If the PolicyTemplate is already uploaded, it will be updated with the new content. 
+right_pt upload <file>...
+  Upload Policy Template.
 
-right_pt run [<flags>] <path> [<options>]
-  Uploads and applys the PolicyTemplate. If the the policy is already running it will be stopped and reapplied. Will print out debug logs as they come in.
-  Flags:
-    -n, --no-tail: Runs the policy but does not print out the logs, with the assumption this will be done in the UI.
-  Options: Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For arrays, values must be a comma separated list
-  Examples:
-    right_pt run mypolicy.pt "regions=us-east-1,us-east-2,us-west-2" "max_count=2" "param with space=value with space"
+right_pt run [<flags>] <file> [<options>...]
+  Uploads and applies the PolicyTemplate.
 
+  Execution of the policy will then be followed. Execution log will be tailed and followed and incident printed out.
+
+  -n, --no-log           Do not print policy execution log.
+  -k, --keep             Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.
+  -r, --run-escalations  If set, escalations will be run. Normally dry_run is set to avoid running any escalations.
 ```
 
 ## Contributors

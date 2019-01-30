@@ -14,34 +14,40 @@ import (
 func policyTemplateUpload(ctx context.Context, cli policy.Client, files []string) error {
 	success := true
 	for _, file := range files {
-		rd, err := os.Open(file)
+		_, err := doUpload(ctx, cli, file)
 		if err != nil {
-			return err
-		}
-		srcBytes, err := ioutil.ReadAll(rd)
-		if err != nil {
-			return err
-		}
-
-		verb := "Created"
-		pt, err := cli.UploadPolicyTemplate(ctx, file, string(srcBytes))
-		if err != nil && errorName(err) == "conflict" {
-			verb = "Updated"
-			errTyped := err.(*policytemplate.ConflictError)
-			pt, err = cli.UpdatePolicyTemplate(ctx, idFromHref(errTyped.Location), file, string(srcBytes))
-		}
-
-		if err == nil {
-			fmt.Printf("%s %q (%s) from %s\n", verb, pt.Name, pt.Href, file)
-		} else {
 			success = false
-			fmt.Printf("Failed to upload %s: %v", file, err)
 		}
 	}
 	if !success {
-		fmt.Errorf("compilation errors occurred")
+		return fmt.Errorf("Upload errors occurred")
 	}
 	return nil
+}
+
+func doUpload(ctx context.Context, cli policy.Client, file string) (*policytemplate.PolicyTemplate, error) {
+	rd, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	srcBytes, err := ioutil.ReadAll(rd)
+	if err != nil {
+		return nil, err
+	}
+
+	pt, err := cli.UploadPolicyTemplate(ctx, file, string(srcBytes))
+	verb := "Created"
+	if err != nil && errorName(err) == "conflict" {
+		errTyped := err.(*policytemplate.ConflictError)
+		pt, err = cli.UpdatePolicyTemplate(ctx, idFromHref(errTyped.Location), file, string(srcBytes))
+		verb = "Updated"
+	}
+	if err != nil {
+		printCompileError(err)
+		return nil, err
+	}
+	fmt.Printf("%s PolicyTemplate %q (%s) from %s\n", verb, pt.Name, pt.Href, file)
+	return pt, nil
 }
 
 func errorName(err error) string {
