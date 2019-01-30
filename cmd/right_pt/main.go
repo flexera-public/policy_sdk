@@ -8,8 +8,6 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kingpin"
-	//"github.com/inconshreveable/log15"
-	//"github.com/mattn/go-colorable"
 
 	"github.com/rightscale/right_pt/auth"
 	"github.com/rightscale/right_pt/client/policy"
@@ -18,23 +16,28 @@ import (
 
 var (
 	// ----- Top Level -----
-	app        = kingpin.New("right_pt", "A command-line application for managing RightScale Policies")
+	app = kingpin.New("right_pt", `A command-line application for testing RightScale Policies.
+
+right_pt contains a number of useful commands to help with development of Policies, including a syntax checker and policy runner.`)
 	debug      = app.Flag("debug", "Debug mode").Short('d').Bool()
 	configFile = app.Flag("config", "Config file path").Short('c').Default(config.DefaultFile(".right_pt.yml")).String()
 	account    = app.Flag("account", "Config file account name to use").Short('a').String()
 
 	// ----- Upload -----
-	upCmd   = app.Command("upload", "Upload Policy Template")
+	upCmd   = app.Command("upload", `Upload Policy Template.`)
 	upFiles = upCmd.Arg("file", "Policy Template file name.").Required().ExistingFiles()
 
 	// ----- Check Syntax -----
-	chkCmd   = app.Command("check", "Check syntax for Policy Template")
+	chkCmd   = app.Command("check", "Check syntax for a Policy Template.")
 	chkFiles = chkCmd.Arg("file", "Policy Template file name.").Required().ExistingFiles()
 
 	// ----- Run policy template -----
-	runCmd         = app.Command("run", "Run a Policy Template once, streaming back results.")
+	runCmd = app.Command("run", `Uploads and applys the PolicyTemplate.
+
+Execution of the policy will then be followed. Execution log will be tailed and followed and incident printed out.`)
 	runFile        = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
 	runOptions     = runCmd.Arg("options", "Parameter values.").Strings()
+	runNoLog       = runCmd.Flag("no-log", "Do not print policy execution log.").Short('n').Bool()
 	runKeep        = runCmd.Flag("keep", "Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.").Short('k').Bool()
 	runEscalations = runCmd.Flag("run-escalations", "If set, escalations will be run. Normally dry_run is set to avoid running any escalations.").Short('r').Bool()
 
@@ -65,8 +68,6 @@ func main() {
 
 	command := kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	//fmt.Println(command)
-
 	err := config.ReadConfig(*configFile, *account)
 	var client policy.Client
 	if !strings.HasPrefix(command, "config") && !strings.HasPrefix(command, "update") {
@@ -85,29 +86,7 @@ func main() {
 			fatalError("Authentication error: %s", err.Error())
 		}
 		client = policy.NewClient(acct.Host, uint(acct.ID), ts, *debug)
-
-		// // Make sure the config file auth token is valid. Check now so we don't have to
-		// // keep rechecking in code.
-		// api, err = config.Config.Account.PolicyClient()
 	}
-
-	// // Handle logging
-	// logLevel := log15.LvlInfo
-
-	// if *debug {
-	// 	log.Logger.SetHandler(
-	// 		log15.LvlFilterHandler(
-	// 			log15.LvlDebug,
-	// 			log15.StderrHandler))
-	// 	httpclient.DumpFormat = httpclient.Debug
-	// 	logLevel = log15.LvlDebug
-	// }
-	// handler := log15.LvlFilterHandler(logLevel, log15.StreamHandler(colorable.NewColorableStdout(), log15.TerminalFormat()))
-	// log15.Root().SetHandler(handler)
-
-	// if config.Config.GetBool("update.check") && !strings.HasPrefix(command, "update") {
-	// 	defer UpdateCheck(VV, os.Stderr)
-	// }
 
 	switch command {
 	case upCmd.FullCommand():
@@ -129,7 +108,7 @@ func main() {
 			fatalError("%s\n", err.Error())
 		}
 	case runCmd.FullCommand():
-		err = policyTemplateRun(ctx, client, *runFile, *runOptions, *runKeep, !*runEscalations)
+		err = policyTemplateRun(ctx, client, *runFile, *runOptions, *runKeep, !*runEscalations, *runNoLog)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}

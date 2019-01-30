@@ -149,8 +149,6 @@ clean:
 	rm -rf build $(EXE)
 	rm -f version.go
 
-# gofmt uses the awkward *.go */*.go because gofmt -l . descends into the Godeps workspace
-# and then pointlessly complains about bad formatting in imported packages, sigh
 lint:
 	@if gofmt -l $(shell git ls-files | grep .go | grep -v sdk) 2>&1 | grep .go; then \
 	  echo "^- Repo contains improperly formatted go files; run gofmt -w *.go" && exit 1; \

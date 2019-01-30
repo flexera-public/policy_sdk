@@ -21,7 +21,7 @@ import (
 //   3. Print log as we go (if --tail option)
 //   4. Print escalation status as we go (if --tail option)
 //   5. Cleanup (stop applied policy, delete policy template)
-func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, keep bool, dryRun bool) error {
+func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, keep bool, dryRun bool, noLog bool) error {
 	fmt.Printf("Running %s\n", file)
 	pt, err := doUpload(ctx, cli, file)
 	if err != nil {
@@ -73,7 +73,9 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	}
 
 	fmt.Printf("Created AppliedPolicy %q (%s)\n", name, ap.Href)
-	fmt.Printf("\nTailing policy logs\n")
+	if !noLog {
+		fmt.Printf("\nTailing policy logs\n")
+	}
 
 	lastLog := ""
 	lastEtag := ""
@@ -97,7 +99,9 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		lastSize := len(lastLog)
 		lastEtag = *log.Etag
 		lastLog = *log.ResponseBody
-		fmt.Printf(lastLog[lastSize:])
+		if !noLog {
+			fmt.Printf(lastLog[lastSize:])
+		}
 
 		//fmt.Printf("STATUS: %s\n", dump(status))
 		if status.LastEvaluationFinish != nil {
