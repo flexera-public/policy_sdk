@@ -164,7 +164,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	}
 
 	for _, inc := range incList.Items {
-		fmt.Printf("Incident %s final escalation status:\n%v\n", *inc.Href, byIncident[*inc.Href])
+		fmt.Printf("Incident %s final escalation status:\n%s\n", *inc.Href, dump(byIncident[*inc.Href]))
 	}
 
 	return nil

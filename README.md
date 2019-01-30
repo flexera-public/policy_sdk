@@ -1,6 +1,6 @@
 # right_pt
 
-`right_pt` is a command line tool to aid in the development and testing of RightScale Policies. The tool is able to syntax check, upload, and run Policies. 
+`right_pt` is a command line tool to aid in the development and testing of RightScale Policies. The tool is able to syntax check, upload, and run Policies.
 
 [![Travis CI Build Status](https://travis-ci.org/rightscale/right_pt.svg?branch=master)](https://travis-ci.org/rightscale/right_pt?branch=master)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/rightscale/right_pt?branch=master&svg=true)](https://ci.appveyor.com/project/RightScale/right-pt?branch=master)
@@ -37,13 +37,13 @@ Right PT interfaces with the [RightScale Policy API](https://reference.rightscal
 The following Policy related commands are supported:
 
 ```
-upload <file>...
-  Upload Policy Template.
-
-check <file>...
+right_pt check <file>...
   Check syntax for a Policy Template.
 
-run [<flags>] <file> [<options>...]
+right_pt upload <file>...
+  Upload Policy Template.
+
+right_pt run [<flags>] <file> [<options>...]
   Uploads and applys the PolicyTemplate.
 
   Execution of the policy will then be followed. Execution log will be tailed and followed and incident printed out.

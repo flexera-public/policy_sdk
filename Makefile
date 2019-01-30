@@ -93,7 +93,7 @@ build/$(NAME)-%.tgz: $(GO_SOURCE) version
 build/$(NAME)-%.zip: $(GO_SOURCE) version
 	rm -rf build/$(NAME)
 	mkdir -p build/$(NAME)
-	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags $(NAME)_make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` .
+	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags $(NAME)_make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` ./cmd/$(NAME)
 	chmod +x build/$(NAME)/$(NAME)*
 	cd build; 7z a -r $(notdir $@) $(NAME)
 	rm -r build/$(NAME)
