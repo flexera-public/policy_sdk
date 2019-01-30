@@ -34,7 +34,7 @@ ACL=public-read
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
 # Dependencies that need to be installed
-INSTALL_DEPEND= github.com/rlmcpherson/s3gof3r/gof3r
+INSTALL_DEPEND=github.com/rlmcpherson/s3gof3r/gof3r
 
 # === below this line ideally remains unchanged, add new targets at the end ===
 
@@ -136,7 +136,7 @@ $(GOPATH)/bin/dep:
 	go get -u github.com/golang/dep/cmd/dep
 
 depend: vendor
-	for d in $(INSTALL_DEPEND); do go install $$d; done
+	for d in $(INSTALL_DEPEND); do go get $$d; done
 
 # install vendored dependencies, as needed
 vendor: $(GOPATH)/bin/dep Gopkg.lock Gopkg.toml

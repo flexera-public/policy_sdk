@@ -37,7 +37,7 @@ func (c *client) ShowIncident(ctx context.Context, id string, view string) (*inc
 }
 
 // IndexIncidents incidents
-func (c *client) IndexIncidents(ctx context.Context, view string, eTag string) (*incident.IncidentList, error) {
+func (c *client) IndexIncidents(ctx context.Context, appliedPolicyID string, state []string, view string, eTag string) (*incident.IncidentList, error) {
 	token, err := c.getToken()
 	if err != nil {
 		return nil, err
@@ -52,6 +52,12 @@ func (c *client) IndexIncidents(ctx context.Context, view string, eTag string) (
 	}
 	if eTag != "" {
 		p.Etag = &eTag
+	}
+	if appliedPolicyID != "" {
+		p.AppliedPolicyID = &appliedPolicyID
+	}
+	if len(state) > 0 {
+		p.State = state
 	}
 	ilIF, err := c.ie.index(ctx, p)
 	if err != nil {

@@ -32,9 +32,11 @@ var (
 	chkFiles = chkCmd.Arg("file", "Policy Template file name.").Required().ExistingFiles()
 
 	// ----- Run policy template -----
-	runCmd     = app.Command("run", "Run a Policy Template once, streaming back results.")
-	runFile    = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
-	runOptions = runCmd.Arg("options", "Parameter values.").Strings()
+	runCmd         = app.Command("run", "Run a Policy Template once, streaming back results.")
+	runFile        = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
+	runOptions     = runCmd.Arg("options", "Parameter values.").Strings()
+	runKeep        = runCmd.Flag("keep", "Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.").Short('k').Bool()
+	runEscalations = runCmd.Flag("run-escalations", "If set, escalations will be run. Normally dry_run is set to avoid running any escalations.").Short('r').Bool()
 
 	// ----- Configuration -----
 	configCmd = app.Command("config", "Manage Configuration")
@@ -127,7 +129,7 @@ func main() {
 			fatalError("%s\n", err.Error())
 		}
 	case runCmd.FullCommand():
-		err = policyTemplateRun(ctx, client, *runFile, *runOptions)
+		err = policyTemplateRun(ctx, client, *runFile, *runOptions, *runKeep, !*runEscalations)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}
