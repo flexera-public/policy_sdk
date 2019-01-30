@@ -44,7 +44,7 @@ right_pt upload <file>...
   Upload Policy Template.
 
 right_pt run [<flags>] <file> [<options>...]
-  Uploads and applys the PolicyTemplate.
+  Uploads and applies the PolicyTemplate.
 
   Execution of the policy will then be followed. Execution log will be tailed and followed and incident printed out.
 

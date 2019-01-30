@@ -32,7 +32,7 @@ right_pt contains a number of useful commands to help with development of Polici
 	chkFiles = chkCmd.Arg("file", "Policy Template file name.").Required().ExistingFiles()
 
 	// ----- Run policy template -----
-	runCmd = app.Command("run", `Uploads and applys the PolicyTemplate.
+	runCmd = app.Command("run", `Uploads and applies the PolicyTemplate.
 
 Execution of the policy will then be followed. Execution log will be tailed and followed and incident printed out.`)
 	runFile        = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
