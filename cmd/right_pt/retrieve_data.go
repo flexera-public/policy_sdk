@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/rightscale/right_pt/client/policy"
+	"github.com/rightscale/right_pt/sdk/applied_policy"
 	"github.com/rightscale/right_pt/sdk/policy_template"
 )
 
@@ -24,10 +24,12 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 		return err
 	}
 
-	options, err := parsePTOptions(pt, runOptions)
+	apO, err := parseOptions(pt, runOptions)
 	if err != nil {
 		return err
 	}
+
+	options := apOptionsToptOptions(apO)
 
 	fmt.Printf("Retrieving Data from PolicyTemplate (%s)\n", pt.Href)
 	rd, err := cli.RetrieveData(ctx, pt.ID, names, options)
@@ -60,32 +62,13 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 	return nil
 }
 
-func parsePTOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*policytemplate.ConfigurationOptionCreateType, error) {
-	options := []*policytemplate.ConfigurationOptionCreateType{}
-	for _, o := range runOptions {
-		bits := strings.SplitN(o, "=", 2)
-		name := bits[0]
-		p, ok := pt.Parameters[name]
-		if !ok {
-			paramNames := []string{}
-			for _, p := range pt.Parameters {
-				paramNames = append(paramNames, p.Name)
-			}
-
-			return nil, fmt.Errorf("%s does not appear in list of parameters: %s", name, strings.Join(paramNames, ", "))
+func apOptionsToptOptions(apO []*appliedpolicy.ConfigurationOptionCreateType) []*policytemplate.ConfigurationOptionCreateType {
+	options := make([]*policytemplate.ConfigurationOptionCreateType, len(apO))
+	for i, o := range apO {
+		options[i] = &policytemplate.ConfigurationOptionCreateType{
+			Name:  o.Name,
+			Value: o.Value,
 		}
-		var val interface{}
-		var err error
-		if len(bits) > 1 {
-			val, err = coerceOption(name, bits[1], p.Type)
-			if err != nil {
-				return nil, err
-			}
-		}
-		options = append(options, &policytemplate.ConfigurationOptionCreateType{
-			Name:  bits[0],
-			Value: val,
-		})
 	}
-	return options, nil
+	return options
 }
