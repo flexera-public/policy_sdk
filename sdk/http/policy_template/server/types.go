@@ -40,6 +40,16 @@ type UpdateRequestBody struct {
 	Source *string `form:"source,omitempty" json:"source,omitempty" xml:"source,omitempty"`
 }
 
+// RetrieveDataRequestBody is the type of the "PolicyTemplate" service
+// "retrieve_data" endpoint HTTP request body.
+type RetrieveDataRequestBody struct {
+	// options lists the configuration options used to parameterize the policy.
+	Options []*ConfigurationOptionCreateTypeRequestBody `form:"options,omitempty" json:"options,omitempty" xml:"options,omitempty"`
+	// names is a filter to only retrieve datasources or resources that match the
+	// given names
+	Names []string `form:"names,omitempty" json:"names,omitempty" xml:"names,omitempty"`
+}
+
 // UploadResponseBody is the type of the "PolicyTemplate" service "upload"
 // endpoint HTTP response body.
 type UploadResponseBody struct {
@@ -311,6 +321,10 @@ type UpdateResponseBodyLink struct {
 	// kind is "gov#policy_template".
 	Kind string `form:"kind" json:"kind" xml:"kind"`
 }
+
+// RetrieveDataResponseBody is the type of the "PolicyTemplate" service
+// "retrieve_data" endpoint HTTP response body.
+type RetrieveDataResponseBody []*DataResponse
 
 // ShowResponseBody is the type of the "PolicyTemplate" service "show" endpoint
 // HTTP response body.
@@ -813,6 +827,120 @@ type UpdateInvalidTemplateResponseBody struct {
 	Name string `form:"name" json:"name" xml:"name"`
 }
 
+// RetrieveDataUnprocessableEntityResponseBody is the type of the
+// "PolicyTemplate" service "retrieve_data" endpoint HTTP response body for the
+// "unprocessable_entity" error.
+type RetrieveDataUnprocessableEntityResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RetrieveDataUnauthorizedResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "unauthorized"
+// error.
+type RetrieveDataUnauthorizedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RetrieveDataForbiddenResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "forbidden"
+// error.
+type RetrieveDataForbiddenResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RetrieveDataBadRequestResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "bad_request"
+// error.
+type RetrieveDataBadRequestResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RetrieveDataBadGatewayResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "bad_gateway"
+// error.
+type RetrieveDataBadGatewayResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RetrieveDataInternalErrorResponseBody is the type of the "PolicyTemplate"
+// service "retrieve_data" endpoint HTTP response body for the "internal_error"
+// error.
+type RetrieveDataInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // ShowNotFoundResponseBody is the type of the "PolicyTemplate" service "show"
 // endpoint HTTP response body for the "not_found" error.
 type ShowNotFoundResponseBody struct {
@@ -1197,6 +1325,16 @@ type RegexpResponseBody struct {
 	Options *string `json:"options"`
 }
 
+// DataResponse is used to define fields on response body types.
+type DataResponse struct {
+	// name is the unique name of the datasource.
+	Name string `form:"name" json:"name" xml:"name"`
+	// type is is either Resource or Datasource
+	Type string `form:"type" json:"type" xml:"type"`
+	// is the extracted data
+	Data interface{} `form:"data" json:"data" xml:"data"`
+}
+
 // PolicyTemplateResponseBodyCollection is used to define fields on response
 // body types.
 type PolicyTemplateResponseBodyCollection []*PolicyTemplateResponseBody
@@ -1297,6 +1435,15 @@ type PolicyTemplateResponseBodyExtended struct {
 	Severity *string `form:"severity,omitempty" json:"severity,omitempty" xml:"severity,omitempty"`
 	// kind is "gov#policy_template".
 	Kind string `form:"kind" json:"kind" xml:"kind"`
+}
+
+// ConfigurationOptionCreateTypeRequestBody is used to define fields on request
+// body types.
+type ConfigurationOptionCreateTypeRequestBody struct {
+	// name of option
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// value of option
+	Value *interface{} `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
 }
 
 // NewUploadResponseBody builds the HTTP response body from the result of the
@@ -1647,6 +1794,20 @@ func NewUpdateResponseBodyLink(res *policytemplateviews.PolicyTemplateView) *Upd
 	}
 	if res.UpdatedBy != nil {
 		body.UpdatedBy = marshalUserViewToUserResponseBody(res.UpdatedBy)
+	}
+	return body
+}
+
+// NewDataResponse builds the HTTP response body from the result of the
+// "retrieve_data" endpoint of the "PolicyTemplate" service.
+func NewDataResponse(res []*policytemplate.Data) []*DataResponse {
+	body := make([]*DataResponse, len(res))
+	for i, val := range res {
+		body[i] = &DataResponse{
+			Name: val.Name,
+			Type: val.Type,
+			Data: val.Data,
+		}
 	}
 	return body
 }
@@ -2289,6 +2450,91 @@ func NewUpdateInvalidTemplateResponseBody(res *policytemplate.CompilationErrors)
 	return body
 }
 
+// NewRetrieveDataUnprocessableEntityResponseBody builds the HTTP response body
+// from the result of the "retrieve_data" endpoint of the "PolicyTemplate"
+// service.
+func NewRetrieveDataUnprocessableEntityResponseBody(res *goa.ServiceError) *RetrieveDataUnprocessableEntityResponseBody {
+	body := &RetrieveDataUnprocessableEntityResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRetrieveDataUnauthorizedResponseBody builds the HTTP response body from
+// the result of the "retrieve_data" endpoint of the "PolicyTemplate" service.
+func NewRetrieveDataUnauthorizedResponseBody(res *goa.ServiceError) *RetrieveDataUnauthorizedResponseBody {
+	body := &RetrieveDataUnauthorizedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRetrieveDataForbiddenResponseBody builds the HTTP response body from the
+// result of the "retrieve_data" endpoint of the "PolicyTemplate" service.
+func NewRetrieveDataForbiddenResponseBody(res *goa.ServiceError) *RetrieveDataForbiddenResponseBody {
+	body := &RetrieveDataForbiddenResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRetrieveDataBadRequestResponseBody builds the HTTP response body from the
+// result of the "retrieve_data" endpoint of the "PolicyTemplate" service.
+func NewRetrieveDataBadRequestResponseBody(res *goa.ServiceError) *RetrieveDataBadRequestResponseBody {
+	body := &RetrieveDataBadRequestResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRetrieveDataBadGatewayResponseBody builds the HTTP response body from the
+// result of the "retrieve_data" endpoint of the "PolicyTemplate" service.
+func NewRetrieveDataBadGatewayResponseBody(res *goa.ServiceError) *RetrieveDataBadGatewayResponseBody {
+	body := &RetrieveDataBadGatewayResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRetrieveDataInternalErrorResponseBody builds the HTTP response body from
+// the result of the "retrieve_data" endpoint of the "PolicyTemplate" service.
+func NewRetrieveDataInternalErrorResponseBody(res *goa.ServiceError) *RetrieveDataInternalErrorResponseBody {
+	body := &RetrieveDataInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewShowNotFoundResponseBody builds the HTTP response body from the result of
 // the "show" endpoint of the "PolicyTemplate" service.
 func NewShowNotFoundResponseBody(res *goa.ServiceError) *ShowNotFoundResponseBody {
@@ -2564,6 +2810,32 @@ func NewUpdatePayload(body *UpdateRequestBody, projectID uint, templateID string
 	return v
 }
 
+// NewRetrieveDataPayload builds a PolicyTemplate service retrieve_data
+// endpoint payload.
+func NewRetrieveDataPayload(body *RetrieveDataRequestBody, projectID uint, templateID string, apiVersion string, token *string) *policytemplate.RetrieveDataPayload {
+	v := &policytemplate.RetrieveDataPayload{}
+	if body.Options != nil {
+		v.Options = make([]*policytemplate.ConfigurationOptionCreateType, len(body.Options))
+		for i, val := range body.Options {
+			v.Options[i] = &policytemplate.ConfigurationOptionCreateType{
+				Name:  *val.Name,
+				Value: *val.Value,
+			}
+		}
+	}
+	if body.Names != nil {
+		v.Names = make([]string, len(body.Names))
+		for i, val := range body.Names {
+			v.Names[i] = val
+		}
+	}
+	v.ProjectID = projectID
+	v.TemplateID = templateID
+	v.APIVersion = apiVersion
+	v.Token = token
+	return v
+}
+
 // NewShowPayload builds a PolicyTemplate service show endpoint payload.
 func NewShowPayload(projectID uint, templateID string, view *string, apiVersion string, token *string) *policytemplate.ShowPayload {
 	return &policytemplate.ShowPayload{
@@ -2651,6 +2923,17 @@ func (body *PermissionResponseBody) Validate() (err error) {
 func (body *ParameterResponseBody) Validate() (err error) {
 	if !(body.Type == "string" || body.Type == "list" || body.Type == "number") {
 		err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", body.Type, []interface{}{"string", "list", "number"}))
+	}
+	return
+}
+
+// Validate runs the validations defined on DataResponse.
+func (body *DataResponse) Validate() (err error) {
+	if body.Data == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("data", "body"))
+	}
+	if !(body.Type == "resource" || body.Type == "datasource") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", body.Type, []interface{}{"resource", "datasource"}))
 	}
 	return
 }
@@ -2750,6 +3033,18 @@ func (body *PolicyTemplateResponseBodyExtended) Validate() (err error) {
 	}
 	if !(body.Kind == "gov#policy_template") {
 		err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.kind", body.Kind, []interface{}{"gov#policy_template"}))
+	}
+	return
+}
+
+// Validate runs the validations defined on
+// ConfigurationOptionCreateTypeRequestBody.
+func (body *ConfigurationOptionCreateTypeRequestBody) Validate() (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.Value == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("value", "body"))
 	}
 	return
 }

@@ -121,4 +121,31 @@ func (c *client) ShowPolicyTemplate(ctx context.Context, templateID, view string
 	return pt, nil
 }
 
+// RetrieveData retrieves the  data sources defined in policy  template
+func (c *client) RetrieveData(ctx context.Context, templateID string, names []string, options []*policytemplate.ConfigurationOptionCreateType) ([]*policytemplate.Data, error) {
+	token, err := c.getToken()
+	if err != nil {
+		return nil, err
+	}
+
+	p := &policytemplate.RetrieveDataPayload{
+		Token:      token,
+		ProjectID:  c.projectID,
+		Names:      names,
+		TemplateID: templateID,
+		Options:    options,
+		APIVersion: apiVersion,
+	}
+
+	resp, err := c.pte.retrieveData(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+	data, ok := resp.([]*policytemplate.Data)
+	if !ok {
+		return nil, errors.New("error interpreting template")
+	}
+	return data, nil
+}
+
 func strPtr(s string) *string { return &s }

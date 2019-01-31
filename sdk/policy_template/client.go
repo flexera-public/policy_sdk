@@ -15,23 +15,25 @@ import (
 
 // Client is the "PolicyTemplate" service client.
 type Client struct {
-	CompileEndpoint goa.Endpoint
-	UploadEndpoint  goa.Endpoint
-	UpdateEndpoint  goa.Endpoint
-	ShowEndpoint    goa.Endpoint
-	IndexEndpoint   goa.Endpoint
-	DeleteEndpoint  goa.Endpoint
+	CompileEndpoint      goa.Endpoint
+	UploadEndpoint       goa.Endpoint
+	UpdateEndpoint       goa.Endpoint
+	RetrieveDataEndpoint goa.Endpoint
+	ShowEndpoint         goa.Endpoint
+	IndexEndpoint        goa.Endpoint
+	DeleteEndpoint       goa.Endpoint
 }
 
 // NewClient initializes a "PolicyTemplate" service client given the endpoints.
-func NewClient(compile, upload, update, show, index, delete_ goa.Endpoint) *Client {
+func NewClient(compile, upload, update, retrieveData, show, index, delete_ goa.Endpoint) *Client {
 	return &Client{
-		CompileEndpoint: compile,
-		UploadEndpoint:  upload,
-		UpdateEndpoint:  update,
-		ShowEndpoint:    show,
-		IndexEndpoint:   index,
-		DeleteEndpoint:  delete_,
+		CompileEndpoint:      compile,
+		UploadEndpoint:       upload,
+		UpdateEndpoint:       update,
+		RetrieveDataEndpoint: retrieveData,
+		ShowEndpoint:         show,
+		IndexEndpoint:        index,
+		DeleteEndpoint:       delete_,
 	}
 }
 
@@ -70,6 +72,20 @@ func (c *Client) Update(ctx context.Context, p *UpdatePayload) (res *PolicyTempl
 		return
 	}
 	return ires.(*PolicyTemplate), nil
+}
+
+// RetrieveData calls the "retrieve_data" endpoint of the "PolicyTemplate"
+// service.
+// RetrieveData may return the following errors:
+//	- "unprocessable_entity" (type *goa.ServiceError)
+//	- error: internal error
+func (c *Client) RetrieveData(ctx context.Context, p *RetrieveDataPayload) (res []*Data, err error) {
+	var ires interface{}
+	ires, err = c.RetrieveDataEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.([]*Data), nil
 }
 
 // Show calls the "show" endpoint of the "PolicyTemplate" service.

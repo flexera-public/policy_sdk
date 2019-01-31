@@ -230,5 +230,8 @@ func (a *Account) AuthHost() string {
 	if shardNum == "10" {
 		prefix = "telstra"
 	}
+	if testHost != "" {
+		prefix = "moo"
+	}
 	return fmt.Sprintf("%s-%s.%srightscale.com", prefix, shardNum, testHost)
 }

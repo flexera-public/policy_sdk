@@ -27,6 +27,10 @@ type Client struct {
 	// Update Doer is the HTTP client used to make requests to the update endpoint.
 	UpdateDoer goahttp.Doer
 
+	// RetrieveData Doer is the HTTP client used to make requests to the
+	// retrieve_data endpoint.
+	RetrieveDataDoer goahttp.Doer
+
 	// Show Doer is the HTTP client used to make requests to the show endpoint.
 	ShowDoer goahttp.Doer
 
@@ -63,6 +67,7 @@ func NewClient(
 		CompileDoer:         doer,
 		UploadDoer:          doer,
 		UpdateDoer:          doer,
+		RetrieveDataDoer:    doer,
 		ShowDoer:            doer,
 		IndexDoer:           doer,
 		DeleteDoer:          doer,
@@ -145,6 +150,31 @@ func (c *Client) Update() goa.Endpoint {
 
 		if err != nil {
 			return nil, goahttp.ErrRequestError("PolicyTemplate", "update", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// RetrieveData returns an endpoint that makes HTTP requests to the
+// PolicyTemplate service retrieve_data server.
+func (c *Client) RetrieveData() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeRetrieveDataRequest(c.encoder)
+		decodeResponse = DecodeRetrieveDataResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildRetrieveDataRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.RetrieveDataDoer.Do(req)
+
+		if err != nil {
+			return nil, goahttp.ErrRequestError("PolicyTemplate", "retrieve_data", err)
 		}
 		return decodeResponse(resp)
 	}

@@ -20,14 +20,15 @@ import (
 
 // Server lists the PolicyTemplate service endpoint HTTP handlers.
 type Server struct {
-	Mounts  []*MountPoint
-	Compile http.Handler
-	Upload  http.Handler
-	Update  http.Handler
-	Show    http.Handler
-	Index   http.Handler
-	Delete  http.Handler
-	CORS    http.Handler
+	Mounts       []*MountPoint
+	Compile      http.Handler
+	Upload       http.Handler
+	Update       http.Handler
+	RetrieveData http.Handler
+	Show         http.Handler
+	Index        http.Handler
+	Delete       http.Handler
+	CORS         http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -60,20 +61,23 @@ func New(
 			{"Compile", "POST", "/api/governance/projects/{project_id}/policy_templates/compile"},
 			{"Upload", "POST", "/api/governance/projects/{project_id}/policy_templates"},
 			{"Update", "PUT", "/api/governance/projects/{project_id}/policy_templates/{template_id}"},
+			{"RetrieveData", "POST", "/api/governance/projects/{project_id}/policy_templates/{template_id}/retrieve_data"},
 			{"Show", "GET", "/api/governance/projects/{project_id}/policy_templates/{template_id}"},
 			{"Index", "GET", "/api/governance/projects/{project_id}/policy_templates"},
 			{"Delete", "DELETE", "/api/governance/projects/{project_id}/policy_templates/{template_id}"},
 			{"CORS", "OPTIONS", "/api/governance/projects/{project_id}/policy_templates/compile"},
 			{"CORS", "OPTIONS", "/api/governance/projects/{project_id}/policy_templates"},
 			{"CORS", "OPTIONS", "/api/governance/projects/{project_id}/policy_templates/{template_id}"},
+			{"CORS", "OPTIONS", "/api/governance/projects/{project_id}/policy_templates/{template_id}/retrieve_data"},
 		},
-		Compile: NewCompileHandler(e.Compile, mux, dec, enc, eh),
-		Upload:  NewUploadHandler(e.Upload, mux, dec, enc, eh),
-		Update:  NewUpdateHandler(e.Update, mux, dec, enc, eh),
-		Show:    NewShowHandler(e.Show, mux, dec, enc, eh),
-		Index:   NewIndexHandler(e.Index, mux, dec, enc, eh),
-		Delete:  NewDeleteHandler(e.Delete, mux, dec, enc, eh),
-		CORS:    NewCORSHandler(),
+		Compile:      NewCompileHandler(e.Compile, mux, dec, enc, eh),
+		Upload:       NewUploadHandler(e.Upload, mux, dec, enc, eh),
+		Update:       NewUpdateHandler(e.Update, mux, dec, enc, eh),
+		RetrieveData: NewRetrieveDataHandler(e.RetrieveData, mux, dec, enc, eh),
+		Show:         NewShowHandler(e.Show, mux, dec, enc, eh),
+		Index:        NewIndexHandler(e.Index, mux, dec, enc, eh),
+		Delete:       NewDeleteHandler(e.Delete, mux, dec, enc, eh),
+		CORS:         NewCORSHandler(),
 	}
 }
 
@@ -85,6 +89,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Compile = m(s.Compile)
 	s.Upload = m(s.Upload)
 	s.Update = m(s.Update)
+	s.RetrieveData = m(s.RetrieveData)
 	s.Show = m(s.Show)
 	s.Index = m(s.Index)
 	s.Delete = m(s.Delete)
@@ -96,6 +101,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountCompileHandler(mux, h.Compile)
 	MountUploadHandler(mux, h.Upload)
 	MountUpdateHandler(mux, h.Update)
+	MountRetrieveDataHandler(mux, h.RetrieveData)
 	MountShowHandler(mux, h.Show)
 	MountIndexHandler(mux, h.Index)
 	MountDeleteHandler(mux, h.Delete)
@@ -235,6 +241,58 @@ func NewUpdateHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "update")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "PolicyTemplate")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				eh(ctx, w, err)
+			}
+			return
+		}
+
+		res, err := endpoint(ctx, payload)
+
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				eh(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			eh(ctx, w, err)
+		}
+	})
+}
+
+// MountRetrieveDataHandler configures the mux to serve the "PolicyTemplate"
+// service "retrieve_data" endpoint.
+func MountRetrieveDataHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := handlePolicyTemplateOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/api/governance/projects/{project_id}/policy_templates/{template_id}/retrieve_data", f)
+}
+
+// NewRetrieveDataHandler creates a HTTP handler which loads the HTTP request
+// and calls the "PolicyTemplate" service "retrieve_data" endpoint.
+func NewRetrieveDataHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	dec func(*http.Request) goahttp.Decoder,
+	enc func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	eh func(context.Context, http.ResponseWriter, error),
+) http.Handler {
+	var (
+		decodeRequest  = DecodeRetrieveDataRequest(mux, dec)
+		encodeResponse = EncodeRetrieveDataResponse(enc)
+		encodeError    = EncodeRetrieveDataError(enc)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "retrieve_data")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "PolicyTemplate")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -427,6 +485,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/api/governance/projects/{project_id}/policy_templates/compile", f)
 	mux.Handle("OPTIONS", "/api/governance/projects/{project_id}/policy_templates", f)
 	mux.Handle("OPTIONS", "/api/governance/projects/{project_id}/policy_templates/{template_id}", f)
+	mux.Handle("OPTIONS", "/api/governance/projects/{project_id}/policy_templates/{template_id}/retrieve_data", f)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

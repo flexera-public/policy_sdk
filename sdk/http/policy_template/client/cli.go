@@ -149,6 +149,66 @@ func BuildUpdatePayload(policyTemplateUpdateBody string, policyTemplateUpdatePro
 	return v, nil
 }
 
+// BuildRetrieveDataPayload builds the payload for the PolicyTemplate
+// retrieve_data endpoint from CLI flags.
+func BuildRetrieveDataPayload(policyTemplateRetrieveDataBody string, policyTemplateRetrieveDataProjectID string, policyTemplateRetrieveDataTemplateID string, policyTemplateRetrieveDataAPIVersion string, policyTemplateRetrieveDataToken string) (*policytemplate.RetrieveDataPayload, error) {
+	var err error
+	var body RetrieveDataRequestBody
+	{
+		err = json.Unmarshal([]byte(policyTemplateRetrieveDataBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"names\": [\n         \"azure_resources\"\n      ],\n      \"options\": [\n         {\n            \"name\": \"cloud_vendor\",\n            \"value\": \"AWS\"\n         },\n         {\n            \"name\": \"email_list\",\n            \"value\": [\n               \"person1@domain.com\",\n               \"person2@domain.com\"\n            ]\n         }\n      ]\n   }'")
+		}
+	}
+	var projectID uint
+	{
+		var v uint64
+		v, err = strconv.ParseUint(policyTemplateRetrieveDataProjectID, 10, 64)
+		projectID = uint(v)
+		if err != nil {
+			err = fmt.Errorf("invalid value for projectID, must be UINT")
+		}
+	}
+	var templateID string
+	{
+		templateID = policyTemplateRetrieveDataTemplateID
+	}
+	var apiVersion string
+	{
+		apiVersion = policyTemplateRetrieveDataAPIVersion
+	}
+	var token *string
+	{
+		if policyTemplateRetrieveDataToken != "" {
+			token = &policyTemplateRetrieveDataToken
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	v := &policytemplate.RetrieveDataPayload{}
+	if body.Options != nil {
+		v.Options = make([]*policytemplate.ConfigurationOptionCreateType, len(body.Options))
+		for i, val := range body.Options {
+			v.Options[i] = &policytemplate.ConfigurationOptionCreateType{
+				Name:  val.Name,
+				Value: val.Value,
+			}
+		}
+	}
+	if body.Names != nil {
+		v.Names = make([]string, len(body.Names))
+		for i, val := range body.Names {
+			v.Names[i] = val
+		}
+	}
+	v.ProjectID = projectID
+	v.TemplateID = templateID
+	v.APIVersion = apiVersion
+	v.Token = token
+	return v, nil
+}
+
 // BuildShowPayload builds the payload for the PolicyTemplate show endpoint
 // from CLI flags.
 func BuildShowPayload(policyTemplateShowProjectID string, policyTemplateShowTemplateID string, policyTemplateShowView string, policyTemplateShowAPIVersion string, policyTemplateShowToken string) (*policytemplate.ShowPayload, error) {

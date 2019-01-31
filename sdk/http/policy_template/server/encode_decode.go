@@ -452,6 +452,136 @@ func EncodeUpdateError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
+// EncodeRetrieveDataResponse returns an encoder for responses returned by the
+// PolicyTemplate retrieve_data endpoint.
+func EncodeRetrieveDataResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.([]*policytemplate.Data)
+		enc := encoder(ctx, w)
+		body := NewDataResponse(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeRetrieveDataRequest returns a decoder for requests sent to the
+// PolicyTemplate retrieve_data endpoint.
+func DecodeRetrieveDataRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			body RetrieveDataRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+
+		var (
+			projectID  uint
+			templateID string
+			apiVersion string
+			token      *string
+
+			params = mux.Vars(r)
+		)
+		{
+			projectIDRaw := params["project_id"]
+			v, err2 := strconv.ParseUint(projectIDRaw, 10, strconv.IntSize)
+			if err2 != nil {
+				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("projectID", projectIDRaw, "unsigned integer"))
+			}
+			projectID = uint(v)
+		}
+		templateID = params["template_id"]
+		apiVersion = r.Header.Get("Api-Version")
+		if apiVersion == "" {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Api-Version", "header"))
+		}
+		if !(apiVersion == "1.0") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("apiVersion", apiVersion, []interface{}{"1.0"}))
+		}
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewRetrieveDataPayload(&body, projectID, templateID, apiVersion, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeRetrieveDataError returns an encoder for errors returned by the
+// retrieve_data PolicyTemplate endpoint.
+func EncodeRetrieveDataError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		en, ok := v.(ErrorNamer)
+		if !ok {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "unprocessable_entity":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			body := NewRetrieveDataUnprocessableEntityResponseBody(res)
+			w.Header().Set("goa-error", "unprocessable_entity")
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			return enc.Encode(body)
+		case "unauthorized":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			body := NewRetrieveDataUnauthorizedResponseBody(res)
+			w.Header().Set("goa-error", "unauthorized")
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		case "forbidden":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			body := NewRetrieveDataForbiddenResponseBody(res)
+			w.Header().Set("goa-error", "forbidden")
+			w.WriteHeader(http.StatusForbidden)
+			return enc.Encode(body)
+		case "bad_request":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			body := NewRetrieveDataBadRequestResponseBody(res)
+			w.Header().Set("goa-error", "bad_request")
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "bad_gateway":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			body := NewRetrieveDataBadGatewayResponseBody(res)
+			w.Header().Set("goa-error", "bad_gateway")
+			w.WriteHeader(http.StatusBadGateway)
+			return enc.Encode(body)
+		case "internal_error":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			body := NewRetrieveDataInternalErrorResponseBody(res)
+			w.Header().Set("goa-error", "internal_error")
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeShowResponse returns an encoder for responses returned by the
 // PolicyTemplate show endpoint.
 func EncodeShowResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {

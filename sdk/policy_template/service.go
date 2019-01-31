@@ -37,6 +37,8 @@ type Service interface {
 	//	- "source"
 	//	- "link"
 	Update(context.Context, *UpdatePayload) (res *PolicyTemplate, view string, err error)
+	// Retrieve Data retrieves the data sources specified in a give policy template.
+	RetrieveData(context.Context, *RetrieveDataPayload) (res []*Data, err error)
 	// Show retrieves the details of a policy template.
 	// The "view" return value must have one of the following views
 	//	- "default"
@@ -69,7 +71,7 @@ const ServiceName = "PolicyTemplate"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [6]string{"compile", "upload", "update", "show", "index", "delete"}
+var MethodNames = [7]string{"compile", "upload", "update", "retrieve_data", "show", "index", "delete"}
 
 // CompilePayload is the payload type of the PolicyTemplate service compile
 // method.
@@ -168,6 +170,24 @@ type UpdatePayload struct {
 	Filename string
 	// source is the policy template source code.
 	Source string
+	// JWT token used to perform authorization
+	Token *string
+	// API Version, must be specified using this header
+	APIVersion string
+}
+
+// RetrieveDataPayload is the payload type of the PolicyTemplate service
+// retrieve_data method.
+type RetrieveDataPayload struct {
+	// project_id identifies a project by ID.
+	ProjectID uint
+	// template_id identifies a policy template by ID.
+	TemplateID string
+	// options lists the configuration options used to parameterize the policy.
+	Options []*ConfigurationOptionCreateType
+	// names is a filter to only retrieve datasources or resources that match the
+	// given names
+	Names []string
 	// JWT token used to perform authorization
 	Token *string
 	// API Version, must be specified using this header
@@ -300,6 +320,25 @@ type Regexp struct {
 	Options *string `json:"options"`
 }
 
+// ConfigurationOptionCreateType is the payload for creating a single parameter
+// value used to configure an applied policy.
+type ConfigurationOptionCreateType struct {
+	// name of option
+	Name string
+	// value of option
+	Value interface{}
+}
+
+// Data contains retrieved datasource or resource data.
+type Data struct {
+	// name is the unique name of the datasource.
+	Name string
+	// type is is either Resource or Datasource
+	Type string
+	// is the extracted data
+	Data interface{}
+}
+
 type PolicyTemplateCollection []*PolicyTemplate
 
 // Errors occurred during compilation.
@@ -416,6 +455,15 @@ func MakeInternalError(err error) *goa.ServiceError {
 func MakeNotFound(err error) *goa.ServiceError {
 	return &goa.ServiceError{
 		Name:    "not_found",
+		ID:      goa.NewErrorID(),
+		Message: err.Error(),
+	}
+}
+
+// MakeUnprocessableEntity builds a goa.ServiceError from an error.
+func MakeUnprocessableEntity(err error) *goa.ServiceError {
+	return &goa.ServiceError{
+		Name:    "unprocessable_entity",
 		ID:      goa.NewErrorID(),
 		Message: err.Error(),
 	}

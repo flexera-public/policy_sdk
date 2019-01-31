@@ -38,14 +38,6 @@
   version = "2.2.2"
 
 [[constraint]]
-  name = "github.com/inconshreveable/log15"
-  version = "2.14.0"
-
-[[constraint]]
-  name = "github.com/mattn/go-colorable"
-  version = "0.0.9"
-
-[[constraint]]
   name = "github.com/pkg/errors"
   version = "0.8.1"
 

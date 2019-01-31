@@ -595,6 +595,195 @@ func DecodeUpdateResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 	}
 }
 
+// BuildRetrieveDataRequest instantiates a HTTP request object with method and
+// path set to call the "PolicyTemplate" service "retrieve_data" endpoint
+func (c *Client) BuildRetrieveDataRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		projectID  uint
+		templateID string
+	)
+	{
+		p, ok := v.(*policytemplate.RetrieveDataPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("PolicyTemplate", "retrieve_data", "*policytemplate.RetrieveDataPayload", v)
+		}
+		projectID = p.ProjectID
+		templateID = p.TemplateID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: RetrieveDataPolicyTemplatePath(projectID, templateID)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("PolicyTemplate", "retrieve_data", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeRetrieveDataRequest returns an encoder for requests sent to the
+// PolicyTemplate retrieve_data server.
+func EncodeRetrieveDataRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*policytemplate.RetrieveDataPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("PolicyTemplate", "retrieve_data", "*policytemplate.RetrieveDataPayload", v)
+		}
+		req.Header.Set("Api-Version", p.APIVersion)
+		if p.Token != nil {
+			if !strings.Contains(*p.Token, " ") {
+				req.Header.Set("Authorization", "Bearer "+*p.Token)
+			} else {
+				req.Header.Set("Authorization", *p.Token)
+			}
+		}
+		body := NewRetrieveDataRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("PolicyTemplate", "retrieve_data", err)
+		}
+		return nil
+	}
+}
+
+// DecodeRetrieveDataResponse returns a decoder for responses returned by the
+// PolicyTemplate retrieve_data endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeRetrieveDataResponse may return the following errors:
+//	- "unprocessable_entity" (type *goa.ServiceError): http.StatusUnprocessableEntity
+//	- "unauthorized" (type *goa.ServiceError): http.StatusUnauthorized
+//	- "forbidden" (type *goa.ServiceError): http.StatusForbidden
+//	- "bad_request" (type *goa.ServiceError): http.StatusBadRequest
+//	- "bad_gateway" (type *goa.ServiceError): http.StatusBadGateway
+//	- "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//	- error: internal error
+func DecodeRetrieveDataResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body RetrieveDataResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("PolicyTemplate", "retrieve_data", err)
+			}
+			for _, e := range body {
+				if e != nil {
+					if err2 := e.Validate(); err2 != nil {
+						err = goa.MergeErrors(err, err2)
+					}
+				}
+			}
+			if err != nil {
+				return nil, goahttp.ErrValidationError("PolicyTemplate", "retrieve_data", err)
+			}
+			res := NewRetrieveDataDataOK(body)
+			return res, nil
+		case http.StatusUnprocessableEntity:
+			var (
+				body RetrieveDataUnprocessableEntityResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("PolicyTemplate", "retrieve_data", err)
+			}
+			err = body.Validate()
+			if err != nil {
+				return nil, goahttp.ErrValidationError("PolicyTemplate", "retrieve_data", err)
+			}
+			return nil, NewRetrieveDataUnprocessableEntity(&body)
+		case http.StatusUnauthorized:
+			var (
+				body RetrieveDataUnauthorizedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("PolicyTemplate", "retrieve_data", err)
+			}
+			err = body.Validate()
+			if err != nil {
+				return nil, goahttp.ErrValidationError("PolicyTemplate", "retrieve_data", err)
+			}
+			return nil, NewRetrieveDataUnauthorized(&body)
+		case http.StatusForbidden:
+			var (
+				body RetrieveDataForbiddenResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("PolicyTemplate", "retrieve_data", err)
+			}
+			err = body.Validate()
+			if err != nil {
+				return nil, goahttp.ErrValidationError("PolicyTemplate", "retrieve_data", err)
+			}
+			return nil, NewRetrieveDataForbidden(&body)
+		case http.StatusBadRequest:
+			var (
+				body RetrieveDataBadRequestResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("PolicyTemplate", "retrieve_data", err)
+			}
+			err = body.Validate()
+			if err != nil {
+				return nil, goahttp.ErrValidationError("PolicyTemplate", "retrieve_data", err)
+			}
+			return nil, NewRetrieveDataBadRequest(&body)
+		case http.StatusBadGateway:
+			var (
+				body RetrieveDataBadGatewayResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("PolicyTemplate", "retrieve_data", err)
+			}
+			err = body.Validate()
+			if err != nil {
+				return nil, goahttp.ErrValidationError("PolicyTemplate", "retrieve_data", err)
+			}
+			return nil, NewRetrieveDataBadGateway(&body)
+		case http.StatusInternalServerError:
+			var (
+				body RetrieveDataInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("PolicyTemplate", "retrieve_data", err)
+			}
+			err = body.Validate()
+			if err != nil {
+				return nil, goahttp.ErrValidationError("PolicyTemplate", "retrieve_data", err)
+			}
+			return nil, NewRetrieveDataInternalError(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("PolicyTemplate", "retrieve_data", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildShowRequest instantiates a HTTP request object with method and path set
 // to call the "PolicyTemplate" service "show" endpoint
 func (c *Client) BuildShowRequest(ctx context.Context, v interface{}) (*http.Request, error) {
