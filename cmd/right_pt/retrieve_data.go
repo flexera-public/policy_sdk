@@ -57,6 +57,7 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 		if err != nil {
 			return err
 		}
+		fmt.Printf("Wrote %s\n", filename)
 	}
 
 	return nil

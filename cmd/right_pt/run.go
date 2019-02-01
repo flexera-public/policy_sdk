@@ -178,6 +178,7 @@ func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*ap
 	options := []*appliedpolicy.ConfigurationOptionCreateType{}
 	var errors []string
 	var seen = map[string]bool{}
+
 	for _, o := range runOptions {
 		bits := strings.SplitN(o, "=", 2)
 		name := bits[0]
