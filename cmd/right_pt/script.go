@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	//"github.com/pkg/errors"
-	//"regexp"
 
 	"github.com/robertkrimen/otto"
 	// This import loads the otto runtime with underscore library enabled.
@@ -18,15 +17,16 @@ import (
 )
 
 var (
-	maxExecTime = 600 * time.Second
-	errHalt     = fmt.Errorf("HALT")
+	maxExecTime      = 600 * time.Second
+	errHalt          = fmt.Errorf("HALT")
+	debuglogDataSize = 10 * 1024
 )
 
 type script struct {
 	name   string
 	code   string
 	result string
-	params *param
+	params []string
 }
 
 type param struct {
@@ -34,8 +34,7 @@ type param struct {
 	value interface{}
 }
 
-func runScript(ctx context.Context, file, outfile, result string, options []string) error {
-	fmt.Printf("Running script from %s and writing result to %s\n", file, outfile)
+func runScript(ctx context.Context, file, outfile, result, name string, options []string) error {
 	rd, err := os.Open(file)
 	if err != nil {
 		return err
@@ -58,11 +57,42 @@ func runScript(ctx context.Context, file, outfile, result string, options []stri
 
 	var data interface{}
 	if strings.Contains(src, "rs_pt_ver") {
-		return fmt.Errorf("TBD")
-	} else {
-		// Assume a javascript was passed in
-		data, err = execScript(src, params, result)
+		scripts := getScripts(src)
+		// for i, s := range scripts {
+		// 	fmt.Printf("DBG:%d:%+v\n", i, s)
+		// }
+
+		if len(scripts) == 0 {
+			return fmt.Errorf("no script blocks found")
+		} else if len(scripts) == 1 {
+
+			src = scripts[0].code
+			result = scripts[0].result
+		} else if len(scripts) > 0 {
+			names := []string{}
+			found := false
+			for _, s := range scripts {
+				names = append(names, s.name)
+				if s.name == name {
+					src = s.code
+					result = s.result
+					found = true
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("multiple script blocks found, pass --name %s to specify which one to run",
+					strings.Join(names, " or "))
+			}
+		}
 	}
+	if name != "" {
+		name += " "
+	}
+	fmt.Printf("Running %sscript from %s and writing %s to %s\n", name, file, result, outfile)
+
+	data, err = execScript(src, params, result)
+
 	if err != nil {
 		return err
 	}
@@ -76,20 +106,6 @@ func runScript(ctx context.Context, file, outfile, result string, options []stri
 
 	return nil
 }
-
-// func getScripts(src []byte) ([]*script, error) {
-// 	return []*script{
-// 		{},
-// 	}
-// 	t := newTokenizer(src)
-// 	scripts := []*script{}
-// 	tokens, err := t.between("script", "end")
-// 	if err == io.EOF {
-// 		return scripts, nil
-// 	}
-// 	strRe := `"([^"]*[^\])"|'([^']*[^\])'|<<-?([A-Z]+).*($4)`
-
-// }
 
 func execScript(code string, params []*param, result string) (out interface{}, err error) {
 	defer func() {
@@ -106,7 +122,7 @@ func execScript(code string, params []*param, result string) (out interface{}, e
 	stringifyArgs := func(prefix string, args []otto.Value) string {
 		output := []byte{}
 		basePrefix := prefix
-		suffix := ""
+		suffix := "\n"
 		for _, arg := range args {
 			if !arg.IsPrimitive() {
 				prefix = basePrefix + " >\n"
@@ -116,13 +132,15 @@ func execScript(code string, params []*param, result string) (out interface{}, e
 			b, _ := json.MarshalIndent(v, "  ", "  ")
 			output = append(output, ' ')
 			output = append(output, b...)
-			// if len(output) > debuglogDataSize {
-			// 	break
-			// }
+			if len(output) > debuglogDataSize {
+				break
+			}
 		}
-		// if len(output) > debuglogDataSize {
-		// 	return prefix + string(output[:debuglogDataSize]) + "..." + suffix
-		// }
+		if len(output) > debuglogDataSize {
+			left := len(output) - debuglogDataSize
+			return fmt.Sprintf("%s%s ... %d bytes omitted %s",
+				prefix, string(output[:debuglogDataSize]), left, suffix)
+		}
 		return prefix + string(output) + suffix
 	}
 	logFn := func(kind string) func(call otto.FunctionCall) otto.Value {
@@ -150,13 +168,13 @@ func execScript(code string, params []*param, result string) (out interface{}, e
 
 	_, err = vm.Run(code)
 	timer.Stop()
-	fmt.Printf("JavaScript finished, duration=%s", time.Since(start).String())
+	fmt.Printf("JavaScript finished, duration=%s\n", time.Since(start).String())
 	if err != nil {
 		return nil, err
 	}
 	r, err := vm.Get(result)
 	if err != nil {
-		fmt.Errorf("failed to retrieve value of %q", result)
+		return nil, fmt.Errorf("failed to retrieve value of %q", result)
 	}
 	return export(r)
 }
@@ -267,4 +285,101 @@ func export(v otto.Value) (interface{}, error) {
 		// undefined or null -> nil
 		return nil, nil
 	}
+}
+
+// getScripts extracts the script blocks from a PolicyTemplate. Would be nice to
+// get this from compilation service as well but not sure if there's an easy way
+// to do that.
+func getScripts(src string) []*script {
+	scripts := []*script{}
+	lines := strings.Split(src, "\n")
+	inScript := false
+	inCode := false
+	qw := regexp.MustCompile(`"(.*?[^\\])"|'(.*?[^\\])'`)
+	scriptStartRe := regexp.MustCompile(`^\s*script ['"]([^'"]+)['"],.*do\s*$`)
+	scriptEndRe := regexp.MustCompile(`^\s*end\s*$`)
+	codeStartRe := regexp.MustCompile(`^\s*code ('.*|".*|<<-?[A-Z_]+\s*)$`)
+	var codeEndRe *regexp.Regexp
+
+	scriptLines := []string{}
+	codeLines := []string{}
+	name := ""
+	for _, line := range lines {
+		if inCode {
+			//fmt.Println("DBG HERE_CODE", line)
+			if matches := codeEndRe.FindStringSubmatch(line); len(matches) > 0 {
+				if len(matches) > 1 {
+					codeLines = append(codeLines, matches[1])
+				}
+				//fmt.Println("DBG HERE_CODE END")
+				inCode = false
+			} else {
+				codeLines = append(codeLines, line)
+			}
+		} else if inScript {
+			//fmt.Println("DBG HERE_SCR", line)
+			if scriptEndRe.MatchString(line) {
+				//fmt.Println("DBG HERE_SCR END")
+				inScript = false
+				result := getKey(scriptLines, "result")
+				rawParams := getKey(scriptLines, "parameters")
+				matches := qw.FindAllStringSubmatch(rawParams, -1)
+				params := []string{}
+				for _, m := range matches {
+					params = append(params, m[1])
+				}
+				scripts = append(scripts, &script{
+					name:   name,
+					code:   unquote(strings.Join(codeLines, "\n")),
+					result: unquote(result),
+					params: params,
+				})
+			} else if matches := codeStartRe.FindStringSubmatch(line); len(matches) > 0 {
+				//fmt.Println("DBG HERE_CODE START")
+				inCode = true
+				if strings.HasPrefix(matches[1], "'") {
+					codeEndRe = regexp.MustCompile(`^(.*?[^\\]')`)
+					codeLines = append(codeLines, matches[1])
+				} else if strings.HasPrefix(matches[1], `"`) {
+					codeEndRe = regexp.MustCompile(`^(.*?[^\\]")`)
+					codeLines = append(codeLines, matches[1])
+				} else {
+					end := strings.TrimPrefix(strings.TrimPrefix(matches[1], "<<"), "-")
+					codeEndRe = regexp.MustCompile(`^\s*` + end)
+				}
+			} else {
+				scriptLines = append(scriptLines, line)
+			}
+		} else {
+			if matches := scriptStartRe.FindStringSubmatch(line); len(matches) > 0 {
+				name = matches[1]
+				inScript = true
+				scriptLines = []string{}
+				codeLines = []string{}
+			}
+		}
+	}
+	return scripts
+}
+
+func getKey(lines []string, key string) string {
+	keyRe := regexp.MustCompile(fmt.Sprintf(`\s*%s\s+(.*)\s*$`, key))
+	for _, line := range lines {
+		if matches := keyRe.FindStringSubmatch(line); len(matches) > 0 {
+			return matches[1]
+		}
+	}
+	return ""
+}
+
+func unquote(s string) string {
+	q := regexp.MustCompile(`\\(.)`)
+	if strings.HasPrefix(s, "'") {
+		s = s[1 : len(s)-1]
+		s = q.ReplaceAllString(s, "$1")
+	} else if strings.HasPrefix(s, `"`) {
+		s = s[1 : len(s)-1]
+		s = q.ReplaceAllString(s, "$1")
+	}
+	return s
 }

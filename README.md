@@ -48,9 +48,33 @@ right_pt run [<flags>] <file> [<options>...]
 
   Execution of the policy will then be followed. Execution log will be tailed and followed and incident printed out.
 
+  Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For arrays,
+  values must be a comma separated list.
+
+  Example: right_pt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100
+
   -n, --no-log           Do not print policy execution log.
   -k, --keep             Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.
   -r, --run-escalations  If set, escalations will be run. Normally dry_run is set to avoid running any escalations.
+
+right_pt retrieve_data [<flags>] <file> [<options>...]
+  Retrieve data from a Policy Template.
+
+  Executes a policy once and retrieve generated datasources, saving them to disk.
+
+  Example: right_pt retrieve_data my_policy.pt --names instances
+
+  -n, --names=NAMES ...      Names of resources/datasources to retrieve. By default, all datasources will be retrieved.
+  -o, --outputDir=OUTPUTDIR  Directory to store retrieved datasources.
+
+right_pt script [<flags>] <file> [<parameters>...]
+  Run the body of a script locally.
+
+  Example: right_pt script max_snapshots.pt --result snapshots volumes=@ec2_volumes.json instances=@ec2_instances.json max_count=50
+
+  -o, --out="out.json"  Script output file. Defaults to out.json
+  -r, --result=RESULT   Name of variable holding final result to extract. Required if supplying a raw JavaScript.
+  -n, --name=NAME       Name of script to run, if multiple exist.
 ```
 
 ## Contributors
