@@ -1,0 +1,77 @@
+name "pete_smoke"
+rs_pt_ver 20180301
+short_description "Basic smoke test policy"
+category "testing"
+
+auth "rs", type: "rightscale"
+
+resources "clouds", type: "rs_cm.clouds" do
+  filter do
+    name "EC2 us"
+  end
+end
+
+resources "datacenters", type: "rs_cm.datacenters" do
+  iterate @clouds
+  cloud_href href(iter_item)
+end
+
+datasource "clouds" do
+  iterate @clouds
+  field "href", href(iter_item)
+  field "name", val(iter_item, "name")
+end
+
+datasource "datacenters" do
+  iterate @datacenters
+  field "id", val(iter_item,  "resource_uid")
+  field "name", val(iter_item, "name")
+  field "description", val(iter_item, "description")
+  field "href", href(iter_item)
+end
+
+
+datasource "filtered_dcs" do
+  run_script $do_filter, $datacenters
+end
+
+script "do_filter", type: "javascript" do
+  parameters "datacenters", "testing_one"
+  result "filtered_datacenters"
+  code <<-EOS
+var filtered_datacenters = [];
+var matchers = []
+var end = ["a"]
+
+console.log(datacenters.length)
+filtered_datacenters = ["foo"]
+  EOS
+end
+
+
+script 'otra', type: "javascript" do
+  parameters 'otra'
+  result "RESVAR"
+  code <<-EOF
+console.log(otra)
+RESVAR=otra[0]
+EOF
+end
+
+
+policy "filter_check" do
+  validate $filtered_dcs do
+    summary_template "There are {{ len data }} datacenters matching regexp"
+    detail_template <<-EOS
+script
+
+| Name | ID | Description | Href |
+|------|----|-------------|------|
+{{ range data -}}
+| {{ .name }} | {{ .id }} | {{ .description }} | {{ .href }} |
+{{ end -}}
+end
+    EOS
+    check eq(size(data), 0)
+  end
+end

@@ -138,7 +138,7 @@ func main() {
 			fatalError("%s\n", err.Error())
 		}
 	case rdCmd.FullCommand():
-		err = policyTemplateRetrieveData(ctx, client, *rdFile, *rdNames, *rdOptions, *rdOD)
+		err = policyTemplateRetrieveData(ctx, client, *rdFile, *rdOptions, *rdNames, *rdOD)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}

@@ -326,7 +326,11 @@ func getScripts(src string) []*script {
 				matches := qw.FindAllStringSubmatch(rawParams, -1)
 				params := []string{}
 				for _, m := range matches {
-					params = append(params, m[1])
+					if m[1] != "" {
+						params = append(params, m[1])
+					} else {
+						params = append(params, m[2])
+					}
 				}
 				scripts = append(scripts, &script{
 					name:   name,

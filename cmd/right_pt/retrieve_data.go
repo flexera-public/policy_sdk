@@ -12,7 +12,7 @@ import (
 	"github.com/rightscale/right_pt/sdk/policy_template"
 )
 
-func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, names, runOptions []string, outputD string) error {
+func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, names []string, outputD string) error {
 	pt, err := doUpload(ctx, cli, file)
 	if err != nil {
 		return err
