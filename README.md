@@ -65,7 +65,7 @@ right_pt retrieve_data [<flags>] <file> [<options>...]
   Example: right_pt retrieve_data my_policy.pt --names instances
 
   -n, --names=NAMES ...      Names of resources/datasources to retrieve. By default, all datasources will be retrieved.
-  -o, --outputDir=OUTPUTDIR  Directory to store retrieved datasources.
+  -o, --output-dir=OUTPUTDIR  Directory to store retrieved datasources.
 
 right_pt script [<flags>] <file> [<parameters>...]
   Run the body of a script locally.

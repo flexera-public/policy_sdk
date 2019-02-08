@@ -36,6 +36,7 @@ Run right_pt --help <command> for additional command specific help.
 	runCmd = app.Command("run", `Uploads and applies the PolicyTemplate.
 Execution of the policy will then be followed. Execution log will be tailed and 
 followed and incident printed out.
+
 Example: right_pt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100`)
 	runFile    = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
 	runOptions = runCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate
@@ -48,6 +49,7 @@ must be a comma separated list.`).Strings()
 	// ----- RetrieveData policy template -----
 	rdCmd = app.Command("retrieve_data", `Retrieve data from a Policy Template.
 Executes a policy once and retrieve generated datasources, saving them to disk.
+
 Example: right_pt retrieve_data my_policy.pt --names instances
 `)
 	rdFile    = rdCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
@@ -55,10 +57,11 @@ Example: right_pt retrieve_data my_policy.pt --names instances
 language. Options must be in the form of "<name>=<value>". For arrays, values
 must be a comma separated list.`).Strings()
 	rdNames = rdCmd.Flag("names", "Names of resources/datasources to retrieve. By default, all datasources will be retrieved.").Short('n').Strings()
-	rdOD    = rdCmd.Flag("outputDir", "Directory to store retrieved datasources.").Short('o').String()
+	rdOD    = rdCmd.Flag("output-dir", "Directory to store retrieved datasources.").Short('o').String()
 
 	// ----- Run Script -----
 	scriptCmd = app.Command("script", `Run the body of a script locally.
+
 Example: right_pt script max_snapshots.pt --result snapshots volumes=@ec2_volumes.json instances=@ec2_instances.json max_count=50
 `)
 	scriptFile    = scriptCmd.Arg("file", "File may be a Policy Template or a raw JavaScript.").Required().ExistingFile()

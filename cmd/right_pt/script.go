@@ -86,10 +86,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 			}
 		}
 	}
-	if name != "" {
-		name += " "
-	}
-	fmt.Printf("Running %sscript from %s and writing %s to %s\n", name, file, result, outfile)
+	fmt.Printf("Running script %q from %s and writing %s to %s\n", name, file, result, outfile)
 
 	data, err = execScript(src, params, result)
 
@@ -380,10 +377,9 @@ func unquote(s string) string {
 	q := regexp.MustCompile(`\\(.)`)
 	if strings.HasPrefix(s, "'") {
 		s = s[1 : len(s)-1]
-		s = q.ReplaceAllString(s, "$1")
 	} else if strings.HasPrefix(s, `"`) {
 		s = s[1 : len(s)-1]
-		s = q.ReplaceAllString(s, "$1")
 	}
+	s = q.ReplaceAllString(s, "$1")
 	return s
 }
