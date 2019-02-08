@@ -17,8 +17,9 @@ import (
 var (
 	// ----- Top Level -----
 	app = kingpin.New("right_pt", `A command-line application for testing RightScale Policies.
-
-right_pt contains a number of useful commands to help with development of Policies, including a syntax checker and policy runner.`)
+right_pt contains a number of useful commands to help with development of Policies, including a syntax checker and policy runner.
+Run right_pt --help <command> for additional command specific help.
+`)
 	debug      = app.Flag("debug", "Debug mode").Short('d').Bool()
 	configFile = app.Flag("config", "Config file path").Short('c').Default(config.DefaultFile(".right_pt.yml")).String()
 	account    = app.Flag("account", "Config file account name to use").Short('a').String()
@@ -33,20 +34,41 @@ right_pt contains a number of useful commands to help with development of Polici
 
 	// ----- Run policy template -----
 	runCmd = app.Command("run", `Uploads and applies the PolicyTemplate.
+Execution of the policy will then be followed. Execution log will be tailed and 
+followed and incident printed out.
 
-Execution of the policy will then be followed. Execution log will be tailed and followed and incident printed out.`)
-	runFile        = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
-	runOptions     = runCmd.Arg("options", "Parameter values.").Strings()
+Example: right_pt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100`)
+	runFile    = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
+	runOptions = runCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate
+language. Options must be in the form of "<name>=<value>". For arrays, values
+must be a comma separated list.`).Strings()
 	runNoLog       = runCmd.Flag("no-log", "Do not print policy execution log.").Short('n').Bool()
 	runKeep        = runCmd.Flag("keep", "Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.").Short('k').Bool()
 	runEscalations = runCmd.Flag("run-escalations", "If set, escalations will be run. Normally dry_run is set to avoid running any escalations.").Short('r').Bool()
 
 	// ----- RetrieveData policy template -----
-	rdCmd     = app.Command("retrieve_data", "Retrieve data from a Policy Template.")
+	rdCmd = app.Command("retrieve_data", `Retrieve data from a Policy Template.
+Executes a policy once and retrieve generated datasources, saving them to disk.
+
+Example: right_pt retrieve_data my_policy.pt --names instances
+`)
 	rdFile    = rdCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
-	rdOptions = rdCmd.Arg("options", "Parameter values.").Strings()
-	rdNames   = rdCmd.Flag("names", "Names of resources/datasources to retrieve.").Short('n').Strings()
-	rdOD      = rdCmd.Flag("outputDir", "Directory to store retrieved datasources.").Short('o').String()
+	rdOptions = rdCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate
+language. Options must be in the form of "<name>=<value>". For arrays, values
+must be a comma separated list.`).Strings()
+	rdNames = rdCmd.Flag("names", "Names of resources/datasources to retrieve. By default, all datasources will be retrieved.").Short('n').Strings()
+	rdOD    = rdCmd.Flag("output-dir", "Directory to store retrieved datasources.").Short('o').String()
+
+	// ----- Run Script -----
+	scriptCmd = app.Command("script", `Run the body of a script locally.
+
+Example: right_pt script max_snapshots.pt --result snapshots volumes=@ec2_volumes.json instances=@ec2_instances.json max_count=50
+`)
+	scriptFile    = scriptCmd.Arg("file", "File may be a Policy Template or a raw JavaScript.").Required().ExistingFile()
+	scriptOptions = scriptCmd.Arg("parameters", `Script parameters must be in the form of "<name>=<value>". To specify a file as input such as a datasource retrieved via the retrieve_data command, specify @<filename> as the value.`).Strings()
+	scriptOut     = scriptCmd.Flag("out", "Script output file. Defaults to out.json").Short('o').Default("out.json").String()
+	scriptResult  = scriptCmd.Flag("result", "Name of variable holding final result to extract. Required if supplying a raw JavaScript.").Short('r').String()
+	scriptName    = scriptCmd.Flag("name", "Name of script to run, if multiple exist.").Short('n').String()
 
 	// ----- Configuration -----
 	configCmd = app.Command("config", "Manage Configuration")
@@ -94,7 +116,6 @@ func main() {
 		}
 		client = policy.NewClient(acct.Host, uint(acct.ID), ts, *debug)
 	}
-
 	switch command {
 	case upCmd.FullCommand():
 		files, err := walkPaths(*upFiles)
@@ -121,6 +142,11 @@ func main() {
 		}
 	case rdCmd.FullCommand():
 		err = policyTemplateRetrieveData(ctx, client, *rdFile, *rdOptions, *rdNames, *rdOD)
+		if err != nil {
+			fatalError("%s\n", err.Error())
+		}
+	case scriptCmd.FullCommand():
+		err = runScript(ctx, *scriptFile, *scriptOut, *scriptResult, *scriptName, *scriptOptions)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}

@@ -1,7 +1,7 @@
 version.go
 version.yml
 build
-right_pt
+./right_pt
 *.coverprofile
 *.bak
 *.old

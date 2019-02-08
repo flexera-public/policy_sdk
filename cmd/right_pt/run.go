@@ -73,6 +73,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	}
 
 	fmt.Printf("Created AppliedPolicy %q (%s)\n", name, ap.Href)
+	fmt.Printf("  Link: %s\n", appliedPolicyUILink(ap))
 	if !noLog {
 		fmt.Printf("\nTailing policy logs\n")
 	}
@@ -134,6 +135,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 
 	for _, inc := range incList.Items {
 		fmt.Printf("Incident %s\n", *inc.Href)
+		fmt.Printf("Link: %s\n", incidentUILink(inc))
 		fmt.Printf("Severity: %s\n", *inc.Severity)
 		fmt.Printf("Category: %s\n", *inc.Category)
 		fmt.Printf("Items: %d\n", *inc.ViolationDataCount)
@@ -178,6 +180,7 @@ func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*ap
 	options := []*appliedpolicy.ConfigurationOptionCreateType{}
 	var errors []string
 	var seen = map[string]bool{}
+
 	for _, o := range runOptions {
 		bits := strings.SplitN(o, "=", 2)
 		name := bits[0]
@@ -240,4 +243,14 @@ func cleanupRun(ctx context.Context, cli policy.Client, ap *appliedpolicy.Applie
 func dump(v interface{}) string {
 	b, _ := json.MarshalIndent(v, "", "  ")
 	return string(b)
+}
+
+func appliedPolicyUILink(ap *appliedpolicy.AppliedPolicy) string {
+	return fmt.Sprintf("https://governance.rightscale.com/org/%d/projects/%d/applied-policies/%s",
+		ap.Project.OrgID, ap.Project.ID, ap.ID)
+}
+
+func incidentUILink(i *incident.Incident) string {
+	return fmt.Sprintf("https://governance.rightscale.com/org/%d/projects/%d/policy-incidents/%s",
+		i.Project.OrgID, i.Project.ID, i.ID)
 }
