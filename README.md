@@ -2,15 +2,11 @@
 
 `right_pt` is a command line tool to aid in the development and testing of RightScale Policies. The tool is able to syntax check, upload, and run Policies.
 
-[![Travis CI Build Status](https://travis-ci.org/rightscale/right_pt.svg?branch=master)](https://travis-ci.org/rightscale/right_pt?branch=master)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/rightscale/right_pt?branch=master&svg=true)](https://ci.appveyor.com/project/RightScale/right-pt?branch=master)
+[![Travis CI Build Status](https://travis-ci.com/rightscale/right_pt.svg?token=6Udhsz2ZbD68aBb7ApTx&branch=master)](https://travis-ci.com/rightscale/right_pt)
 
 * [Installation](#installation)
   * [Configuration](#configuration)
-* [Managing RightScripts](#managing-rightscripts)
-  * [RightScript Usage](#rightscript-usage)
-* [Managing ServerTemplates](#managing-servertemplates)
-  * [ServerTemplate Usage](#servertemplate-usage)
+* [Usage](#usage)
 * [Contributors](#contributors)
 * [License](#license)
 
@@ -80,9 +76,11 @@ right_pt script [<flags>] <file> [<parameters>...]
 ## Contributors
 
 This tool is maintained by [Douglas Thrift (douglaswth)](https://github.com/douglaswth),
-[Peter Schroeter (psschroeter)](https://github.com/psschroeter)
+[Peter Schroeter (psschroeter)](https://github.com/psschroeter),
+[Avinash Bhashyam (avinashbhashyam-rs)](https://github.com/avinashbhashyam-rs)
+
 
 ## License
 
 The `right_pt` source code is subject to the MIT license, see the
-[LICENSE](https://github.com/douglaswth/right_pt/blob/master/LICENSE) file.
+[LICENSE](https://github.com/rightscale/right_pt/blob/master/LICENSE) file.
