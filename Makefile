@@ -95,7 +95,7 @@ build/$(NAME)-%.zip: $(GO_SOURCE) version
 	mkdir -p build/$(NAME)
 	tgt="$*"; GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go build -tags $(NAME)_make -o build/$(NAME)/$(NAME)`GOOS="$${tgt%-*}" GOARCH="$${tgt#*-}" go env GOEXE` ./cmd/$(NAME)
 	chmod +x build/$(NAME)/$(NAME)*
-	cd build; which 7z > /dev/null && 7z a -r $(notdir $@) $(NAME) || zip -r $(notdir $@) $(NAME)
+	cd build; 7z a -r $(notdir $@) $(NAME)
 	rm -r build/$(NAME)
 
 # upload assumes you have AWS_ACCESS_KEY_ID and AWS_SECRET_KEY env variables set,
