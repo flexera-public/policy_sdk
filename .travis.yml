@@ -5,6 +5,8 @@ matrix:
   include:
     - os: linux
       env: MAKE=make
+    # Windows builds broken on travis: https://travis-ci.community/t/choco-install-hangs-forever/307/23.
+    # git revert a1f9a47623910f77a52c31fa8614db6819ac04cb to build/test/deploy from each os (windows/darwin/linux) when this is fixed
 cache:
   directories:
     - $HOME/.cache/go-build
