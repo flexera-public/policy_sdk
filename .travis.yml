@@ -5,20 +5,10 @@ matrix:
   include:
     - os: linux
       env: MAKE=make
-    - os: osx
-      env: MAKE=make
-    - os: windows
-      env: MAKE=mingw32-make
 cache:
   directories:
     - $HOME/.cache/go-build
     - $HOME/gopath/pkg/mod
-addons:
-  homebrew:
-    packages:
-      # install modern bash and coreutils on macOS so that version.sh script works correctly
-      - bash
-      - coreutils
 before_install:
   # install latest mercurial client on Linux. Older clients have issues https://bitbucket.org/blog/deprecating-tlsv1-tlsv1-1-2018-12-01
   - if [[ $TRAVIS_OS_NAME == linux ]]; then pyenv install --skip-existing 2.7.14 && pyenv rehash && pyenv local 2.7.14; fi
@@ -32,7 +22,9 @@ install:
   - $MAKE depend
 script:
   - $MAKE test
-  - $MAKE build
+  - GOOS=linux $MAKE build
+  - GOOS=darwin $MAKE build
+  - GOOS=windows $MAKE build
   # QnB upload user (rightscale-binaries-upload-governance)
   - export AWS_ACCESS_KEY_ID=AKIAIX27XNPUMQ25GSEQ
   - export AWS_SECRET_ACCESS_KEY=${RSBIN_KEY}
