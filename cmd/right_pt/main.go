@@ -80,12 +80,12 @@ Example: right_pt script max_snapshots.pt --result snapshots volumes=@ec2_volume
 	configShowCmd = configCmd.Command("show", "Show configuration")
 
 	// ----- Update right_st -----
-// 	updateCmd = app.Command("update", "Update "+app.Name+" executable")
+	updateCmd = app.Command("update", "Update "+app.Name+" executable")
 
-// 	updateListCmd = updateCmd.Command("list", "List any available updates for the "+app.Name+" executable")
+	updateListCmd = updateCmd.Command("list", "List any available updates for the "+app.Name+" executable")
 
-// 	updateApplyCmd          = updateCmd.Command("apply", "Apply the latest update for the current major version or a specified major version")
-// 	updateApplyMajorVersion = updateApplyCmd.Flag("major-version", "Major version to update to").Short('m').Int()
+	updateApplyCmd          = updateCmd.Command("apply", "Apply the latest update for the current major version or a specified major version")
+	updateApplyMajorVersion = updateApplyCmd.Flag("major-version", "Major version to update to").Short('m').Int()
 )
 
 func main() {
@@ -157,6 +157,16 @@ func main() {
 		}
 	case configShowCmd.FullCommand():
 		err := config.Config.ShowConfiguration(os.Stdout)
+		if err != nil {
+			fatalError("%s\n", err.Error())
+		}
+	case updateListCmd.FullCommand():
+		err := UpdateList(VV, os.Stdout)
+		if err != nil {
+			fatalError("%s\n", err.Error())
+		}
+	case updateApplyCmd.FullCommand():
+		err := UpdateApply(VV, os.Stdout, *updateApplyMajorVersion, "")
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}
