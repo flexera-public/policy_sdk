@@ -223,6 +223,14 @@ func coerceOption(name, val, typ string) (interface{}, error) {
 	case "string":
 		return val, nil
 	case "list":
+		if looksLikeJSON(val) {
+			var valJson interface{}
+			err := json.Unmarshal([]byte(val), &valJson)
+			if err != nil {
+				return nil, errors.Wrapf(err, "parameter %s: failed to parse %q as json", name, val)
+			}
+			return valJson, nil
+		}
 		return strings.Split(val, ","), nil
 	case "number":
 		n, err := strconv.ParseFloat(val, 64)
