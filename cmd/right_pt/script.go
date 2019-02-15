@@ -220,7 +220,7 @@ func parseVal(name, v string) (interface{}, error) {
 }
 
 func looksLikeJSON(s string) bool {
-	return strings.HasPrefix(s, "[") || strings.HasPrefix(s, "{") || strings.HasPrefix(s, `"`) || strings.HasPrefix(s, `'`)
+	return strings.HasPrefix(s, "[") || strings.HasPrefix(s, "{") || strings.HasPrefix(s, `"`)
 }
 
 // export converts an otto.Value into a predictable Go representation. The otto.Value Export function can return more
