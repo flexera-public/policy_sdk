@@ -10,7 +10,7 @@ package approval
 import (
 	"context"
 
-	approvalviews "github.com/rightscale/right_pt/sdk/approval/views"
+	approvalviews "github.com/rightscale/policy_sdk/sdk/approval/views"
 	"goa.design/goa"
 	"goa.design/goa/security"
 )

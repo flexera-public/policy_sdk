@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	approval "github.com/rightscale/right_pt/sdk/approval"
-	approvalviews "github.com/rightscale/right_pt/sdk/approval/views"
+	approval "github.com/rightscale/policy_sdk/sdk/approval"
+	approvalviews "github.com/rightscale/policy_sdk/sdk/approval/views"
 	goa "goa.design/goa"
 	goahttp "goa.design/goa/http"
 )

@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	policytemplate "github.com/rightscale/right_pt/sdk/policy_template"
+	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 // BuildCompilePayload builds the payload for the PolicyTemplate compile

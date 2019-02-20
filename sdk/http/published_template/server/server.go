@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"regexp"
 
-	publishedtemplate "github.com/rightscale/right_pt/sdk/published_template"
+	publishedtemplate "github.com/rightscale/policy_sdk/sdk/published_template"
 	goa "goa.design/goa"
 	goahttp "goa.design/goa/http"
 	"goa.design/plugins/cors"
