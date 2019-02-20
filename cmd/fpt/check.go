@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/rightscale/right_pt/client/policy"
-	policytemplate "github.com/rightscale/right_pt/sdk/policy_template"
+	"github.com/rightscale/policy_sdk/client/policy"
+	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 func policyTemplateCheckSyntax(ctx context.Context, cli policy.Client, files []string) error {

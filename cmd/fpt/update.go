@@ -31,13 +31,13 @@ type LatestVersions struct {
 }
 
 const (
-	UpdateGithubBaseUrl      = "https://github.com/rightscale/right_pt"
+	UpdateGithubBaseUrl      = "https://github.com/rightscale/policy_sdk"
 	UpdateGithubReleasesUrl  = UpdateGithubBaseUrl + "/releases"
 	UpdateGithubChangeLogUrl = UpdateGithubBaseUrl + "/blob/master/ChangeLog.md"
 )
 
 var (
-	UpdateBaseUrl = "https://binaries.rightscale.com/rsbin/right_pt"
+	UpdateBaseUrl = "https://binaries.rightscale.com/rsbin/fpt"
 
 	vvString      = regexp.MustCompile(`^` + regexp.QuoteMeta(app.Name) + ` (v[0-9]+\.[0-9]+\.[0-9]+) -`)
 	versionString = regexp.MustCompile(`^v([0-9]+)\.([0-9]+)\.([0-9]+)$`)
@@ -55,12 +55,12 @@ func UpdateGetCurrentVersion(vv string) *Version {
 	return version
 }
 
-// UpdateGetVersionUrl gets the URL for the version.yml file for right_pt from the rsbin bucket.
+// UpdateGetVersionUrl gets the URL for the version.yml file for fpt from the rsbin bucket.
 func UpdateGetVersionUrl() string {
 	return UpdateBaseUrl + "/version-" + runtime.GOOS + "-" + runtime.GOARCH + ".yml"
 }
 
-// UpdateGetLatestVersions gets the latest versions struct by downloading and parsing the version.yml file for right_pt
+// UpdateGetLatestVersions gets the latest versions struct by downloading and parsing the version.yml file for fpt
 // from the rsbin bucket. See version.sh and the Makefile upload target for how this file is created.
 func UpdateGetLatestVersions() (*LatestVersions, error) {
 	// get the version.yml file over HTTP(S)
@@ -105,7 +105,7 @@ func UpdateGetDownloadUrl(majorVersion int) (string, *Version, error) {
 		version, nil
 }
 
-// UpdateCheck checks if there is there are any updates available for the running current version of right_pt and prints
+// UpdateCheck checks if there is there are any updates available for the running current version of fpt and prints
 // out instructions to upgrade if so. It will not perform a version check for dev versions (anything that has a version
 // other than vX.Y.Z).
 func UpdateCheck(vv string, output io.Writer) {
@@ -120,7 +120,7 @@ func UpdateCheck(vv string, output io.Writer) {
 		return
 	}
 
-	// ignore more errors and continue since it will still return the right_pt command name anyway
+	// ignore more errors and continue since it will still return the fpt command name anyway
 	sudoCommand, _ := updateSudoCommand()
 	updateAvailable := false
 
@@ -147,7 +147,7 @@ func UpdateCheck(vv string, output io.Writer) {
 	}
 }
 
-// UpdateList lists available versions based on the contents of the version.yml file for right_pt in the rsbin bucket
+// UpdateList lists available versions based on the contents of the version.yml file for fpt in the rsbin bucket
 // and prints upgrade instructions if any are applicable.
 func UpdateList(vv string, output io.Writer) error {
 	// get the current version from the version string, it will be nil if this is a dev version

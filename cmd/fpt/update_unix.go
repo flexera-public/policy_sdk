@@ -9,19 +9,19 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// updateSudoCommand returns the right_pt command name with any sudo prefix if necessary. The command name is returned
+// updateSudoCommand returns the fpt command name with any sudo prefix if necessary. The command name is returned
 // even if an error occurred.
 func updateSudoCommand() (string, error) {
-	// get the full path to the right_pt executable so its access can be checked
+	// get the full path to the fpt executable so its access can be checked
 	exe, err := osext.Executable()
 	if err != nil {
 		return app.Name, err
 	}
 
-	// check if the right_pt executable can be written by the current user
+	// check if the fpt executable can be written by the current user
 	err = unix.Access(exe, unix.W_OK)
 	if err == syscall.EACCES {
-		// the right_pt executable cannot be written by the current user so prefix the command name with sudo
+		// the fpt executable cannot be written by the current user so prefix the command name with sudo
 		return "sudo " + app.Name, nil
 	}
 

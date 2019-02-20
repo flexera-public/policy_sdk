@@ -9,19 +9,19 @@ import (
 
 	"github.com/alecthomas/kingpin"
 
-	"github.com/rightscale/right_pt/auth"
-	"github.com/rightscale/right_pt/client/policy"
-	"github.com/rightscale/right_pt/config"
+	"github.com/rightscale/policy_sdk/auth"
+	"github.com/rightscale/policy_sdk/client/policy"
+	"github.com/rightscale/policy_sdk/config"
 )
 
 var (
 	// ----- Top Level -----
-	app = kingpin.New("right_pt", `A command-line application for testing RightScale Policies.
-right_pt contains a number of useful commands to help with development of Policies, including a syntax checker and policy runner.
-Run right_pt --help <command> for additional command specific help.
+	app = kingpin.New("fpt", `A command-line application for testing RightScale Policies.
+fpt contains a number of useful commands to help with development of Policies, including a syntax checker and policy runner.
+Run fpt --help <command> for additional command specific help.
 `)
 	debug      = app.Flag("debug", "Debug mode").Short('d').Bool()
-	configFile = app.Flag("config", "Config file path").Short('c').Default(config.DefaultFile(".right_pt.yml")).String()
+	configFile = app.Flag("config", "Config file path").Short('c').Default(config.DefaultFile(".fpt.yml")).String()
 	account    = app.Flag("account", "Config file account name to use").Short('a').String()
 
 	// ----- Upload -----
@@ -37,7 +37,7 @@ Run right_pt --help <command> for additional command specific help.
 Execution of the policy will then be followed. Execution log will be tailed and 
 followed and incident printed out.
 
-Example: right_pt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100`)
+Example: fpt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100`)
 	runFile        = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
 	runOptions     = runCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For list parameters, a JSON encoded array or comma separated list may be passed as the value.`).Strings()
 	runNoLog       = runCmd.Flag("no-log", "Do not print policy execution log.").Short('n').Bool()
@@ -48,7 +48,7 @@ Example: right_pt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_
 	rdCmd = app.Command("retrieve_data", `Retrieve data from a Policy Template.
 Executes a policy once and retrieve generated datasources, saving them to disk.
 
-Example: right_pt retrieve_data my_policy.pt --names instances
+Example: fpt retrieve_data my_policy.pt --names instances
 `)
 	rdFile    = rdCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
 	rdOptions = rdCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For list parameters, a JSON encoded array or comma separated list may be passed as the value.`).Strings()
@@ -58,7 +58,7 @@ Example: right_pt retrieve_data my_policy.pt --names instances
 	// ----- Run Script -----
 	scriptCmd = app.Command("script", `Run the body of a script locally.
 
-Example: right_pt script max_snapshots.pt volumes=@ec2_volumes.json max_count=50 exclude_names=["foo","bar","baz"]
+Example: fpt script max_snapshots.pt volumes=@ec2_volumes.json max_count=50 exclude_names=["foo","bar","baz"]
 `)
 	scriptFile    = scriptCmd.Arg("file", "File may be a Policy Template or a raw JavaScript.").Required().ExistingFile()
 	scriptOptions = scriptCmd.Arg("parameters", `Script parameters must be in the form of "<name>=<value>". To specify a file as input such as a datasource retrieved via the retrieve_data command, specify @<filename> as the value. For list parameters, a JSON encoded array may be passed as the value.`).Strings()

@@ -9,8 +9,8 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
-	"github.com/rightscale/right_pt/sdk/applied_policy"
-	apclient "github.com/rightscale/right_pt/sdk/http/applied_policy/client"
+	"github.com/rightscale/policy_sdk/sdk/applied_policy"
+	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
 	goahttp "goa.design/goa/http"
 )
 
