@@ -1,3 +1,7 @@
+v1.0.2 / 2019-02-15
+-------------------
+* Add way to past list param to script command
+
 v1.0.1 / 2019-02-12
 -------------------
 * Add in update code

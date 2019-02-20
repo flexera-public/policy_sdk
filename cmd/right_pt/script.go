@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/robertkrimen/otto"
 	// This import loads the otto runtime with underscore library enabled.
 	_ "github.com/robertkrimen/otto/underscore"
@@ -65,7 +66,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 		if len(scripts) == 0 {
 			return fmt.Errorf("no script blocks found")
 		} else if len(scripts) == 1 {
-
+			name = scripts[0].name
 			src = scripts[0].code
 			result = scripts[0].result
 		} else if len(scripts) > 0 {
@@ -182,7 +183,7 @@ func parseParams(runOptions []string) ([]*param, error) {
 		bits := strings.SplitN(o, "=", 2)
 		name := bits[0]
 		valStr := bits[1]
-		val, err := parseVal(valStr)
+		val, err := parseVal(name, valStr)
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +192,7 @@ func parseParams(runOptions []string) ([]*param, error) {
 	return params, nil
 }
 
-func parseVal(v string) (interface{}, error) {
+func parseVal(name, v string) (interface{}, error) {
 	if strings.HasPrefix(v, "@") {
 		v = strings.TrimPrefix(v, "@")
 		rd, err := os.Open(v)
@@ -201,14 +202,25 @@ func parseVal(v string) (interface{}, error) {
 		var data interface{}
 		err = json.NewDecoder(rd).Decode(&data)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "parameter %s: failed to read %q as json", name, v)
 		}
 		return data, nil
 	}
-	if valN, err := coerceOption("", v, "number"); err != nil {
+	if looksLikeJSON(v) {
+		var valJson interface{}
+		err := json.Unmarshal([]byte(v), &valJson)
+		if err != nil {
+			return nil, errors.Wrapf(err, "parameter %s: failed to parse %q as json", name, v)
+		}
+		return valJson, nil
+	} else if valN, err := coerceOption("", v, "number"); err != nil {
 		return valN, nil
 	}
 	return v, nil
+}
+
+func looksLikeJSON(s string) bool {
+	return strings.HasPrefix(s, "[") || strings.HasPrefix(s, "{") || strings.HasPrefix(s, `"`)
 }
 
 // export converts an otto.Value into a predictable Go representation. The otto.Value Export function can return more

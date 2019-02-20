@@ -38,10 +38,8 @@ Execution of the policy will then be followed. Execution log will be tailed and
 followed and incident printed out.
 
 Example: right_pt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100`)
-	runFile    = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
-	runOptions = runCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate
-language. Options must be in the form of "<name>=<value>". For arrays, values
-must be a comma separated list.`).Strings()
+	runFile        = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
+	runOptions     = runCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For list parameters, a JSON encoded array or comma separated list may be passed as the value.`).Strings()
 	runNoLog       = runCmd.Flag("no-log", "Do not print policy execution log.").Short('n').Bool()
 	runKeep        = runCmd.Flag("keep", "Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.").Short('k').Bool()
 	runEscalations = runCmd.Flag("run-escalations", "If set, escalations will be run. Normally dry_run is set to avoid running any escalations.").Short('r').Bool()
@@ -53,19 +51,17 @@ Executes a policy once and retrieve generated datasources, saving them to disk.
 Example: right_pt retrieve_data my_policy.pt --names instances
 `)
 	rdFile    = rdCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
-	rdOptions = rdCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate
-language. Options must be in the form of "<name>=<value>". For arrays, values
-must be a comma separated list.`).Strings()
-	rdNames = rdCmd.Flag("names", "Names of resources/datasources to retrieve. By default, all datasources will be retrieved.").Short('n').Strings()
-	rdOD    = rdCmd.Flag("output-dir", "Directory to store retrieved datasources.").Short('o').String()
+	rdOptions = rdCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For list parameters, a JSON encoded array or comma separated list may be passed as the value.`).Strings()
+	rdNames   = rdCmd.Flag("names", "Names of resources/datasources to retrieve. By default, all datasources will be retrieved.").Short('n').Strings()
+	rdOD      = rdCmd.Flag("output-dir", "Directory to store retrieved datasources.").Short('o').String()
 
 	// ----- Run Script -----
 	scriptCmd = app.Command("script", `Run the body of a script locally.
 
-Example: right_pt script max_snapshots.pt --result snapshots volumes=@ec2_volumes.json instances=@ec2_instances.json max_count=50
+Example: right_pt script max_snapshots.pt volumes=@ec2_volumes.json max_count=50 exclude_names=["foo","bar","baz"]
 `)
 	scriptFile    = scriptCmd.Arg("file", "File may be a Policy Template or a raw JavaScript.").Required().ExistingFile()
-	scriptOptions = scriptCmd.Arg("parameters", `Script parameters must be in the form of "<name>=<value>". To specify a file as input such as a datasource retrieved via the retrieve_data command, specify @<filename> as the value.`).Strings()
+	scriptOptions = scriptCmd.Arg("parameters", `Script parameters must be in the form of "<name>=<value>". To specify a file as input such as a datasource retrieved via the retrieve_data command, specify @<filename> as the value. For list parameters, a JSON encoded array may be passed as the value.`).Strings()
 	scriptOut     = scriptCmd.Flag("out", "Script output file. Defaults to out.json").Short('o').Default("out.json").String()
 	scriptResult  = scriptCmd.Flag("result", "Name of variable holding final result to extract. Required if supplying a raw JavaScript.").Short('r').String()
 	scriptName    = scriptCmd.Flag("name", "Name of script to run, if multiple exist.").Short('n').String()
