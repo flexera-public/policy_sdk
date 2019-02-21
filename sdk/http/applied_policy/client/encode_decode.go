@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	appliedpolicy "github.com/rightscale/right_pt/sdk/applied_policy"
-	appliedpolicyviews "github.com/rightscale/right_pt/sdk/applied_policy/views"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
+	appliedpolicyviews "github.com/rightscale/policy_sdk/sdk/applied_policy/views"
 	goa "goa.design/goa"
 	goahttp "goa.design/goa/http"
 )

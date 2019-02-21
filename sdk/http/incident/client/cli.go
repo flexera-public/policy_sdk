@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	incident "github.com/rightscale/right_pt/sdk/incident"
+	incident "github.com/rightscale/policy_sdk/sdk/incident"
 	goa "goa.design/goa"
 )
 

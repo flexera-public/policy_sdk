@@ -8,13 +8,13 @@ import (
 	"goa.design/goa"
 	goahttp "goa.design/goa/http"
 
-	"github.com/rightscale/right_pt/auth"
-	"github.com/rightscale/right_pt/sdk/applied_policy"
-	apclient "github.com/rightscale/right_pt/sdk/http/applied_policy/client"
-	iclient "github.com/rightscale/right_pt/sdk/http/incident/client"
-	ptclient "github.com/rightscale/right_pt/sdk/http/policy_template/client"
-	"github.com/rightscale/right_pt/sdk/incident"
-	"github.com/rightscale/right_pt/sdk/policy_template"
+	"github.com/rightscale/policy_sdk/auth"
+	"github.com/rightscale/policy_sdk/sdk/applied_policy"
+	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
+	iclient "github.com/rightscale/policy_sdk/sdk/http/incident/client"
+	ptclient "github.com/rightscale/policy_sdk/sdk/http/policy_template/client"
+	"github.com/rightscale/policy_sdk/sdk/incident"
+	"github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 const apiVersion = "1.0"

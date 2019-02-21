@@ -10,7 +10,7 @@ package publishedtemplate
 import (
 	"context"
 
-	publishedtemplateviews "github.com/rightscale/right_pt/sdk/published_template/views"
+	publishedtemplateviews "github.com/rightscale/policy_sdk/sdk/published_template/views"
 	"goa.design/goa"
 	"goa.design/goa/security"
 )

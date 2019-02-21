@@ -23,7 +23,7 @@ done < <(git tag -l 'v*' | $sort --version-sort)
 # output YAML with top level "versions" containing a dictionary of the major version numbers as keys and latest versions
 # as values
 cat <<EOF
-# Latest right_pt versions by major version (this file is used by right_pt's update check mechanism)
+# Latest fpt versions by major version (this file is used by fpt's update check mechanism)
 ---
 versions:
 EOF

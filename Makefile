@@ -27,7 +27,7 @@
 # (.zip for windows)
 #
 
-NAME=right_pt
+NAME=fpt
 EXE:=$(NAME)$(shell go env GOEXE)
 BUCKET=rightscale-binaries
 ACL=public-read
@@ -161,8 +161,8 @@ test: lint
 sdk:
 	rm -rf sdk
 	cp -af $(GOPATH)/src/github.com/rightscale/governance/front_service/gen sdk
-	find sdk -type f -name '*.go' -exec sed -i -e 's#github.com/rightscale/governance/front_service/gen#github.com/rightscale/right_pt/sdk#' {} \;
+	find sdk -type f -name '*.go' -exec sed -i -e 's#github.com/rightscale/governance/front_service/gen#github.com/rightscale/policy_sdk/sdk#' {} \;
 
-# ===== SPECIAL TARGETS FOR right_pt =====
+# ===== SPECIAL TARGETS FOR fpt =====
 
-.PHONY: right_pt test sdk
+.PHONY: fpt test sdk

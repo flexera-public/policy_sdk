@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/rightscale/right_pt/client/policy"
-	"github.com/rightscale/right_pt/sdk/applied_policy"
-	"github.com/rightscale/right_pt/sdk/policy_template"
+	"github.com/rightscale/policy_sdk/client/policy"
+	"github.com/rightscale/policy_sdk/sdk/applied_policy"
+	"github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, names []string, outputD string) error {

@@ -10,7 +10,7 @@ package policytemplate
 import (
 	"context"
 
-	policytemplateviews "github.com/rightscale/right_pt/sdk/policy_template/views"
+	policytemplateviews "github.com/rightscale/policy_sdk/sdk/policy_template/views"
 	"goa.design/goa"
 	"goa.design/goa/security"
 )

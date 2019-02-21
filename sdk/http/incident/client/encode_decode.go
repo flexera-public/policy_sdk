@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	incident "github.com/rightscale/right_pt/sdk/incident"
-	incidentviews "github.com/rightscale/right_pt/sdk/incident/views"
+	incident "github.com/rightscale/policy_sdk/sdk/incident"
+	incidentviews "github.com/rightscale/policy_sdk/sdk/incident/views"
 	goa "goa.design/goa"
 	goahttp "goa.design/goa/http"
 )

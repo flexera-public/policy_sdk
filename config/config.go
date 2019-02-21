@@ -30,7 +30,7 @@ func init() {
 	Config.Viper = viper.New()
 	Config.SetDefault("login", map[string]interface{}{"accounts": make(map[string]interface{})})
 	Config.SetDefault("update", map[string]interface{}{"check": true})
-	Config.SetEnvPrefix("right_pt")
+	Config.SetEnvPrefix("fpt")
 	Config.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	Config.AutomaticEnv()
 }

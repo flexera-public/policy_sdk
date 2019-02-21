@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/rightscale/right_pt/sdk/policy_template"
+	"github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 // UploadPolicyTemplate a policy template

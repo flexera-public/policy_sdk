@@ -13,12 +13,12 @@ import (
 	"net/http"
 	"os"
 
-	appliedpolicyc "github.com/rightscale/right_pt/sdk/http/applied_policy/client"
-	approvalc "github.com/rightscale/right_pt/sdk/http/approval/client"
-	healthc "github.com/rightscale/right_pt/sdk/http/health/client"
-	incidentc "github.com/rightscale/right_pt/sdk/http/incident/client"
-	policytemplatec "github.com/rightscale/right_pt/sdk/http/policy_template/client"
-	publishedtemplatec "github.com/rightscale/right_pt/sdk/http/published_template/client"
+	appliedpolicyc "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
+	approvalc "github.com/rightscale/policy_sdk/sdk/http/approval/client"
+	healthc "github.com/rightscale/policy_sdk/sdk/http/health/client"
+	incidentc "github.com/rightscale/policy_sdk/sdk/http/incident/client"
+	policytemplatec "github.com/rightscale/policy_sdk/sdk/http/policy_template/client"
+	publishedtemplatec "github.com/rightscale/policy_sdk/sdk/http/published_template/client"
 	goa "goa.design/goa"
 	goahttp "goa.design/goa/http"
 )

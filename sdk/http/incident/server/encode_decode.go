@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	incidentviews "github.com/rightscale/right_pt/sdk/incident/views"
+	incidentviews "github.com/rightscale/policy_sdk/sdk/incident/views"
 	goa "goa.design/goa"
 	goahttp "goa.design/goa/http"
 )
