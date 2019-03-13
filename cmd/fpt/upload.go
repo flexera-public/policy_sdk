@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/rightscale/policy_sdk/client/policy"
@@ -35,11 +36,11 @@ func doUpload(ctx context.Context, cli policy.Client, file string) (*policytempl
 		return nil, err
 	}
 
-	pt, err := cli.UploadPolicyTemplate(ctx, file, string(srcBytes))
+	pt, err := cli.UploadPolicyTemplate(ctx, filepath.Base(file), string(srcBytes))
 	verb := "Created"
 	if err != nil && errorName(err) == "conflict" {
 		errTyped := err.(*policytemplate.ConflictError)
-		pt, err = cli.UpdatePolicyTemplate(ctx, idFromHref(errTyped.Location), file, string(srcBytes))
+		pt, err = cli.UpdatePolicyTemplate(ctx, idFromHref(errTyped.Location), filepath.Base(file), string(srcBytes))
 		verb = "Updated"
 	}
 	if err != nil {

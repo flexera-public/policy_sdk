@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/rightscale/policy_sdk/client/policy"
 	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
@@ -35,7 +36,7 @@ func doCheck(ctx context.Context, cli policy.Client, file string) error {
 		return err
 	}
 
-	err = cli.CompilePolicyTemplate(ctx, file, string(srcBytes))
+	err = cli.CompilePolicyTemplate(ctx, filepath.Base(file), string(srcBytes))
 
 	if err != nil {
 		printCompileError(err)
