@@ -2,7 +2,7 @@ vendor/
 version.go
 version.yml
 build
-/right_pt
+/fpt
 *.coverprofile
 *.bak
 *.old

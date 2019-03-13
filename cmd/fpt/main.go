@@ -96,10 +96,15 @@ func main() {
 	err := config.ReadConfig(*configFile, *account)
 	var client policy.Client
 	if !strings.HasPrefix(command, "config") && !strings.HasPrefix(command, "update") {
-		acct := config.Config.Account
 		// Makes sure the config file structure is valid
 		if err != nil {
-			fatalError("%s: Error reading config file: %s\n", filepath.Base(os.Args[0]), err.Error())
+			fatalError("%s: error reading config file: %s\n", *configFile, err.Error())
+		}
+
+		acct := config.Config.Account
+		err := acct.Validate()
+		if err != nil {
+			fatalError("%s: invalid config: %s\n", *configFile, err.Error())
 		}
 
 		ts, err := auth.NewOAuthAuthenticator(acct.AuthHost(), acct.RefreshToken)
