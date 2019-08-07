@@ -1,3 +1,7 @@
+v1.0.4 / 2019-08-07
+-------------------
+* Fix script command with CRLF line endings.
+
 v1.0.3 / 2019-03-14
 -------------------
 * Fix errors for bad hostname in config.

@@ -33,7 +33,7 @@ type LatestVersions struct {
 const (
 	UpdateGithubBaseUrl      = "https://github.com/rightscale/policy_sdk"
 	UpdateGithubReleasesUrl  = UpdateGithubBaseUrl + "/releases"
-	UpdateGithubChangeLogUrl = UpdateGithubBaseUrl + "/blob/master/ChangeLog.md"
+	UpdateGithubChangeLogUrl = UpdateGithubBaseUrl + "/blob/master/cmd/fpt/ChangeLog.md"
 )
 
 var (
