@@ -44,7 +44,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	if err != nil {
 		return err
 	}
-	src := string(srcBytes)
+	src := normalizeLineEndings(string(srcBytes))
 
 	wr, err := os.Create(outfile)
 	if err != nil {
@@ -394,4 +394,9 @@ func unquote(s string) string {
 	}
 	s = q.ReplaceAllString(s, "$1")
 	return s
+}
+
+func normalizeLineEndings(in string) string {
+	out := strings.Replace(in, "\r\n", "\n", -1)
+	return strings.Replace(out, "\r", "\n", -1)
 }
