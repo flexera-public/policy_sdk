@@ -9,12 +9,12 @@ import (
 	goahttp "goa.design/goa/http"
 
 	"github.com/rightscale/policy_sdk/auth"
-	"github.com/rightscale/policy_sdk/sdk/applied_policy"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
 	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
 	iclient "github.com/rightscale/policy_sdk/sdk/http/incident/client"
 	ptclient "github.com/rightscale/policy_sdk/sdk/http/policy_template/client"
 	"github.com/rightscale/policy_sdk/sdk/incident"
-	"github.com/rightscale/policy_sdk/sdk/policy_template"
+	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 const apiVersion = "1.0"
@@ -85,7 +85,7 @@ type (
 // NewClient returns a new client for RightScale Policy service.
 //   host should be the API host, such as governance-3.rightscale.com
 func NewClient(host string, projectID uint, ts auth.TokenSource, debug bool) Client {
-	var doer goahttp.Doer = &http.Client{Timeout: time.Duration(60) * time.Second}
+	var doer goahttp.Doer = &http.Client{Timeout: time.Duration(300) * time.Second}
 	// if debug {
 	// 	doer = clientwrappers.LogResponseWrap(doer)
 	// }
