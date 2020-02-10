@@ -1,7 +1,31 @@
 package policy
 
+/*
+#cgo LDFLAGS: -lWs2_32
+#include <stdio.h>
+#include <Winsock.h>
+
+void get_listen_addr(SOCKET s) {
+    struct sockaddr_in name;
+    int namelen = sizeof(name);
+
+    if (getsockname(s, (struct sockaddr*)&name, &namelen)) {
+        printf("failed %d\n", WSAGetLastError());
+        return;
+    }
+    printf("%hhu.%hhu.%hhu.%hhu:%hu\n",
+        name.sin_addr.S_un.S_un_b.s_b1,
+        name.sin_addr.S_un.S_un_b.s_b2,
+        name.sin_addr.S_un.S_un_b.s_b3,
+        name.sin_addr.S_un.S_un_b.s_b4,
+        ntohs(name.sin_port));
+}
+*/
+
 import (
 	"context"
+	"fmt"
+	"net"
 	"net/http"
 	"time"
 
@@ -82,10 +106,40 @@ type (
 	}
 )
 
+func newDialer(network, addr string) (net.Conn, error) {
+	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
+	if err != nil {
+		panic(err)
+	}
+
+	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.SetKeepAlive(true)
+	if err != nil {
+		fmt.Println(err)
+		return conn, nil
+	}
+
+	err = conn.SetKeepAlivePeriod(time.Second * 3)
+	if err != nil {
+		fmt.Println(err)
+		return conn, nil
+	}
+
+	return conn, nil
+}
+
+//
 // NewClient returns a new client for RightScale Policy service.
 //   host should be the API host, such as governance-3.rightscale.com
 func NewClient(host string, projectID uint, ts auth.TokenSource, debug bool) Client {
-	var doer goahttp.Doer = &http.Client{Timeout: time.Duration(300) * time.Second}
+	t := http.Transport{
+		Dial: newDialer,
+	}
+	var doer goahttp.Doer = &http.Client{Timeout: time.Duration(300) * time.Second, Transport: &t}
 	// if debug {
 	// 	doer = clientwrappers.LogResponseWrap(doer)
 	// }
