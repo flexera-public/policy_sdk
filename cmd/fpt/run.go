@@ -4,15 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/rightscale/policy_sdk/client/policy"
-	"github.com/rightscale/policy_sdk/sdk/applied_policy"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
 	"github.com/rightscale/policy_sdk/sdk/incident"
-	"github.com/rightscale/policy_sdk/sdk/policy_template"
+	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 // Steps:
@@ -206,8 +207,8 @@ func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*ap
 		})
 		seen[bits[0]] = true
 	}
-	for name, _ := range pt.Parameters {
-		if !seen[name] {
+	for name, parameter := range pt.Parameters {
+		if parameter.Default == nil && !seen[name] {
 			errors = append(errors, fmt.Sprintf("%s is required", name))
 		}
 	}

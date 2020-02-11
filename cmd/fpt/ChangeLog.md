@@ -1,3 +1,7 @@
+v1.0.5 / 2020-02-10
+-------------------
+* Do not require parameters with defaults when running `fpt run` or `fpt retrieve_data`.
+
 v1.0.4 / 2019-08-07
 -------------------
 * Fix script command with CRLF line endings.
