@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	publishedtemplate "github.com/rightscale/governance/front_service/gen/published_template"
+	publishedtemplate "github.com/rightscale/policy_sdk/sdk/published_template"
 	goa "goa.design/goa/v3/pkg"
 )
 

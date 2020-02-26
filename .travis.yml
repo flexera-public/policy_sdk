@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.11.x
+  - 1.13.x
 matrix:
   include:
     - os: linux
@@ -27,6 +27,7 @@ before_install:
   - if [[ $TRAVIS_OS_NAME == windows ]]; then choco install -y hg; fi
 install:
   - $MAKE depend
+#  - $MAKE vendor
 script:
   - $MAKE test
   - GOOS=linux $MAKE build

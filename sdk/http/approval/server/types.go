@@ -8,8 +8,8 @@
 package server
 
 import (
-	approval "github.com/rightscale/governance/front_service/gen/approval"
-	approvalviews "github.com/rightscale/governance/front_service/gen/approval/views"
+	approval "github.com/rightscale/policy_sdk/sdk/approval"
+	approvalviews "github.com/rightscale/policy_sdk/sdk/approval/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

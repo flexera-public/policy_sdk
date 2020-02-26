@@ -10,7 +10,7 @@ package incident
 import (
 	"context"
 
-	incidentviews "github.com/rightscale/governance/front_service/gen/incident/views"
+	incidentviews "github.com/rightscale/policy_sdk/sdk/incident/views"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )

@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"regexp"
 
-	appliedpolicy "github.com/rightscale/governance/front_service/gen/applied_policy"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"

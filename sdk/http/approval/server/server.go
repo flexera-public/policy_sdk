@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"regexp"
 
-	approval "github.com/rightscale/governance/front_service/gen/approval"
+	approval "github.com/rightscale/policy_sdk/sdk/approval"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"

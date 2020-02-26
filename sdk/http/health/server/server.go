@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"regexp"
 
-	health "github.com/rightscale/governance/front_service/gen/health"
+	health "github.com/rightscale/policy_sdk/sdk/health"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"

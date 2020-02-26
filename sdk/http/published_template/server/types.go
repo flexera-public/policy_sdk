@@ -8,8 +8,8 @@
 package server
 
 import (
-	publishedtemplate "github.com/rightscale/governance/front_service/gen/published_template"
-	publishedtemplateviews "github.com/rightscale/governance/front_service/gen/published_template/views"
+	publishedtemplate "github.com/rightscale/policy_sdk/sdk/published_template"
+	publishedtemplateviews "github.com/rightscale/policy_sdk/sdk/published_template/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

@@ -132,18 +132,15 @@ version:
 
 # installs dep binary, if not present
 # TBD: move to go modules post https://github.com/goadesign/goa/issues/1959
-$(GOPATH)/bin/dep:
-	go get -u github.com/golang/dep/cmd/dep
+#$(GOPATH)/bin/dep:
+#	go get -u github.com/golang/dep/cmd/dep
 
 depend: vendor
 	for d in $(INSTALL_DEPEND); do go get $$d; done
 
 # install vendored dependencies, as needed
-vendor: $(GOPATH)/bin/dep Gopkg.lock Gopkg.toml
-	'$(GOPATH)/bin/dep' ensure -vendor-only
-	# Keep Windows dep from changing the permissions on Gopkg.lock
-	chmod a-x Gopkg.lock
-	touch vendor
+vendor: go.mod go.sum
+	go mod vendor
 
 clean:
 	rm -rf build $(EXE)

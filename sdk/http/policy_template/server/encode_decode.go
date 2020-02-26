@@ -14,8 +14,8 @@ import (
 	"strconv"
 	"strings"
 
-	policytemplate "github.com/rightscale/governance/front_service/gen/policy_template"
-	policytemplateviews "github.com/rightscale/governance/front_service/gen/policy_template/views"
+	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
+	policytemplateviews "github.com/rightscale/policy_sdk/sdk/policy_template/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

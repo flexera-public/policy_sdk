@@ -14,8 +14,8 @@ import (
 	"net/http"
 	"net/url"
 
-	appliedpolicy "github.com/rightscale/governance/front_service/gen/applied_policy"
-	appliedpolicyviews "github.com/rightscale/governance/front_service/gen/applied_policy/views"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
+	appliedpolicyviews "github.com/rightscale/policy_sdk/sdk/applied_policy/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

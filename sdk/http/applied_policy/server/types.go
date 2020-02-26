@@ -8,8 +8,8 @@
 package server
 
 import (
-	appliedpolicy "github.com/rightscale/governance/front_service/gen/applied_policy"
-	appliedpolicyviews "github.com/rightscale/governance/front_service/gen/applied_policy/views"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
+	appliedpolicyviews "github.com/rightscale/policy_sdk/sdk/applied_policy/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

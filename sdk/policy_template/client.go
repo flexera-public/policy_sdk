@@ -9,7 +9,7 @@ package policytemplate
 
 import (
 	"context"
-
+	"fmt"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -55,6 +55,7 @@ func (c *Client) Upload(ctx context.Context, p *UploadPayload) (res *PolicyTempl
 	var ires interface{}
 	ires, err = c.UploadEndpoint(ctx, p)
 	if err != nil {
+		fmt.Print("Returned here TC")
 		return
 	}
 	return ires.(*PolicyTemplate), nil

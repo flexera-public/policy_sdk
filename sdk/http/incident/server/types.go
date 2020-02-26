@@ -8,8 +8,8 @@
 package server
 
 import (
-	incident "github.com/rightscale/governance/front_service/gen/incident"
-	incidentviews "github.com/rightscale/governance/front_service/gen/incident/views"
+	incident "github.com/rightscale/policy_sdk/sdk/incident"
+	incidentviews "github.com/rightscale/policy_sdk/sdk/incident/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

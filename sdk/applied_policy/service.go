@@ -10,7 +10,7 @@ package appliedpolicy
 import (
 	"context"
 
-	appliedpolicyviews "github.com/rightscale/governance/front_service/gen/applied_policy/views"
+	appliedpolicyviews "github.com/rightscale/policy_sdk/sdk/applied_policy/views"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )

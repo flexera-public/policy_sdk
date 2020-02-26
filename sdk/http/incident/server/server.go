@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"regexp"
 
-	incident "github.com/rightscale/governance/front_service/gen/incident"
+	incident "github.com/rightscale/policy_sdk/sdk/incident"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"
