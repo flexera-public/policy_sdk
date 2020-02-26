@@ -10,8 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rightscale/policy_sdk/sdk/applied_policy"
-	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
-	goahttp "goa.design/goa/http"
+	goahttp "goa.design/goa/v3/http"
 )
 
 // CreateAppliedPolicy an applied policy
@@ -147,13 +146,9 @@ type showLogDecoder struct {
 }
 
 func (d *showLogDecoder) Decode(v interface{}) error {
-	res, ok := v.(*apclient.ShowLogOKResponseBody)
-	if !ok {
-		return errors.Errorf("expected type to be *ShowLogOKResponseBody, got %T", v)
-	}
 	bodyBytes, _ := ioutil.ReadAll(d.body)
 	body := string(bodyBytes)
-	res.ResponseBody = &body
+	v = body
 	return nil
 }
 

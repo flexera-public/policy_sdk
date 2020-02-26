@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"goa.design/goa"
-	goahttp "goa.design/goa/http"
+	goahttp "goa.design/goa/v3/http"
+	goa "goa.design/goa/v3/pkg"
 
 	"github.com/rightscale/policy_sdk/auth"
 	"github.com/rightscale/policy_sdk/sdk/applied_policy"
