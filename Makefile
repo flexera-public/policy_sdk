@@ -129,12 +129,6 @@ version:
 	  >./cmd/$(NAME)/version.go
 	@echo "version.go: `tail -1 ./cmd/$(NAME)/version.go`"
 
-
-# installs dep binary, if not present
-# TBD: move to go modules post https://github.com/goadesign/goa/issues/1959
-#$(GOPATH)/bin/dep:
-#	go get -u github.com/golang/dep/cmd/dep
-
 depend: vendor
 	for d in $(INSTALL_DEPEND); do go get $$d; done
 

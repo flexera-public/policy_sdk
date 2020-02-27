@@ -211,12 +211,13 @@ func (c *Client) ShowLog() goa.Endpoint {
 		if err != nil {
 			return nil, goahttp.ErrRequestError("AppliedPolicy", "show_log", err)
 		}
-		//if resp.StatusCode != http.StatusOK{
-
+		if resp.StatusCode != 200 {
 			decodeResponse = DecodeShowLogResponse(func(resp *http.Response) goahttp.Decoder {
 				return &BadResponseLogDecoder{resp.Body}
 			}, c.RestoreResponseBody)
-		//}
+		} else{
+			decodeResponse = DecodeShowLogResponse(c.decoder, c.RestoreResponseBody)
+		}
 		return decodeResponse(resp)
 	}
 }

@@ -4,13 +4,12 @@ package policy
 
 import (
 	"context"
-	"io"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/pkg/errors"
 	"github.com/rightscale/policy_sdk/sdk/applied_policy"
 	goahttp "goa.design/goa/v3/http"
+	"io"
+	"io/ioutil"
+	"net/http"
 )
 
 // CreateAppliedPolicy an applied policy
@@ -146,9 +145,13 @@ type showLogDecoder struct {
 }
 
 func (d *showLogDecoder) Decode(v interface{}) error {
-	bodyBytes, _ := ioutil.ReadAll(d.body)
-	body := string(bodyBytes)
-	v = body
+	bodyBytes, err := ioutil.ReadAll(d.body)
+	if err != nil {
+		return err
+	}
+
+	s := v.(*string)
+	*s = string(bodyBytes)
 	return nil
 }
 

@@ -22,7 +22,7 @@ import (
 //   3. Print log as we go (if --tail option)
 //   4. Print escalation status as we go (if --tail option)
 //   5. Cleanup (stop applied policy, delete policy template)
-func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, keep bool, dryRun bool, noLog bool) error {
+func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, runCredentials string, keep bool, dryRun bool, noLog bool) error {
 	fmt.Printf("Running %s\n", file)
 	pt, err := doUpload(ctx, cli, file)
 	if err != nil {
@@ -52,7 +52,13 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 			fmt.Printf("  Terminated %s\n", ap.Href)
 		}
 	}
+
 	options, err := parseOptions(pt, runOptions)
+	if err != nil {
+		return err
+	}
+
+	credentials, err := parseCredentials(runCredentials)
 	if err != nil {
 		return err
 	}
@@ -64,6 +70,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		TemplateHref: pt.Href,
 		Frequency:    "hourly",
 		Options:      options,
+		Credentials:  credentials,
 	}
 	ap, err := cli.CreateAppliedPolicy(ctx, p)
 	if err != nil {
@@ -175,6 +182,23 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 
 func checksPassed(log string) bool {
 	return strings.Contains(log, "Total items failing checks: 0")
+}
+
+func parseCredentials(runCredentialsStr string) (map[string]string, error) {
+	if runCredentialsStr == ""{
+		return nil, nil
+	}
+
+	credentials := make(map[string]string)
+	runCredentials := strings.Split(runCredentialsStr, ",")
+
+	for _, o := range runCredentials {
+		bits := strings.SplitN(o, "=", 2)
+		if len(bits) > 1 {
+			credentials[bits[0]] = bits[1]
+		}
+	}
+	return credentials, nil
 }
 
 func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*appliedpolicy.ConfigurationOptionCreateType, error) {
