@@ -9,10 +9,8 @@ package client
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
-	"io"
 	"net/http"
 )
 
@@ -182,14 +180,6 @@ func (c *Client) ShowStatus() goa.Endpoint {
 	}
 }
 
-type BadResponseLogDecoder struct {
-	body io.Reader
-}
-
-func (d *BadResponseLogDecoder) Decode(v interface{}) error {
-	return errors.Errorf("expected type to be *ShowLogOKResponseBody, got %T", v)
-}
-
 // ShowLog returns an endpoint that makes HTTP requests to the AppliedPolicy
 // service show_log server.
 func (c *Client) ShowLog() goa.Endpoint {
@@ -210,13 +200,6 @@ func (c *Client) ShowLog() goa.Endpoint {
 
 		if err != nil {
 			return nil, goahttp.ErrRequestError("AppliedPolicy", "show_log", err)
-		}
-		if resp.StatusCode != 200 {
-			decodeResponse = DecodeShowLogResponse(func(resp *http.Response) goahttp.Decoder {
-				return &BadResponseLogDecoder{resp.Body}
-			}, c.RestoreResponseBody)
-		} else{
-			decodeResponse = DecodeShowLogResponse(c.decoder, c.RestoreResponseBody)
 		}
 		return decodeResponse(resp)
 	}

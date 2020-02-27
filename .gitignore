@@ -1,3 +1,4 @@
+.idea/
 vendor/
 version.go
 version.yml

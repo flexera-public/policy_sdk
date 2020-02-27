@@ -58,10 +58,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		return err
 	}
 
-	credentials, err := parseCredentials(runCredentials)
-	if err != nil {
-		return err
-	}
+	credentials := parseCredentials(runCredentials)
 
 	p := &appliedpolicy.CreatePayload{
 		Name:         name,
@@ -184,9 +181,9 @@ func checksPassed(log string) bool {
 	return strings.Contains(log, "Total items failing checks: 0")
 }
 
-func parseCredentials(runCredentialsStr string) (map[string]string, error) {
-	if runCredentialsStr == ""{
-		return nil, nil
+func parseCredentials(runCredentialsStr string) map[string]string {
+	if runCredentialsStr == "" {
+		return nil
 	}
 
 	credentials := make(map[string]string)
@@ -198,7 +195,7 @@ func parseCredentials(runCredentialsStr string) (map[string]string, error) {
 			credentials[bits[0]] = bits[1]
 		}
 	}
-	return credentials, nil
+	return credentials
 }
 
 func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*appliedpolicy.ConfigurationOptionCreateType, error) {

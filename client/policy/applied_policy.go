@@ -150,7 +150,10 @@ func (d *showLogDecoder) Decode(v interface{}) error {
 		return err
 	}
 
-	s := v.(*string)
+	s, ok := v.(*string)
+	if !ok {
+		return errors.Errorf("expected type to be string, got %T", v)
+	}
 	*s = string(bodyBytes)
 	return nil
 }
