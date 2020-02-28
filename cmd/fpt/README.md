@@ -18,7 +18,7 @@ See [ChangeLog.md](https://github.com/rightscale/policy_sdk/tree/master/cmd/fpt/
 Since `fpt` is written in Go it is compiled to a single static binary. Extract and run the executable below:
 
 * Linux: [v1/fpt-linux-amd64.tgz](https://binaries.rightscale.com/rsbin/fpt/v1/fpt-linux-amd64.tgz)
-* Mac OS X: [v1/fpt-darwin-amd64.tgz](https://binaries.rightscale.com/rsbin/fpt/v1/fpt-darwin-amd64.tgz)
+* macOS: [v1/fpt-darwin-amd64.tgz](https://binaries.rightscale.com/rsbin/fpt/v1/fpt-darwin-amd64.tgz)
 * Windows: [v1/fpt-windows-amd64.zip](https://binaries.rightscale.com/rsbin/fpt/v1/fpt-windows-amd64.zip)
 
 ### Configuration
