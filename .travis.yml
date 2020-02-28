@@ -5,8 +5,11 @@ matrix:
   include:
     - os: linux
       env: MAKE=make
-    # Windows builds broken on travis: https://travis-ci.community/t/choco-install-hangs-forever/307/23.
-    # git revert a1f9a47623910f77a52c31fa8614db6819ac04cb to build/test/deploy from each os (windows/darwin/linux) when this is fixed
+    - os: osx
+      osx_image: xcode11.3
+      env: MAKE=make
+    - os: windows
+      env: MAKE=mingw32-make
 cache:
   directories:
     - $HOME/.cache/go-build
@@ -16,23 +19,21 @@ addons:
     packages:
       # install 7z on Linux so both the Linux and Windows build can make the zip file the same way
       - p7zip-full
+  homebrew:
+    packages:
+      # install modern bash and coreutils on macOS so that version.sh script works correctly
+      - bash
+      - coreutils
+    update: true
 before_install:
-  # install latest mercurial client on Linux. Older clients have issues https://bitbucket.org/blog/deprecating-tlsv1-tlsv1-1-2018-12-01
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then pyenv install --skip-existing 2.7.14 && pyenv rehash && pyenv local 2.7.14; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then virtualenv -p python2.7 python_env; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then source python_env/bin/activate; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install --upgrade pip; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install mercurial --upgrade; fi
   # install mercurial on Windows as some Go dependencies need it
   - if [[ $TRAVIS_OS_NAME == windows ]]; then choco install -y hg; fi
 install:
   - $MAKE depend
 script:
   - $MAKE test
-  - GOOS=linux $MAKE build
-  - GOOS=darwin $MAKE build
-  - GOOS=windows $MAKE build
+  - $MAKE build
   # QnB upload user (rightscale-binaries-upload-governance)
   - export AWS_ACCESS_KEY_ID=AKIAIX27XNPUMQ25GSEQ
   - export AWS_SECRET_ACCESS_KEY=${RSBIN_KEY}
-  - "[[ -z $AWS_SECRET_ACCESS_KEY ]] || make upload"
+  - "[[ -z $AWS_SECRET_ACCESS_KEY ]] || $MAKE upload"

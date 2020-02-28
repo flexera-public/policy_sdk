@@ -1,8 +1,12 @@
-v1.0.7 / 2020-02-10
+v1.0.8 / 2020-02-28
+-------------------
+* Add short flag (`-C`) for credentials to go along with `--credentials`.
+
+v1.0.7 / 2020-02-28
 -------------------
 * Fix errors with incident index.
 
-v1.0.6 / 2020-02-10
+v1.0.6 / 2020-02-27
 -------------------
 * Add credential support on `fpt run` or `fpt retrieve_data`.
 

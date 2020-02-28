@@ -40,7 +40,7 @@ followed and incident printed out.
 Example: fpt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100`)
 	runFile        = runCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
 	runOptions     = runCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For list parameters, a JSON encoded array or comma separated list may be passed as the value.`).Strings()
-	runCredentials = runCmd.Flag("credentials", `Credentials is the map of name and credential used to launch the policy. Credentials must be of the form "--credentials <name1>=<value1> --credentials <name2>=<value2>.`).Strings()
+	runCredentials = runCmd.Flag("credentials", `Credentials is the map of name and credential used to launch the policy. Credentials must be of the form "--credentials <name1>=<value1> --credentials <name2>=<value2>".`).Short('C').Strings()
 	runNoLog       = runCmd.Flag("no-log", "Do not print policy execution log.").Short('n').Bool()
 	runKeep        = runCmd.Flag("keep", "Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.").Short('k').Bool()
 	runEscalations = runCmd.Flag("run-escalations", "If set, escalations will be run. Normally dry_run is set to avoid running any escalations.").Short('r').Bool()
@@ -53,7 +53,7 @@ Example: fpt retrieve_data my_policy.pt --names instances
 `)
 	rdFile        = rdCmd.Arg("file", "Policy Template file name.").Required().ExistingFile()
 	rdOptions     = rdCmd.Arg("options", `Options are user-supplied values for "parameters" defined in the PolicyTemplate language. Options must be in the form of "<name>=<value>". For list parameters, a JSON encoded array or comma separated list may be passed as the value.`).Strings()
-	rdCredentials = rdCmd.Flag("credentials", `Credentials is the map of name and credential used to launch the policy. Credentials must be of the form "--credentials <name1>=<value1> --credentials <name2>=<value2>.`).Strings()
+	rdCredentials = rdCmd.Flag("credentials", `Credentials is the map of name and credential used to launch the policy. Credentials must be of the form "--credentials <name1>=<value1> --credentials <name2>=<value2>".`).Short('C').Strings()
 	rdNames       = rdCmd.Flag("names", "Names of resources/datasources to retrieve. By default, all datasources will be retrieved.").Short('n').Strings()
 	rdOD          = rdCmd.Flag("output-dir", "Directory to store retrieved datasources.").Short('o').String()
 
