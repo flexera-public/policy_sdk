@@ -37,7 +37,7 @@ type (
 		UploadPolicyTemplate(ctx context.Context, filename string, source string) (*policytemplate.PolicyTemplate, error)
 		UpdatePolicyTemplate(ctx context.Context, id, filename string, source string) (*policytemplate.PolicyTemplate, error)
 		ShowPolicyTemplate(ctx context.Context, id string, view string) (*policytemplate.PolicyTemplate, error)
-		RetrieveData(ctx context.Context, templateID string, names []string, options []*policytemplate.ConfigurationOptionCreateType) ([]*policytemplate.Data, error)
+		RetrieveData(ctx context.Context, templateID string, names []string, options []*policytemplate.ConfigurationOptionCreateType, credentials map[string]string) ([]*policytemplate.Data, error)
 		DeletePolicyTemplate(ctx context.Context, id string) error
 
 		// CreatePublishedTemplate(ctx context.Context, orgID uint, templateHref string) (*publishedtemplate.CreateResult, error)

@@ -22,7 +22,7 @@ import (
 //   3. Print log as we go (if --tail option)
 //   4. Print escalation status as we go (if --tail option)
 //   5. Cleanup (stop applied policy, delete policy template)
-func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, runCredentials string, keep bool, dryRun bool, noLog bool) error {
+func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, runCredentials []string, keep bool, dryRun bool, noLog bool) error {
 	fmt.Printf("Running %s\n", file)
 	pt, err := doUpload(ctx, cli, file)
 	if err != nil {
@@ -181,13 +181,8 @@ func checksPassed(log string) bool {
 	return strings.Contains(log, "Total items failing checks: 0")
 }
 
-func parseCredentials(runCredentialsStr string) map[string]string {
-	if runCredentialsStr == "" {
-		return nil
-	}
-
+func parseCredentials(runCredentials []string) map[string]string {
 	credentials := make(map[string]string)
-	runCredentials := strings.Split(runCredentialsStr, ",")
 
 	for _, o := range runCredentials {
 		bits := strings.SplitN(o, "=", 2)
