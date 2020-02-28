@@ -2,7 +2,7 @@
 
 `fpt` is a command line tool to aid in the development and testing of [RightScale Policies](https://docs.rightscale.com/policies/). The tool is able to syntax check, upload, and run Policies.
 
-[![Travis CI Build Status](https://travis-ci.com/rightscale/fpt.svg?token=6Udhsz2ZbD68aBb7ApTx&branch=master)](https://travis-ci.com/rightscale/fpt)
+[![Travis CI Build Status](https://travis-ci.com/rightscale/policy_sdk.svg?branch=master)](https://travis-ci.com/rightscale/policy_sdk)
 
 See [ChangeLog.md](https://github.com/rightscale/policy_sdk/tree/master/cmd/fpt/ChangeLog.md) for changes.
 
@@ -55,6 +55,8 @@ fpt run [<flags>] <file> [<options>...]
 
   Example: fpt run max_snapshots.pt regions=us-east-1,us-west-2 max_snapshot_count=100
 
+  -C, --credentials=CREDENTIALS ...
+                         Credentials is the map of name and credential used to launch the policy. Credentials must be of the form "--credentials <name1>=<value1> --credentials <name2>=<value2>".
   -n, --no-log           Do not print policy execution log.
   -k, --keep             Keep applied policy running at end, for inspection in UI. Normally policy is terminated at the end.
   -r, --run-escalations  If set, escalations will be run. Normally dry_run is set to avoid running any escalations.
@@ -66,8 +68,10 @@ fpt retrieve_data [<flags>] <file> [<options>...]
 
   Example: fpt retrieve_data my_policy.pt --names instances
 
-  -n, --names=NAMES ...      Names of resources/datasources to retrieve. By default, all datasources will be retrieved.
-  -o, --output-dir=OUTPUTDIR  Directory to store retrieved datasources.
+  -C, --credentials=CREDENTIALS ...
+                               Credentials is the map of name and credential used to launch the policy. Credentials must be of the form "--credentials <name1>=<value1> --credentials <name2>=<value2>".
+  -n, --names=NAMES ...        Names of resources/datasources to retrieve. By default, all datasources will be retrieved.
+  -o, --output-dir=OUTPUT-DIR  Directory to store retrieved datasources.
 
 fpt script [<flags>] <file> [<parameters>...]
   Run the body of a script locally.
