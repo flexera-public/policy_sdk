@@ -1,9 +1,11 @@
 v1.0.7 / 2020-02-10
 -------------------
 * Fix errors with incident index.
+
 v1.0.6 / 2020-02-10
 -------------------
 * Add credential support on `fpt run` or `fpt retrieve_data`.
+
 v1.0.5 / 2020-02-10
 -------------------
 * Do not require parameters with defaults when running `fpt run` or `fpt retrieve_data`.
