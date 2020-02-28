@@ -12,7 +12,7 @@ import (
 	"github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
-func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, names []string, outputD string) error {
+func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string) error {
 	pt, err := doUpload(ctx, cli, file)
 	if err != nil {
 		return err
@@ -24,6 +24,8 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 		return err
 	}
 
+	credentials := parseCredentials(runCredentials)
+
 	apO, err := parseOptions(pt, runOptions)
 	if err != nil {
 		return err
@@ -32,7 +34,7 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 	options := apOptionsToptOptions(apO)
 
 	fmt.Printf("Retrieving Data from PolicyTemplate (%s)\n", pt.Href)
-	rd, err := cli.RetrieveData(ctx, pt.ID, names, options)
+	rd, err := cli.RetrieveData(ctx, pt.ID, names, options, credentials)
 	if err != nil {
 		return err
 	}

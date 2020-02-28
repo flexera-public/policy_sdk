@@ -4,14 +4,12 @@ package policy
 
 import (
 	"context"
+	"github.com/pkg/errors"
+	"github.com/rightscale/policy_sdk/sdk/applied_policy"
+	goahttp "goa.design/goa/v3/http"
 	"io"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/pkg/errors"
-	"github.com/rightscale/policy_sdk/sdk/applied_policy"
-	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
-	goahttp "goa.design/goa/http"
 )
 
 // CreateAppliedPolicy an applied policy
@@ -147,13 +145,16 @@ type showLogDecoder struct {
 }
 
 func (d *showLogDecoder) Decode(v interface{}) error {
-	res, ok := v.(*apclient.ShowLogOKResponseBody)
-	if !ok {
-		return errors.Errorf("expected type to be *ShowLogOKResponseBody, got %T", v)
+	bodyBytes, err := ioutil.ReadAll(d.body)
+	if err != nil {
+		return err
 	}
-	bodyBytes, _ := ioutil.ReadAll(d.body)
-	body := string(bodyBytes)
-	res.ResponseBody = &body
+
+	s, ok := v.(*string)
+	if !ok {
+		return errors.Errorf("expected type to be string, got %T", v)
+	}
+	*s = string(bodyBytes)
 	return nil
 }
 
