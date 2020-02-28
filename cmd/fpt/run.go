@@ -132,20 +132,36 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	}
 
 	// Handle Incidents
-	incList, err := cli.IndexIncidents(ctx, ap.ID, nil, "extended", "")
+	incList, err := cli.IndexIncidents(ctx, ap.ID, nil, "default", "")
 	if err != nil {
 		return err
 	}
 	fmt.Printf("%d validations failed and created incidents:\n", len(incList.Items))
 
-	for _, inc := range incList.Items {
-		fmt.Printf("Incident %s\n", *inc.Href)
-		fmt.Printf("Link: %s\n", incidentUILink(inc))
-		fmt.Printf("Severity: %s\n", *inc.Severity)
-		fmt.Printf("Category: %s\n", *inc.Category)
-		fmt.Printf("Items: %d\n", *inc.ViolationDataCount)
-		fmt.Printf("Summary: %s\n", *inc.Summary)
-		fmt.Printf("Detail:\n%s\n\n", *inc.Detail)
+	for _, in := range incList.Items {
+		inc, err := cli.ShowIncident(ctx, in.ID, "extended")
+		if err != nil {
+			return err
+		}
+		if inc.Href != nil {
+			fmt.Printf("Incident %s\n", *inc.Href)
+			fmt.Printf("Link: %s\n", incidentUILink(inc))
+		}
+		if inc.Severity != nil {
+			fmt.Printf("Severity: %s\n", *inc.Severity)
+		}
+		if inc.Category != nil {
+			fmt.Printf("Category: %s\n", *inc.Category)
+		}
+		if inc.ViolationDataCount != nil {
+			fmt.Printf("Items: %d\n", *inc.ViolationDataCount)
+		}
+		if inc.Summary != nil {
+			fmt.Printf("Summary: %s\n", *inc.Summary)
+		}
+		if inc.Detail != nil {
+			fmt.Printf("Detail:\n%s\n\n", *inc.Detail)
+		}
 	}
 	if dryRun {
 		return nil
