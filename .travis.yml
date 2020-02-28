@@ -34,4 +34,4 @@ script:
   # QnB upload user (rightscale-binaries-upload-governance)
   - export AWS_ACCESS_KEY_ID=AKIAIX27XNPUMQ25GSEQ
   - export AWS_SECRET_ACCESS_KEY=${RSBIN_KEY}
-  - "[[ -z $AWS_SECRET_ACCESS_KEY ]] || make upload"
+  - "[[ -z $AWS_SECRET_ACCESS_KEY ]] || $MAKE upload"
