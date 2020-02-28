@@ -24,12 +24,6 @@ addons:
       - bash
       - coreutils
 before_install:
-  # install latest mercurial client on Linux. Older clients have issues https://bitbucket.org/blog/deprecating-tlsv1-tlsv1-1-2018-12-01
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then pyenv install --skip-existing 2.7.14 && pyenv rehash && pyenv local 2.7.14; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then virtualenv -p python2.7 python_env; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then source python_env/bin/activate; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install --upgrade pip; fi
-  - if [[ $TRAVIS_OS_NAME == linux ]]; then pip install mercurial --upgrade; fi
   # install mercurial on Windows as some Go dependencies need it
   - if [[ $TRAVIS_OS_NAME == windows ]]; then choco install -y hg; fi
 install:
