@@ -85,7 +85,7 @@ type (
 // NewClient returns a new client for RightScale Policy service.
 //   host should be the API host, such as governance-3.rightscale.com
 func NewClient(host string, projectID uint, ts auth.TokenSource, debug bool) Client {
-	var doer goahttp.Doer = &http.Client{Timeout: time.Duration(60) * time.Second}
+	var doer goahttp.Doer = &http.Client{Timeout: time.Duration(300) * time.Second}
 	// if debug {
 	// 	doer = clientwrappers.LogResponseWrap(doer)
 	// }
