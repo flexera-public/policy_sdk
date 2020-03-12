@@ -1,3 +1,8 @@
+v1.0.9 / 2020-03-12
+-------------------
+* Bump timeout for http client to 5 minutes
+* Fix panic while passing non-existent options (#17)
+
 v1.0.8 / 2020-02-28
 -------------------
 * Add short flag (`-C`) for credentials to go along with `--credentials`.
