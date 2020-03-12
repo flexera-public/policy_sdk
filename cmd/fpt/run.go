@@ -224,6 +224,7 @@ func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*ap
 				paramNames = append(paramNames, p.Name)
 			}
 			errors = append(errors, fmt.Sprintf("%s does not appear in list of parameters: %s", name, strings.Join(paramNames, ", ")))
+			continue
 		}
 		var val interface{}
 		var err error
@@ -231,6 +232,7 @@ func parseOptions(pt *policytemplate.PolicyTemplate, runOptions []string) ([]*ap
 			val, err = coerceOption(name, bits[1], p.Type)
 			if err != nil {
 				errors = append(errors, err.Error())
+				continue
 			}
 		}
 		options = append(options, &appliedpolicy.ConfigurationOptionCreateType{
