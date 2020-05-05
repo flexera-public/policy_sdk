@@ -1,3 +1,7 @@
+v1.1.0 / 2020-05-05
+-------------------
+* Print all JavaScript compilation errors in the `fpt script` command (#18)
+
 v1.0.9 / 2020-03-12
 -------------------
 * Bump timeout for http client to 5 minutes
