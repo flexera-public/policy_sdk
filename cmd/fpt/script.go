@@ -13,6 +13,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/robertkrimen/otto"
+	"github.com/robertkrimen/otto/ast"
+	"github.com/robertkrimen/otto/parser"
+
 	// This import loads the otto runtime with underscore library enabled.
 	_ "github.com/robertkrimen/otto/underscore"
 )
@@ -26,6 +29,7 @@ var (
 type script struct {
 	name   string
 	code   string
+	line   int
 	result string
 	params []string
 }
@@ -33,6 +37,24 @@ type script struct {
 type param struct {
 	name  string
 	value interface{}
+}
+
+type scriptErrorList struct {
+	errs parser.ErrorList
+	file string
+	line int
+}
+
+func (s *scriptErrorList) Error() string {
+	r := regexp.MustCompile(`^(` + regexp.QuoteMeta(s.file) + `: Line )(\d+):`)
+	errs := make([]string, len(s.errs))
+	for i, err := range s.errs {
+		e := err.Error()
+		matches := r.FindStringSubmatch(e)
+		line, _ := strconv.Atoi(matches[2])
+		errs[i] = r.Copy().ReplaceAllString(e, fmt.Sprintf("%v%v:", matches[1], s.line-1+line))
+	}
+	return strings.Join(errs, "\n")
 }
 
 func runScript(ctx context.Context, file, outfile, result, name string, options []string) error {
@@ -56,7 +78,10 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 		return err
 	}
 
-	var data interface{}
+	var (
+		data interface{}
+		line int
+	)
 	if strings.Contains(src, "rs_pt_ver") {
 		scripts := getScripts(src)
 		// for i, s := range scripts {
@@ -68,6 +93,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 		} else if len(scripts) == 1 {
 			name = scripts[0].name
 			src = scripts[0].code
+			line = scripts[0].line
 			result = scripts[0].result
 		} else if len(scripts) > 0 {
 			names := []string{}
@@ -76,6 +102,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 				names = append(names, s.name)
 				if s.name == name {
 					src = s.code
+					line = s.line
 					result = s.result
 					found = true
 					break
@@ -89,7 +116,16 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	}
 	fmt.Printf("Running script %q from %s and writing %s to %s\n", name, file, result, outfile)
 
-	data, err = execScript(src, params, result)
+	code, err := parser.ParseFile(nil, file, src, 0)
+	if err != nil {
+		switch e := err.(type) {
+		case parser.ErrorList:
+			err = &scriptErrorList{errs: e, file: file, line: line}
+		}
+		return err
+	}
+
+	data, err = execScript(code, params, result)
 
 	if err != nil {
 		return err
@@ -105,7 +141,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	return nil
 }
 
-func execScript(code string, params []*param, result string) (out interface{}, err error) {
+func execScript(code *ast.Program, params []*param, result string) (out interface{}, err error) {
 	defer func() {
 		if caught := recover(); caught != nil {
 			if caught == errHalt {
@@ -309,11 +345,12 @@ func getScripts(src string) []*script {
 	scriptEndRe := regexp.MustCompile(`^\s*end\s*$`)
 	codeStartRe := regexp.MustCompile(`^\s*code ('.*|".*|<<-?[A-Z_]+\s*)$`)
 	var codeEndRe *regexp.Regexp
+	var codeLine int
 
 	scriptLines := []string{}
 	codeLines := []string{}
 	name := ""
-	for _, line := range lines {
+	for i, line := range lines {
 		if inCode {
 			//fmt.Println("DBG HERE_CODE", line)
 			if matches := codeEndRe.FindStringSubmatch(line); len(matches) > 0 {
@@ -344,12 +381,14 @@ func getScripts(src string) []*script {
 				scripts = append(scripts, &script{
 					name:   name,
 					code:   unquote(strings.Join(codeLines, "\n")),
+					line:   codeLine,
 					result: unquote(result),
 					params: params,
 				})
 			} else if matches := codeStartRe.FindStringSubmatch(line); len(matches) > 0 {
 				//fmt.Println("DBG HERE_CODE START")
 				inCode = true
+				codeLine = i + 1
 				if strings.HasPrefix(matches[1], "'") {
 					codeEndRe = regexp.MustCompile(`^(.*?[^\\]')`)
 					codeLines = append(codeLines, matches[1])
@@ -359,6 +398,7 @@ func getScripts(src string) []*script {
 				} else {
 					end := strings.TrimPrefix(strings.TrimPrefix(matches[1], "<<"), "-")
 					codeEndRe = regexp.MustCompile(`^\s*` + end)
+					codeLine++
 				}
 			} else {
 				scriptLines = append(scriptLines, line)
