@@ -132,6 +132,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	}
 
 	enc := json.NewEncoder(wr)
+	enc.SetEscapeHTML(false)
 	enc.SetIndent("", "  ")
 	err = enc.Encode(&data)
 	if err != nil {
@@ -154,32 +155,32 @@ func execScript(code *ast.Program, params []*param, result string) (out interfac
 
 	vm := otto.New()
 	stringifyArgs := func(prefix string, args []otto.Value) string {
-		output := []byte{}
+		output := &strings.Builder{}
 		basePrefix := prefix
-		suffix := "\n"
 		for _, arg := range args {
 			if !arg.IsPrimitive() {
-				prefix = basePrefix + " >\n"
-				suffix = "\n"
+				prefix = basePrefix + " >\n "
 			}
 			v, _ := arg.Export()
-			b, _ := json.MarshalIndent(v, "  ", "  ")
-			output = append(output, ' ')
-			output = append(output, b...)
-			if len(output) > debuglogDataSize {
+
+			output.WriteRune(' ')
+			e := json.NewEncoder(output)
+			e.SetEscapeHTML(false)
+			e.SetIndent("  ", "  ")
+			e.Encode(v)
+			if output.Len() > debuglogDataSize {
 				break
 			}
 		}
-		if len(output) > debuglogDataSize {
-			left := len(output) - debuglogDataSize
-			return fmt.Sprintf("%s%s ... %d bytes omitted %s",
-				prefix, string(output[:debuglogDataSize]), left, suffix)
+		if output.Len() > debuglogDataSize {
+			left := output.Len() - debuglogDataSize
+			return fmt.Sprintf("%s%s ... %d bytes omitted\n", prefix, output.String()[:debuglogDataSize], left)
 		}
-		return prefix + string(output) + suffix
+		return prefix + output.String()
 	}
 	logFn := func(kind string) func(call otto.FunctionCall) otto.Value {
 		return func(call otto.FunctionCall) otto.Value {
-			fmt.Printf(stringifyArgs("console.%s:", call.ArgumentList), kind)
+			fmt.Println(stringifyArgs(fmt.Sprintf("console.%s:", kind), call.ArgumentList))
 			return otto.UndefinedValue()
 		}
 	}
@@ -290,7 +291,7 @@ func export(v otto.Value) (interface{}, error) {
 			// this algorithm is NOT optimal for sparse arrays where the length is much greater than the amount of
 			// actual elements in the array since it will be doing a lot of IsDefined checks for no good reason.
 			// there probably aren't that many use-cases where sparse arrays would make sense for datasource results, so
-			// it is unlikely this will be a problem, but if we do run into it, we could come up with a hueristic to
+			// it is unlikely this will be a problem, but if we do run into it, we could come up with a heuristic to
 			// determine if it would be better to use the alternative algorithm of sorting the slice of Keys after
 			// parsing them as integers and then including values from Keys that parse as integers and are greater than
 			// or equal to 0 and less than the array length

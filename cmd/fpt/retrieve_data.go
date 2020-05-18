@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/rightscale/policy_sdk/client/policy"
-	"github.com/rightscale/policy_sdk/sdk/applied_policy"
-	"github.com/rightscale/policy_sdk/sdk/policy_template"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
+	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string) error {
@@ -41,24 +40,29 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 	for _, d := range rd {
 		filename := fmt.Sprintf("%s_%s.json", d.Type, d.Name)
 		// Prettyprint json
-		result, err := json.MarshalIndent(d.Data, "", "\t")
 		if err != nil {
 			return err
 		}
 		if outputD != "" {
 			filename = fmt.Sprintf("%s/%s", outputD, filename)
-		} else {
-			d, err := os.Getwd()
-			if err != nil {
-				return err
-			}
-			filename = fmt.Sprintf("%s/%s", d, filename)
 		}
 
-		err = ioutil.WriteFile(filename, result, 0644)
+		f, err := os.Create(filename)
 		if err != nil {
 			return err
 		}
+		defer f.Close()
+
+		e := json.NewEncoder(f)
+		e.SetEscapeHTML(false)
+		e.SetIndent("", "  ")
+
+		err = e.Encode(d.Data)
+		if err != nil {
+			return err
+		}
+
+		f.Close()
 		fmt.Printf("Wrote %s\n", filename)
 	}
 
