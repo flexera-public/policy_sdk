@@ -3,6 +3,7 @@ v1.1.1 / 2020-05-18
 * Clean up JSON output and output files so they are more readable without escaped `<`, `>`, and `&` characters
 * Clean up `console.log` and `console.dir` output so brackets and braces line up correctly
 * Fix a bug where the format for `fmt.Printf` included user input unnecessarily in JavaScript `console.log`/`console.dir` functions
+* Only write `fpt script` JSON output if there is no error
 
 v1.1.0 / 2020-05-05
 -------------------
