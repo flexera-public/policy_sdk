@@ -68,11 +68,6 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	}
 	src := normalizeLineEndings(string(srcBytes))
 
-	wr, err := os.Create(outfile)
-	if err != nil {
-		return err
-	}
-
 	params, err := parseParams(options)
 	if err != nil {
 		return err
@@ -126,10 +121,15 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	}
 
 	data, err = execScript(code, params, result)
-
 	if err != nil {
 		return err
 	}
+
+	wr, err := os.Create(outfile)
+	if err != nil {
+		return err
+	}
+	defer wr.Close()
 
 	enc := json.NewEncoder(wr)
 	enc.SetEscapeHTML(false)
