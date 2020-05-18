@@ -157,26 +157,40 @@ func execScript(code *ast.Program, params []*param, result string) (out interfac
 	stringifyArgs := func(prefix string, args []otto.Value) string {
 		output := &strings.Builder{}
 		basePrefix := prefix
+		separator := " "
+		primitive := true
 		for _, arg := range args {
 			if !arg.IsPrimitive() {
-				prefix = basePrefix + " >\n "
+				prefix = basePrefix + " >\n"
+				separator = "  "
+				primitive = false
+				break
 			}
+		}
+		for _, arg := range args {
 			v, _ := arg.Export()
 
-			output.WriteRune(' ')
-			e := json.NewEncoder(output)
+			b := &strings.Builder{}
+			e := json.NewEncoder(b)
 			e.SetEscapeHTML(false)
 			e.SetIndent("  ", "  ")
 			e.Encode(v)
+			s := b.String()
+			if primitive {
+				s = strings.TrimSuffix(s, "\n")
+			}
+
+			output.WriteString(separator)
+			output.WriteString(s)
 			if output.Len() > debuglogDataSize {
 				break
 			}
 		}
 		if output.Len() > debuglogDataSize {
 			left := output.Len() - debuglogDataSize
-			return fmt.Sprintf("%s%s ... %d bytes omitted\n", prefix, output.String()[:debuglogDataSize], left)
+			return fmt.Sprintf("%s%s ... %d bytes omitted", prefix, output.String()[:debuglogDataSize], left)
 		}
-		return prefix + output.String()
+		return prefix + strings.TrimSuffix(output.String(), "\n")
 	}
 	logFn := func(kind string) func(call otto.FunctionCall) otto.Value {
 		return func(call otto.FunctionCall) otto.Value {
