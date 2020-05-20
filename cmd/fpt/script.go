@@ -68,11 +68,6 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	}
 	src := normalizeLineEndings(string(srcBytes))
 
-	wr, err := os.Create(outfile)
-	if err != nil {
-		return err
-	}
-
 	params, err := parseParams(options)
 	if err != nil {
 		return err
@@ -126,12 +121,18 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	}
 
 	data, err = execScript(code, params, result)
-
 	if err != nil {
 		return err
 	}
 
+	wr, err := os.Create(outfile)
+	if err != nil {
+		return err
+	}
+	defer wr.Close()
+
 	enc := json.NewEncoder(wr)
+	enc.SetEscapeHTML(false)
 	enc.SetIndent("", "  ")
 	err = enc.Encode(&data)
 	if err != nil {
@@ -154,32 +155,46 @@ func execScript(code *ast.Program, params []*param, result string) (out interfac
 
 	vm := otto.New()
 	stringifyArgs := func(prefix string, args []otto.Value) string {
-		output := []byte{}
+		output := &strings.Builder{}
 		basePrefix := prefix
-		suffix := "\n"
+		separator := " "
+		primitive := true
 		for _, arg := range args {
 			if !arg.IsPrimitive() {
 				prefix = basePrefix + " >\n"
-				suffix = "\n"
-			}
-			v, _ := arg.Export()
-			b, _ := json.MarshalIndent(v, "  ", "  ")
-			output = append(output, ' ')
-			output = append(output, b...)
-			if len(output) > debuglogDataSize {
+				separator = "  "
+				primitive = false
 				break
 			}
 		}
-		if len(output) > debuglogDataSize {
-			left := len(output) - debuglogDataSize
-			return fmt.Sprintf("%s%s ... %d bytes omitted %s",
-				prefix, string(output[:debuglogDataSize]), left, suffix)
+		for _, arg := range args {
+			v, _ := arg.Export()
+
+			b := &strings.Builder{}
+			e := json.NewEncoder(b)
+			e.SetEscapeHTML(false)
+			e.SetIndent("  ", "  ")
+			e.Encode(v)
+			s := b.String()
+			if primitive {
+				s = strings.TrimSuffix(s, "\n")
+			}
+
+			output.WriteString(separator)
+			output.WriteString(s)
+			if output.Len() > debuglogDataSize {
+				break
+			}
 		}
-		return prefix + string(output) + suffix
+		if output.Len() > debuglogDataSize {
+			left := output.Len() - debuglogDataSize
+			return fmt.Sprintf("%s%s ... %d bytes omitted", prefix, output.String()[:debuglogDataSize], left)
+		}
+		return prefix + strings.TrimSuffix(output.String(), "\n")
 	}
 	logFn := func(kind string) func(call otto.FunctionCall) otto.Value {
 		return func(call otto.FunctionCall) otto.Value {
-			fmt.Printf(stringifyArgs("console.%s:", call.ArgumentList), kind)
+			fmt.Println(stringifyArgs(fmt.Sprintf("console.%s:", kind), call.ArgumentList))
 			return otto.UndefinedValue()
 		}
 	}
@@ -290,7 +305,7 @@ func export(v otto.Value) (interface{}, error) {
 			// this algorithm is NOT optimal for sparse arrays where the length is much greater than the amount of
 			// actual elements in the array since it will be doing a lot of IsDefined checks for no good reason.
 			// there probably aren't that many use-cases where sparse arrays would make sense for datasource results, so
-			// it is unlikely this will be a problem, but if we do run into it, we could come up with a hueristic to
+			// it is unlikely this will be a problem, but if we do run into it, we could come up with a heuristic to
 			// determine if it would be better to use the alternative algorithm of sorting the slice of Keys after
 			// parsing them as integers and then including values from Keys that parse as integers and are greater than
 			// or equal to 0 and less than the array length

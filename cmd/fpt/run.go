@@ -284,8 +284,12 @@ func cleanupRun(ctx context.Context, cli policy.Client, ap *appliedpolicy.Applie
 }
 
 func dump(v interface{}) string {
-	b, _ := json.MarshalIndent(v, "", "  ")
-	return string(b)
+	b := &strings.Builder{}
+	e := json.NewEncoder(b)
+	e.SetEscapeHTML(false)
+	e.SetIndent("", "  ")
+	e.Encode(v)
+	return b.String()
 }
 
 func appliedPolicyUILink(ap *appliedpolicy.AppliedPolicy) string {
