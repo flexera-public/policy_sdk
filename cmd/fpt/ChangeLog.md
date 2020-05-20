@@ -1,4 +1,4 @@
-v1.1.1 / 2020-05-18
+v1.1.1 / 2020-05-20
 -------------------
 * Clean up JSON output and output files so they are more readable without escaped `<`, `>`, and `&` characters
 * Clean up `console.log` and `console.dir` output so brackets and braces line up correctly
