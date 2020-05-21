@@ -119,6 +119,11 @@ func main() {
 		}
 		client = policy.NewClient(acct.Host, uint(acct.ID), ts, *debug)
 	}
+
+	if config.Config.GetBool("update.check") && !strings.HasPrefix(command, "update") {
+		defer UpdateCheck(VV, os.Stderr)
+	}
+
 	switch command {
 	case upCmd.FullCommand():
 		files, err := walkPaths(*upFiles)
