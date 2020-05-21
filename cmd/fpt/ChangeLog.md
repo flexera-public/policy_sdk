@@ -1,5 +1,5 @@
-Unreleased Changes
-------------------
+v1.1.2 / 2020-05-21
+-------------------
 * Actually check for any updates if `update.check` is set to `true`
 
 v1.1.1 / 2020-05-20
