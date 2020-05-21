@@ -1,3 +1,7 @@
+Unreleased Changes
+------------------
+* Actually check for any updates if `update.check` is set to `true`
+
 v1.1.1 / 2020-05-20
 -------------------
 * Clean up JSON output and output files so they are more readable without escaped `<`, `>`, and `&` characters
