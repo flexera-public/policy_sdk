@@ -1,3 +1,7 @@
+v1.1.3 / 2020-06-25
+-------------------
+* Fix an incorrect use of `fmt.Printf` without a format to use `fmt.Print` instead
+
 v1.1.2 / 2020-05-21
 -------------------
 * Actually check for any updates if `update.check` is set to `true`

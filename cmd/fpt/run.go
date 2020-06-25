@@ -106,7 +106,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		lastEtag = *log.Etag
 		lastLog = *log.ResponseBody
 		if !noLog {
-			fmt.Printf(lastLog[lastSize:])
+			fmt.Print(lastLog[lastSize:])
 		}
 
 		//fmt.Printf("STATUS: %s\n", dump(status))
