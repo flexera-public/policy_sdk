@@ -55,6 +55,20 @@ func TestGetScripts(t *testing.T) {
 					params: []string{"otra"},
 					result: "RESVAR",
 				},
+				{
+					name:   "single_quote_heredoc",
+					code:   "  var output = 'Single quote HEREDOCs\\nare awesome!';\n\n  console.log(a, b, output);",
+					line:   65,
+					params: []string{"a", "b"},
+					result: "output",
+				},
+				{
+					name:   "double_quote_heredoc",
+					code:   "var output = 'Double quote HEREDOCs\\nare not that remarkable.';\n\nconsole.log(output);",
+					line:   74,
+					params: []string{},
+					result: "output",
+				},
 			},
 		},
 	}

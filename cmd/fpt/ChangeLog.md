@@ -1,6 +1,9 @@
-v1.1.3 / 2020-06-25
+v1.1.3 / 2020-06-26
 -------------------
 * Fix an incorrect use of `fmt.Printf` without a format to use `fmt.Print` instead
+* Handle the `'EOS'` and `"EOS"` forms of [HEREDOC](https://ruby-doc.org/core-2.2.7/doc/syntax/literals_rdoc.html#label-Here+Documents)s as a prefix when detecting JavaScript `code` blocks in the `fpt script` subcommand
+* Actually check if `--result`/`-r` is being passed when executing raw JavaScript with the `fpt script` subcommand
+* Handle Policy Template (Ruby) comments correctly when parsing for the `fpt script` subcommand
 
 v1.1.2 / 2020-05-21
 -------------------
