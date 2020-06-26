@@ -58,6 +58,24 @@ RESVAR=otra[0]
 EOF
 end
 
+script 'single_quote_heredoc', type: 'javascript' do # there can be a comment here,
+  result 'output'                                    # here,
+  parameters 'a', 'b'                                # here,
+  code <<-'eos'                                      # here,
+  var output = 'Single quote HEREDOCs\nare awesome!';
+
+  console.log(a, b, output);
+  eos
+end                                                  # and here
+
+script 'double_quote_heredoc', type: 'javascript' do
+  result 'output'
+  code <<"eos"
+var output = 'Double quote HEREDOCs\\nare not that remarkable.';
+
+console.log(output);
+eos
+end
 
 policy "filter_check" do
   validate $filtered_dcs do

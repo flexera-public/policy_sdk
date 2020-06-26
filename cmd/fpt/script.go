@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -24,6 +25,11 @@ var (
 	maxExecTime      = 600 * time.Second
 	errHalt          = fmt.Errorf("HALT")
 	debuglogDataSize = 10 * 1024
+	q                = regexp.MustCompile(`\\(.)`)
+	qw               = regexp.MustCompile(`"(.*?[^\\])"|'(.*?[^\\])'`)
+	scriptStartRe    = regexp.MustCompile(`^\s*script\s+['"]([^'"]+)['"],.*do\s*(?:#.*)?$`)
+	scriptEndRe      = regexp.MustCompile(`^\s*end\s*(?:#.*)?$`)
+	codeStartRe      = regexp.MustCompile(`^\s*code\s+('.*|".*|<<-?(?:[A-Za-z_]+|'[A-Za-z_]+'|"[A-Za-z_]+")\s*(?:#.*)?)$`)
 )
 
 type script struct {
@@ -108,6 +114,10 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 					strings.Join(names, " or "))
 			}
 		}
+	} else if result == "" {
+		return fmt.Errorf("no result variable specified for raw JavaScript, pass --result with the name of the variable to extract")
+	} else {
+		name = strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
 	}
 	fmt.Printf("Running script %q from %s and writing %s to %s\n", name, file, result, outfile)
 
@@ -355,10 +365,7 @@ func getScripts(src string) []*script {
 	lines := strings.Split(src, "\n")
 	inScript := false
 	inCode := false
-	qw := regexp.MustCompile(`"(.*?[^\\])"|'(.*?[^\\])'`)
-	scriptStartRe := regexp.MustCompile(`^\s*script ['"]([^'"]+)['"],.*do\s*$`)
-	scriptEndRe := regexp.MustCompile(`^\s*end\s*$`)
-	codeStartRe := regexp.MustCompile(`^\s*code ('.*|".*|<<-?[A-Z_]+\s*)$`)
+	unescapeCode := true
 	var codeEndRe *regexp.Regexp
 	var codeLine int
 
@@ -395,9 +402,9 @@ func getScripts(src string) []*script {
 				}
 				scripts = append(scripts, &script{
 					name:   name,
-					code:   unquote(strings.Join(codeLines, "\n")),
+					code:   unquote(strings.Join(codeLines, "\n"), unescapeCode),
 					line:   codeLine,
-					result: unquote(result),
+					result: unquote(result, true),
 					params: params,
 				})
 			} else if matches := codeStartRe.FindStringSubmatch(line); len(matches) > 0 {
@@ -411,7 +418,9 @@ func getScripts(src string) []*script {
 					codeEndRe = regexp.MustCompile(`^(.*?[^\\]")`)
 					codeLines = append(codeLines, matches[1])
 				} else {
-					end := strings.TrimPrefix(strings.TrimPrefix(matches[1], "<<"), "-")
+					identifier := strings.TrimSpace(strings.SplitN(strings.TrimPrefix(strings.TrimPrefix(matches[1], "<<"), "-"), "#", 2)[0])
+					unescapeCode = identifier[:1] != "'"
+					end := strings.Trim(identifier, `'"`)
 					codeEndRe = regexp.MustCompile(`^\s*` + end)
 					codeLine++
 				}
@@ -431,23 +440,24 @@ func getScripts(src string) []*script {
 }
 
 func getKey(lines []string, key string) string {
-	keyRe := regexp.MustCompile(fmt.Sprintf(`\s*%s\s+(.*)\s*$`, key))
+	keyRe := regexp.MustCompile(fmt.Sprintf(`\s*%s\s+([^#]*)(?:#.*)?$`, key))
 	for _, line := range lines {
 		if matches := keyRe.FindStringSubmatch(line); len(matches) > 0 {
-			return matches[1]
+			return strings.TrimSpace(matches[1])
 		}
 	}
 	return ""
 }
 
-func unquote(s string) string {
-	q := regexp.MustCompile(`\\(.)`)
+func unquote(s string, unescape bool) string {
 	if strings.HasPrefix(s, "'") {
 		s = s[1 : len(s)-1]
 	} else if strings.HasPrefix(s, `"`) {
 		s = s[1 : len(s)-1]
 	}
-	s = q.ReplaceAllString(s, "$1")
+	if unescape {
+		s = q.ReplaceAllString(s, "$1")
+	}
 	return s
 }
 
