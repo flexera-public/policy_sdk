@@ -1,3 +1,7 @@
+v1.1.4 / 2020-06-30
+-------------------
+* Remove double read of access token response for non-200 codes so the actual error message comes through
+
 v1.1.3 / 2020-06-26
 -------------------
 * Fix an incorrect use of `fmt.Printf` without a format to use `fmt.Print` instead
