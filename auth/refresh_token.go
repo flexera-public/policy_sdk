@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"time"
 
-	goahttp "goa.design/goa/http"
+	goahttp "goa.design/goa/v3/http"
 )
 
 // refreshTokenSource contains the logic to create new session using OAuth tokens
@@ -61,10 +61,6 @@ func (ts *refreshTokenSource) TokenString() (string, error) {
 	}
 	defer resp.Body.Close()
 
-	jsonBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("Authentication failed (failed to read response): %s", err)
-	}
 	if resp.StatusCode != 200 {
 		body, err := ioutil.ReadAll(resp.Body)
 		var msg string
@@ -77,6 +73,10 @@ func (ts *refreshTokenSource) TokenString() (string, error) {
 		return "", fmt.Errorf("Authentication failed: %s%s", resp.Status, msg)
 	}
 
+	jsonBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("Authentication failed (failed to read response): %s", err)
+	}
 	var g Grant
 	err = json.Unmarshal(jsonBytes, &g)
 	if err != nil {
