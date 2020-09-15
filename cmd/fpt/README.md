@@ -32,7 +32,7 @@ Since `fpt` is written in Go it is compiled to a single static binary. Extract a
       * Your personal OAuth refresh token available from **Settings > Account Settings > API Credentials** in the RightScale Cloud Management dashboard (this is deprecated in favor of Flexera One and will be removed in a future version)
       * Your API refresh token available from [**Flexera One > User Settings > API Credentials**](https://app.flexera.com/settings/api-credentials)
     * Flexera One - Whether the Refresh Token is from the Flexera One platform instead of the legacy RightScale dashboard (the value should be `true` for Flexera One or `false` otherwise)
-2. Environment variables - These are meant to be used by build systems such as Travis CI. The following vars must be set: `FPT_LOGIN_ACCOUNT_ID`, `FPT_LOGIN_ACCOUNT_HOST`, `FPT_LOGIN_ACCOUNT_REFRESH_TOKEN`. These variables are equivalent to the ones described in the YAML section above.
+2. Environment variables - These are meant to be used by build systems such as Travis CI. The following vars must be set: `FPT_LOGIN_ACCOUNT_ID`, `FPT_LOGIN_ACCOUNT_HOST`, `FPT_LOGIN_ACCOUNT_REFRESH_TOKEN`. If the refresh token is from the Flexera One platform, you should set `FPT_LOGIN_ACCOUNT_FLEXERA=true` as well. These variables are equivalent to the ones described in the YAML section above.
 
 ### Usage
 
