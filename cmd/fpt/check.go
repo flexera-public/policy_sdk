@@ -58,7 +58,7 @@ func printCompileError(err error) {
 				syntaxErr.Origin, syntaxErr.Problem, syntaxErr.Summary, syntaxErr.Resolution)
 		}
 	default:
-		fmt.Printf("An unexpected error occurred: %v", err)
+		fmt.Printf("An unexpected error occurred: %v\n", err)
 	}
 
 }

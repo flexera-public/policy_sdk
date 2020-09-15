@@ -13,38 +13,115 @@ import (
 	goahttp "goa.design/goa/v3/http"
 )
 
-// refreshTokenSource contains the logic to create new session using OAuth tokens
-type refreshTokenSource struct {
-	endpoint     *url.URL
-	refreshToken string
-	accessToken  string
-	refreshAt    time.Time
-	doer         goahttp.Doer
-}
+type (
+	// flexeraRefreshTokenSource contains the logic to create new sessions using OAuth2 tokens
+	flexeraRefreshTokenSource struct {
+		endpoint     *url.URL
+		refreshToken string
+		accessToken  string
+		refreshAt    time.Time
+		doer         goahttp.Doer
+	}
 
-// Grant from CM API 1.5
-type Grant struct {
-	ExpiresIn   int    `json:"expires_in"`
-	AccessToken string `json:"access_token"`
-}
+	// rsRefreshTokenSource contains the logic to create new session using OAuth tokens using the legacy RightScale login system
+	rsRefreshTokenSource struct {
+		endpoint     *url.URL
+		refreshToken string
+		accessToken  string
+		refreshAt    time.Time
+		doer         goahttp.Doer
+	}
+
+	// Grant represents the grant response returned by the token endpoint
+	Grant struct {
+		ExpiresIn   int    `json:"expires_in"`
+		AccessToken string `json:"access_token"`
+	}
+)
+
+var (
+	flexeraHostRegexp = regexp.MustCompile(`^login\.flexera(?:test)?\.com$`)
+	cmHostRegexp      = regexp.MustCompile(`^(us|telstra|moo)-(\d+)\.(test.)?rightscale\.com$`)
+)
 
 // NewOAuthAuthenticator returns a authenticator that uses a oauth refresh
 // token to create access tokens. The refresh token can be found in the CM
 // dashboard under Settings > Account Settings > API Credentials.
 func NewOAuthAuthenticator(host string, refreshToken string) (TokenSource, error) {
-	if !validHost(host) {
-		return nil, fmt.Errorf("invalid authentication host, must be a form like us-3.rightscale.com")
+	if cmHostRegexp.MatchString(host) {
+		endpoint, _ := url.Parse(fmt.Sprintf("https://%s/api/oauth2", host))
+		return &rsRefreshTokenSource{
+			endpoint:     endpoint,
+			refreshToken: refreshToken,
+			refreshAt:    time.Now().Add(-2 * time.Minute),
+			doer:         http.DefaultClient,
+		}, nil
+	} else if !flexeraHostRegexp.MatchString(host) {
+		return nil, fmt.Errorf("invalid authentication host: %v does not match %v or %v", host, flexeraHostRegexp, cmHostRegexp)
 	}
-	endpoint, _ := url.Parse(fmt.Sprintf("https://%s/api/oauth2", host))
-	return &refreshTokenSource{
+	endpoint, _ := url.Parse(fmt.Sprintf("https://%v/oidc/token", host))
+	return &flexeraRefreshTokenSource{
 		endpoint:     endpoint,
 		refreshToken: refreshToken,
-		refreshAt:    time.Now().Add(-2 * time.Minute),
 		doer:         http.DefaultClient,
 	}, nil
 }
 
-func (ts *refreshTokenSource) TokenString() (string, error) {
+func (fts *flexeraRefreshTokenSource) TokenString() (string, error) {
+	if fts.tokenValid() {
+		return fts.accessToken, nil
+	}
+
+	b, err := json.Marshal(map[string]string{
+		"grant_type":    "refresh_token",
+		"refresh_token": fts.refreshToken,
+	})
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest("POST", fts.endpoint.String(), bytes.NewBuffer(b))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := fts.doer.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("authentication failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		b, err := ioutil.ReadAll(resp.Body)
+		m := "<empty body>"
+		if err != nil {
+			m = "<failed to read body>"
+		} else if len(b) > 0 {
+			m = string(b)
+		}
+		return "", fmt.Errorf("authentication failed: %v: %v", resp.Status, m)
+	}
+
+	b, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("authentication failed: failed to read response: %v", err)
+	}
+	var g Grant
+	err = json.Unmarshal(b, &g)
+	if err != nil {
+		return "", fmt.Errorf("authentication failed: failed to parse response: %v", err)
+	}
+	if g.AccessToken == "" || g.ExpiresIn == 0 {
+		return "", fmt.Errorf("authentication failed: grant missing field values: %+v", g)
+	}
+
+	fts.accessToken = g.AccessToken
+	fts.refreshAt = time.Now().Add(time.Duration(g.ExpiresIn/2) * time.Second)
+	return fts.accessToken, nil
+}
+
+func (fts *flexeraRefreshTokenSource) tokenValid() bool {
+	return fts.accessToken != "" && !fts.refreshAt.Before(time.Now())
+}
+
+func (ts *rsRefreshTokenSource) TokenString() (string, error) {
 	if ts.tokenValid() {
 		return ts.accessToken, nil
 	}
@@ -91,11 +168,6 @@ func (ts *refreshTokenSource) TokenString() (string, error) {
 	return ts.accessToken, nil
 }
 
-func (ts *refreshTokenSource) tokenValid() bool {
-	return ts.accessToken != "" && ts.refreshAt.Before(time.Now())
-}
-
-func validHost(host string) bool {
-	hostRe := regexp.MustCompile(`(us|telstra|moo)-(\d+)\.(test.)?rightscale\.com`)
-	return hostRe.MatchString(host)
+func (ts *rsRefreshTokenSource) tokenValid() bool {
+	return ts.accessToken != "" && !ts.refreshAt.Before(time.Now())
 }

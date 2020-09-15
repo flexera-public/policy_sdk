@@ -1,3 +1,8 @@
+v1.2.0 / 2020-09-15
+-------------------
+* Add support for Flexera One refresh tokens using an optional `flexera` boolean parameter in account entries in
+  the configuration file
+
 v1.1.4 / 2020-06-30
 -------------------
 * Remove double read of access token response for non-200 codes so the actual error message comes through

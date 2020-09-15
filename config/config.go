@@ -22,6 +22,7 @@ type Account struct {
 	Host         string
 	ID           int
 	RefreshToken string `mapstructure:"refresh_token" yaml:"refresh_token"`
+	Flexera      *bool
 }
 
 var Config ConfigViper
@@ -59,6 +60,10 @@ func ReadConfig(configFile, account string) error {
 			ID:           Config.GetInt("login.account.id"),
 			Host:         Config.GetString("login.account.host"),
 			RefreshToken: Config.GetString("login.account.refresh_token"),
+		}
+		if Config.IsSet("login.account.flexera") {
+			flexera := Config.GetBool("login.account.flexera")
+			Config.Account.Flexera = &flexera
 		}
 	} else {
 		var ok bool
@@ -226,12 +231,19 @@ func (a *Account) AuthHost() string {
 	}
 	shardNum := matches[1]
 	testHost := matches[2]
-	prefix := "us"
-	if shardNum == "10" {
-		prefix = "telstra"
+	if a.Flexera != nil && *a.Flexera {
+		if testHost != "" {
+			return "login.flexeratest.com"
+		}
+		return "login.flexera.com"
+	} else {
+		prefix := "us"
+		if shardNum == "10" {
+			prefix = "telstra"
+		}
+		if testHost != "" {
+			prefix = "moo"
+		}
+		return fmt.Sprintf("%s-%s.%srightscale.com", prefix, shardNum, testHost)
 	}
-	if testHost != "" {
-		prefix = "moo"
-	}
-	return fmt.Sprintf("%s-%s.%srightscale.com", prefix, shardNum, testHost)
 }
