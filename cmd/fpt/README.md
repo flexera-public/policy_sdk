@@ -1,6 +1,6 @@
 # fpt
 
-`fpt` is a command line tool to aid in the development and testing of [RightScale Policies](https://docs.rightscale.com/policies/). The tool is able to syntax check, upload, and run Policies.
+`fpt` is a command line tool to aid in the development and testing of [Flexera Policies](https://docs.rightscale.com/policies/). The tool is able to syntax check, upload, and run Policies.
 
 [![Travis CI Build Status](https://travis-ci.com/rightscale/policy_sdk.svg?branch=master)](https://travis-ci.com/rightscale/policy_sdk)
 
@@ -28,9 +28,11 @@ Since `fpt` is written in Go it is compiled to a single static binary. Extract a
 1. YAML-based configuration file -  Run `fpt config account <name>`, where name is a nickname for the account, to interactively write the configuration file into `$HOME/.fpt.yml` for the first time. You will be prompted for the following fields:
     * Account ID - Numeric account number, such as `60073`
     * API endpoint host - Hostname, typically `governance-3.rightscale.com`
-    * Refresh Token - Your personal OAuth token available from **Settings > Account Settings > API Credentials** in the RightScale Cloud Management dashboard
+    * Refresh Token - Either:
+      * Your personal OAuth refresh token available from **Settings > Account Settings > API Credentials** in the RightScale Cloud Management dashboard (this is deprecated in favor of Flexera One and will be removed in a future version)
+      * Your API refresh token available from [**Flexera One > User Settings > API Credentials**](https://app.flexera.com/settings/api-credentials)
+    * Flexera One - Whether the Refresh Token is from the Flexera One platform instead of the legacy RightScale dashboard (the value should be `true` for Flexera One or `false` otherwise)
 2. Environment variables - These are meant to be used by build systems such as Travis CI. The following vars must be set: `FPT_LOGIN_ACCOUNT_ID`, `FPT_LOGIN_ACCOUNT_HOST`, `FPT_LOGIN_ACCOUNT_REFRESH_TOKEN`. These variables are equivalent to the ones described in the YAML section above.
-
 
 ### Usage
 
@@ -88,7 +90,6 @@ fpt script [<flags>] <file> [<parameters>...]
 This tool is maintained by [Douglas Thrift (douglaswth)](https://github.com/douglaswth),
 [Peter Schroeter (psschroeter)](https://github.com/psschroeter),
 [Avinash Bhashyam (avinashbhashyam-rs)](https://github.com/avinashbhashyam-rs)
-
 
 ## License
 

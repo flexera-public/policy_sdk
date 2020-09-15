@@ -12,20 +12,26 @@ import (
 	"github.com/spf13/viper"
 )
 
-type ConfigViper struct {
-	*viper.Viper
-	Account  *Account
-	Accounts map[string]*Account
-}
+type (
+	ConfigViper struct {
+		*viper.Viper
+		Account  *Account
+		Accounts map[string]*Account
+	}
 
-type Account struct {
-	Host         string
-	ID           int
-	RefreshToken string `mapstructure:"refresh_token" yaml:"refresh_token"`
-	Flexera      *bool
-}
+	Account struct {
+		Host         string
+		ID           int
+		RefreshToken string `mapstructure:"refresh_token" yaml:"refresh_token"`
+		Flexera      *bool
+	}
+)
 
-var Config ConfigViper
+var (
+	Config     ConfigViper
+	boolRegexp = regexp.MustCompile(`^(?i:true)$`)
+	hostRegexp = regexp.MustCompile(`^governance-(\d+)\.(test.)?rightscale\.com$`)
+)
 
 func init() {
 	Config.Viper = viper.New()
@@ -163,6 +169,25 @@ func (config *ConfigViper) SetAccount(name string, setDefault bool, input io.Rea
 		newAccount.RefreshToken = oldAccount.RefreshToken
 	}
 
+	// prompt for whether the refresh token is from Flexera One
+	fmt.Fprint(output, "Flexera One (true if the refresh token is from the Flexera One platform, false if it is from the RightScale dashboard)")
+	if ok {
+		flexera := false
+		if oldAccount.Flexera != nil {
+			flexera = *oldAccount.Flexera
+		}
+		fmt.Fprintf(output, " (%t)", flexera)
+	}
+	fmt.Fprint(output, ": ")
+	var flexera string
+	fmt.Fscanln(input, &flexera)
+	if ok && flexera == "" {
+		newAccount.Flexera = oldAccount.Flexera
+	} else {
+		newAccount.Flexera = new(bool)
+		*newAccount.Flexera = boolRegexp.MatchString(flexera)
+	}
+
 	// add the new account to the map of accounts overwriting any old value
 	accounts := loginSettings["accounts"].(map[string]interface{})
 	accounts[name] = newAccount
@@ -215,17 +240,15 @@ func (config *ConfigViper) ShowConfiguration(output io.Writer) error {
 	return nil
 }
 
-var hostRe = regexp.MustCompile(`governance-(\d+)\.(test.)?rightscale\.com`)
-
 func (a *Account) Validate() error {
-	if !hostRe.MatchString(a.Host) {
+	if !hostRegexp.MatchString(a.Host) {
 		return fmt.Errorf("invalid host: must be of form governance-<shard number>.rightscale.com")
 	}
 	return nil
 }
 
 func (a *Account) AuthHost() string {
-	matches := hostRe.FindStringSubmatch(a.Host)
+	matches := hostRegexp.FindStringSubmatch(a.Host)
 	if len(matches) == 0 {
 		return ""
 	}
