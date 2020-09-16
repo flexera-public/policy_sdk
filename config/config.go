@@ -20,10 +20,10 @@ type (
 	}
 
 	Account struct {
+		Flexera      *bool
 		Host         string
 		ID           int
 		RefreshToken string `mapstructure:"refresh_token" yaml:"refresh_token"`
-		Flexera      *bool
 	}
 )
 
@@ -191,6 +191,20 @@ func (config *ConfigViper) SetAccount(name string, setDefault bool, input io.Rea
 	// add the new account to the map of accounts overwriting any old value
 	accounts := loginSettings["accounts"].(map[string]interface{})
 	accounts[name] = newAccount
+
+	// make sure all accounts have flexera set
+	for _, v := range accounts {
+		switch account := v.(type) {
+		case *Account:
+			if account.Flexera == nil {
+				account.Flexera = new(bool) // the zero value of a bool is false
+			}
+		case map[string]interface{}:
+			if _, ok := account["flexera"]; !ok {
+				account["flexera"] = false
+			}
+		}
+	}
 
 	// render the settings map as YAML
 	yml, err := yaml.Marshal(settings)
