@@ -1,4 +1,4 @@
-v1.2.0 / 2020-09-15
+v1.2.0 / 2020-09-16
 -------------------
 * Add support for Flexera One refresh tokens using an optional `flexera` boolean parameter in account entries in
   the configuration file
