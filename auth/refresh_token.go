@@ -40,7 +40,7 @@ type (
 )
 
 var (
-	flexeraHostRegexp = regexp.MustCompile(`^login\.flexera(?:test)?\.com$`)
+	flexeraHostRegexp = regexp.MustCompile(`^login\.flexera(?:test)?\.(?:com|eu)$`)
 	cmHostRegexp      = regexp.MustCompile(`^(us|telstra|moo)-(\d+)\.(test.)?rightscale\.com$`)
 )
 
