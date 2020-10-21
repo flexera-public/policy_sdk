@@ -1,6 +1,6 @@
 # policy_sdk
 
-This repository contains is a software developer kit for [RightScale Policies](https://docs.rightscale.com/policies/). Policies allow you to automate governance across your multi-cloud environment to increase agility and efficiency while managing security and risk in your organization. Developing [custom policies](https://docs.rightscale.com/policies/getting_started/custom_policy.html) allows the policy engine to interface with almost any publicly available API.
+This repository contains is a software developer kit for [Flexera Policies](https://docs.rightscale.com/policies/). Policies allow you to automate governance across your multi-cloud environment to increase agility and efficiency while managing security and risk in your organization. Developing [custom policies](https://docs.rightscale.com/policies/getting_started/custom_policy.html) allows the policy engine to interface with almost any publicly available API.
 
 ## fpt
 

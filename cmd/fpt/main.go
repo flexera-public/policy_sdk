@@ -16,7 +16,7 @@ import (
 
 var (
 	// ----- Top Level -----
-	app = kingpin.New("fpt", `A command-line application for testing RightScale Policies.
+	app = kingpin.New("fpt", `A command-line application for testing Flexera Policies.
 fpt contains a number of useful commands to help with development of Policies, including a syntax checker and policy runner.
 Run fpt --help <command> for additional command specific help.
 `)
@@ -71,9 +71,9 @@ Example: fpt script max_snapshots.pt volumes=@ec2_volumes.json max_count=50 excl
 	// ----- Configuration -----
 	configCmd = app.Command("config", "Manage Configuration")
 
-	configAccountCmd     = configCmd.Command("account", "Add or edit configuration for a RightScale API account")
-	configAccountName    = configAccountCmd.Arg("name", "Name of RightScale API Account to add or edit").Required().String()
-	configAccountDefault = configAccountCmd.Flag("default", "Set the named RightScale API Account as the default").Short('D').Bool()
+	configAccountCmd     = configCmd.Command("account", "Add or edit configuration for a Flexera One or RightScale API account")
+	configAccountName    = configAccountCmd.Arg("name", "Name of Flexera One or RightScale API Account to add or edit").Required().String()
+	configAccountDefault = configAccountCmd.Flag("default", "Set the named Flexera One or RightScale API Account as the default").Short('D').Bool()
 
 	configShowCmd = configCmd.Command("show", "Show configuration")
 
