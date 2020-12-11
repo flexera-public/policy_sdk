@@ -114,6 +114,9 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 					strings.Join(names, " or "))
 			}
 		}
+		if result == "" {
+			return fmt.Errorf("no result variable specified in script block %#v", name)
+		}
 	} else if result == "" {
 		return fmt.Errorf("no result variable specified for raw JavaScript, pass --result with the name of the variable to extract")
 	} else {

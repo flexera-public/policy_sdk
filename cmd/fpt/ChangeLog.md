@@ -1,3 +1,7 @@
+v1.2.1 / 2020-12-10
+-------------------
+* Error if a `script` block does not specify a result in `fpt script`
+
 v1.2.0 / 2020-10-21
 -------------------
 * Add support for Flexera One refresh tokens using an optional `flexera` boolean parameter in account entries in
