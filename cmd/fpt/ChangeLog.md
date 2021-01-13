@@ -1,3 +1,8 @@
+v1.2.2 / 2021-01-13
+-------------------
+* Fix a bug in `fpt script` parameter parsing where non-numeric bare parameters came through as `nil` and numeric
+  parameters were not actually parsed and just came through as strings
+
 v1.2.1 / 2020-12-10
 -------------------
 * Error if a `script` block does not specify a result in `fpt script`
