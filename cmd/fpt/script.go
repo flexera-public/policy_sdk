@@ -277,7 +277,7 @@ func parseVal(name, v string) (interface{}, error) {
 			return nil, errors.Wrapf(err, "parameter %s: failed to parse %q as json", name, v)
 		}
 		return valJson, nil
-	} else if valN, err := coerceOption("", v, "number"); err != nil {
+	} else if valN, err := coerceOption(name, v, "number"); err == nil {
 		return valN, nil
 	}
 	return v, nil
