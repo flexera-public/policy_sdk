@@ -30,7 +30,7 @@ type (
 var (
 	Config     ConfigViper
 	boolRegexp = regexp.MustCompile(`^(?i:true)$`)
-	hostRegexp = regexp.MustCompile(`^governance-(\d+)\.(test.)?rightscale\.com$`)
+	hostRegexp = regexp.MustCompile(`^(?:governance-(\d+)\.(test.)?rightscale\.com|eu-central-1\.policy-eu\.flexeraeng\.com)$`)
 )
 
 func init() {
@@ -268,7 +268,9 @@ func (a *Account) AuthHost() string {
 	}
 	shardNum := matches[1]
 	testHost := matches[2]
-	if a.Flexera != nil && *a.Flexera {
+	if shardNum == "" {
+		return "login.flexera.eu"
+	} else if a.Flexera != nil && *a.Flexera {
 		if testHost != "" {
 			return "login.flexeratest.com"
 		}
@@ -282,5 +284,27 @@ func (a *Account) AuthHost() string {
 			prefix = "moo"
 		}
 		return fmt.Sprintf("%s-%s.%srightscale.com", prefix, shardNum, testHost)
+	}
+}
+
+func (a *Account) AppHostAndIsFlexera() (string, bool) {
+	matches := hostRegexp.FindStringSubmatch(a.Host)
+	if len(matches) == 0 {
+		return "", false
+	}
+	shardNum := matches[1]
+	testHost := matches[2]
+	if shardNum == "" {
+		return "app.flexera.eu", true
+	} else if a.Flexera != nil && *a.Flexera {
+		if testHost != "" {
+			return "app.flexeratest.com", true
+		}
+		return "app.flexera.com", true
+	} else {
+		if testHost != "" {
+			return "governance.test.rightscale.com", false
+		}
+		return "governance.rightscale.com", false
 	}
 }

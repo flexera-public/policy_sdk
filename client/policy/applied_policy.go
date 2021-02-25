@@ -4,12 +4,15 @@ package policy
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"github.com/rightscale/policy_sdk/sdk/applied_policy"
-	goahttp "goa.design/goa/v3/http"
+	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
+	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
+	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
+	goahttp "goa.design/goa/v3/http"
 )
 
 // CreateAppliedPolicy an applied policy
@@ -150,11 +153,23 @@ func (d *showLogDecoder) Decode(v interface{}) error {
 		return err
 	}
 
-	s, ok := v.(*string)
-	if !ok {
-		return errors.Errorf("expected type to be string, got %T", v)
+	switch t := v.(type) {
+	case *string:
+		*t = string(bodyBytes)
+	case *apclient.ShowLogNotFoundResponseBody:
+		if len(bodyBytes) > 0 {
+			json.Unmarshal(bodyBytes, t)
+		} else {
+			t.Name = strPtr("not_found")
+			t.ID = strPtr("missing")
+			t.Message = strPtr("log not found")
+			t.Temporary = boolPtr(false)
+			t.Timeout = boolPtr(false)
+			t.Fault = boolPtr(false)
+		}
+	default:
+		json.Unmarshal(bodyBytes, t)
 	}
-	*s = string(bodyBytes)
 	return nil
 }
 

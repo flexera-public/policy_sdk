@@ -1,3 +1,10 @@
+v1.3.0 / 2021-02-24
+-------------------
+* Add support for Flexera One EU using `eu-central-1.policy-eu.flexeraeng.com` for the host configuration item
+* Display Flexera One URLs in `fpt run` out when using Flexera One EU or the refresh token is for Flexera One
+  instead of RightScale
+* Fix a bug where `fpt run` would hang trying to print the log after the policy execution completed
+
 v1.2.2 / 2021-01-15
 -------------------
 * Fix a bug in `fpt script` parameter parsing where non-numeric bare parameters came through as `nil` and numeric
