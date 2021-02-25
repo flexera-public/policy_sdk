@@ -100,11 +100,11 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		if logErr != nil {
 			// technically the Goa client should not consider 304 an error
 			if strings.Contains(logErr.Error(), "invalid response code 304") {
-				continue
+				goto checkStatus
 			}
 			// the log may not be available yet so we retry 404s
 			if gse, ok := logErr.(*goa.ServiceError); ok && gse.Name == "not_found" {
-				continue
+				goto checkStatus
 			}
 			return logErr
 		}
@@ -118,6 +118,7 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 			}
 		}
 
+	checkStatus:
 		//fmt.Printf("STATUS: %s\n", dump(status))
 		if status.LastEvaluationFinish != nil {
 			break
