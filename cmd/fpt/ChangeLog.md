@@ -1,4 +1,4 @@
-v1.3.0 / 2021-02-25
+v1.3.0 / 2021-02-26
 -------------------
 * Add support for Flexera One EU using `eu-central-1.policy-eu.flexeraeng.com` for the host configuration item
 * Display Flexera One URLs in `fpt run` out when using Flexera One EU or the refresh token is for Flexera One
