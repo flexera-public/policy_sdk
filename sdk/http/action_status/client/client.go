@@ -3,7 +3,7 @@
 // ActionStatus client HTTP transport
 //
 // Command:
-// $ goa gen github.com/rightscale/governance/front_service/design
+// $ goa gen github.com/rightscale/governance/front_service/design -o .
 
 package client
 

@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/rightscale/policy_sdk/sdk/policy_template"
+	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 // UploadPolicyTemplate a policy template
@@ -150,3 +150,4 @@ func (c *client) RetrieveData(ctx context.Context, templateID string, names []st
 }
 
 func strPtr(s string) *string { return &s }
+func boolPtr(b bool) *bool    { return &b }

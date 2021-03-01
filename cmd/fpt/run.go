@@ -9,8 +9,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	goa "goa.design/goa/v3/pkg"
 
 	"github.com/rightscale/policy_sdk/client/policy"
+	"github.com/rightscale/policy_sdk/config"
 	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
 	"github.com/rightscale/policy_sdk/sdk/incident"
 	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
@@ -96,19 +98,27 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 
 		log, logErr := cli.ShowAppliedPolicyLog(ctx, ap.ID, lastEtag)
 		if logErr != nil {
-			// Most logErrs are of the 304 Not Modified variety and can be ignored
-			continue
-		}
-		if *log.Etag == lastEtag {
-			continue
-		}
-		lastSize := len(lastLog)
-		lastEtag = *log.Etag
-		lastLog = *log.ResponseBody
-		if !noLog {
-			fmt.Print(lastLog[lastSize:])
+			// technically the Goa client should not consider 304 an error
+			if strings.Contains(logErr.Error(), "invalid response code 304") {
+				goto checkStatus
+			}
+			// the log may not be available yet so we retry 404s
+			if gse, ok := logErr.(*goa.ServiceError); ok && gse.Name == "not_found" {
+				goto checkStatus
+			}
+			return logErr
 		}
 
+		if *log.Etag != lastEtag {
+			lastSize := len(lastLog)
+			lastEtag = *log.Etag
+			lastLog = *log.ResponseBody
+			if !noLog {
+				fmt.Print(lastLog[lastSize:])
+			}
+		}
+
+	checkStatus:
 		//fmt.Printf("STATUS: %s\n", dump(status))
 		if status.LastEvaluationFinish != nil {
 			break
@@ -293,11 +303,21 @@ func dump(v interface{}) string {
 }
 
 func appliedPolicyUILink(ap *appliedpolicy.AppliedPolicy) string {
-	return fmt.Sprintf("https://governance.rightscale.com/org/%d/projects/%d/applied-policies/%s",
-		ap.Project.OrgID, ap.Project.ID, ap.ID)
+	host, flexera := config.Config.Account.AppHostAndIsFlexera()
+	if flexera {
+		return fmt.Sprintf("https://%s/orgs/%d/policy/projects/%d/applied-policies/%s",
+			host, ap.Project.OrgID, ap.Project.ID, ap.ID)
+	}
+	return fmt.Sprintf("https://%s/org/%d/projects/%d/applied-policies/%s",
+		host, ap.Project.OrgID, ap.Project.ID, ap.ID)
 }
 
 func incidentUILink(i *incident.Incident) string {
-	return fmt.Sprintf("https://governance.rightscale.com/org/%d/projects/%d/policy-incidents/%s",
-		i.Project.OrgID, i.Project.ID, i.ID)
+	host, flexera := config.Config.Account.AppHostAndIsFlexera()
+	if flexera {
+		return fmt.Sprintf("https://%s/orgs/%d/policy/projects/%d/incidents/%s",
+			host, i.Project.OrgID, i.Project.ID, i.ID)
+	}
+	return fmt.Sprintf("https://%s/org/%d/projects/%d/policy-incidents/%s",
+		host, i.Project.OrgID, i.Project.ID, i.ID)
 }
