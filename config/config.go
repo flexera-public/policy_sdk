@@ -262,7 +262,7 @@ func (config *ConfigViper) ShowConfiguration(output io.Writer) error {
 
 func (a *Account) Validate() error {
 	if !hostRegexp.MatchString(a.Host) {
-		return fmt.Errorf("invalid host: must be of form governance-<shard number>.rightscale.com")
+		return fmt.Errorf("invalid host: must be of form governance-<shard number>.rightscale.com or eu-central-1.policy-eu.flexeraeng.com")
 	}
 	return nil
 }
