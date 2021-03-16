@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	// flexeraRefreshTokenSource contains the logic to create new sessions using OAuth2 tokens
+	// flexeraRefreshTokenSource contains the logic to create new sessions using an OAuth2 refresh token
 	flexeraRefreshTokenSource struct {
 		endpoint     *url.URL
 		refreshToken string
@@ -44,10 +44,10 @@ var (
 	cmHostRegexp      = regexp.MustCompile(`^(us|telstra|moo)-(\d+)\.(test.)?rightscale\.com$`)
 )
 
-// NewOAuthAuthenticator returns a authenticator that uses a oauth refresh
+// NewOAuthRefrshTokenAuthenticator returns an authenticator that uses an OAuth refresh
 // token to create access tokens. The refresh token can be found in the CM
 // dashboard under Settings > Account Settings > API Credentials.
-func NewOAuthAuthenticator(host string, refreshToken string) (TokenSource, error) {
+func NewOAuthRefrshTokenAuthenticator(host, refreshToken string) (TokenSource, error) {
 	if cmHostRegexp.MatchString(host) {
 		endpoint, _ := url.Parse(fmt.Sprintf("https://%s/api/oauth2", host))
 		return &rsRefreshTokenSource{
@@ -80,6 +80,9 @@ func (fts *flexeraRefreshTokenSource) TokenString() (string, error) {
 		return "", err
 	}
 	req, err := http.NewRequest("POST", fts.endpoint.String(), bytes.NewBuffer(b))
+	if err != nil {
+		return "", fmt.Errorf("authentication failed (failed to build request): %v", err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := fts.doer.Do(req)

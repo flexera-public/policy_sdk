@@ -109,7 +109,12 @@ func main() {
 			fatalError("%s: invalid config: %s\n", *configFile, err.Error())
 		}
 
-		ts, err := auth.NewOAuthAuthenticator(acct.AuthHost(), acct.RefreshToken)
+		var ts auth.TokenSource
+		if acct.RefreshToken != "" {
+			ts, err = auth.NewOAuthRefrshTokenAuthenticator(acct.AuthHost(), acct.RefreshToken)
+		} else {
+			ts, err = auth.NewOAuthClientCredentialsAuthenticator(acct.AuthHost(), acct.ClientID, acct.ClientSecret)
+		}
 		if err != nil {
 			fatalError("Configuration error: %s", err.Error())
 		}

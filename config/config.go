@@ -23,7 +23,9 @@ type (
 		Flexera      *bool
 		Host         string
 		ID           int
-		RefreshToken string `mapstructure:"refresh_token" yaml:"refresh_token"`
+		RefreshToken string `mapstructure:"refresh_token,omitempty" yaml:"refresh_token,omitempty"`
+		ClientID     string `mapstructure:"client_id,omitempty" yaml:"client_id,omitempty"`
+		ClientSecret string `mapstructure:"client_secret,omitempty" yaml:"client_secret,omitempty"`
 	}
 )
 
@@ -49,7 +51,8 @@ func ReadConfig(configFile, account string) error {
 		if _, ok := err.(*os.PathError); !(ok &&
 			Config.IsSet("login.account.id") &&
 			Config.IsSet("login.account.host") &&
-			Config.IsSet("login.account.refresh_token")) {
+			(Config.IsSet("login.account.refresh_token") ||
+				(Config.IsSet("login.account.client_id") && Config.IsSet("login.account.client_secret")))) {
 			return err
 		}
 	}
@@ -61,11 +64,14 @@ func ReadConfig(configFile, account string) error {
 
 	if Config.IsSet("login.account.id") &&
 		Config.IsSet("login.account.host") &&
-		Config.IsSet("login.account.refresh_token") {
+		(Config.IsSet("login.account.refresh_token") ||
+			(Config.IsSet("login.account.client_id") && Config.IsSet("login.account.client_secret"))) {
 		Config.Account = &Account{
 			ID:           Config.GetInt("login.account.id"),
 			Host:         Config.GetString("login.account.host"),
 			RefreshToken: Config.GetString("login.account.refresh_token"),
+			ClientID:     Config.GetString("login.account.client_id"),
+			ClientSecret: Config.GetString("login.account.client_secret"),
 		}
 		if Config.IsSet("login.account.flexera") {
 			flexera := Config.GetBool("login.account.flexera")
@@ -270,7 +276,7 @@ func (a *Account) AuthHost() string {
 	testHost := matches[2]
 	if shardNum == "" {
 		return "login.flexera.eu"
-	} else if a.Flexera != nil && *a.Flexera {
+	} else if a.RefreshToken == "" || (a.Flexera != nil && *a.Flexera) {
 		if testHost != "" {
 			return "login.flexeratest.com"
 		}
@@ -296,7 +302,7 @@ func (a *Account) AppHostAndIsFlexera() (string, bool) {
 	testHost := matches[2]
 	if shardNum == "" {
 		return "app.flexera.eu", true
-	} else if a.Flexera != nil && *a.Flexera {
+	} else if a.RefreshToken == "" || (a.Flexera != nil && *a.Flexera) {
 		if testHost != "" {
 			return "app.flexeratest.com", true
 		}
