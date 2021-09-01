@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -167,6 +168,10 @@ func execScript(code *ast.Program, params []*param, result string) (out interfac
 	}()
 
 	vm := otto.New()
+	err = registerJsFunctions(vm)
+	if err != nil {
+		return nil, err
+	}
 	stringifyArgs := func(prefix string, args []otto.Value) string {
 		output := &strings.Builder{}
 		basePrefix := prefix
@@ -467,4 +472,29 @@ func unquote(s string, unescape bool) string {
 func normalizeLineEndings(in string) string {
 	out := strings.Replace(in, "\r\n", "\n", -1)
 	return strings.Replace(out, "\r", "\n", -1)
+}
+
+func jsBtoa(b string) string {
+	return base64.StdEncoding.EncodeToString([]byte(b))
+}
+
+func jsAtob(str string) string {
+	b, err := base64.StdEncoding.DecodeString(str)
+	if err != nil {
+		v, _ := otto.ToValue("Failed to execute 'jsAtob': The string to be decoded is not correctly encoded.")
+		panic(v)
+	}
+	return string(b)
+}
+
+func registerJsFunctions(vm *otto.Otto) (err error) {
+	err = vm.Set("btoa", jsBtoa)
+	if err != nil {
+		return err
+	}
+	err = vm.Set("atob", jsAtob)
+	if err != nil {
+		return err
+	}
+	return
 }
