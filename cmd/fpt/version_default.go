@@ -1,3 +1,4 @@
+//go:build !fpt_make
 // +build !fpt_make
 
 package main
