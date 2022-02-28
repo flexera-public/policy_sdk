@@ -481,7 +481,7 @@ func jsBtoa(b string) string {
 func jsAtob(str string) string {
 	b, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
-		v, _ := otto.ToValue("Failed to execute 'jsAtob': The string to be decoded is not correctly encoded.")
+		v, _ := otto.ToValue(fmt.Sprintf("DOMExpection [InvalidCharacterError]: Invalid character: %v", err))
 		panic(v)
 	}
 	return string(b)
