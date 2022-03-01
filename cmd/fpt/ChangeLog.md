@@ -1,3 +1,7 @@
+Unreleased Changes
+------------------
+* Add support for `atob` and `btoa` JavaScript Base64 functions in `fpt script`
+
 v1.3.0 / 2021-03-01
 -------------------
 * Add support for Flexera One EU using `eu-central-1.policy-eu.flexeraeng.com` for the host configuration item

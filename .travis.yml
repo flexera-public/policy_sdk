@@ -1,12 +1,12 @@
 language: go
 go:
-  - 1.15.x
+  - 1.17.x
 matrix:
   include:
     - os: linux
       env: MAKE=make
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode13.2
       env: MAKE=make
     - os: windows
       env: MAKE=mingw32-make
@@ -34,6 +34,6 @@ script:
   - $MAKE test
   - $MAKE build
   # QnB upload user (rightscale-binaries-upload-governance)
-  - export AWS_ACCESS_KEY_ID=AKIAIX27XNPUMQ25GSEQ
-  - export AWS_SECRET_ACCESS_KEY=${RSBIN_KEY}
+  - export AWS_ACCESS_KEY_ID=${RIGHTSCALE_BINARIES_UPLOAD_GOVERNANCE_AWS_ACCESS_KEY_ID}
+  - export AWS_SECRET_ACCESS_KEY=${RIGHTSCALE_BINARIES_UPLOAD_GOVERNANCE_AWS_SECRET_ACCESS_KEY}
   - "[[ -z $AWS_SECRET_ACCESS_KEY ]] || $MAKE upload"
