@@ -96,25 +96,28 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 		}
 		lastStatus = status
 
-		log, logErr := cli.ShowAppliedPolicyLog(ctx, ap.ID, lastEtag)
-		if logErr != nil {
-			// technically the Goa client should not consider 304 an error
-			if strings.Contains(logErr.Error(), "invalid response code 304") {
-				goto checkStatus
+		if !noLog {
+			log, logErr := cli.ShowAppliedPolicyLog(ctx, ap.ID, lastEtag)
+			if logErr != nil {
+				// technically the Goa client should not consider 304 an error
+				if strings.Contains(logErr.Error(), "invalid response code 304") {
+					goto checkStatus
+				}
+				// the log may not be available yet so we retry 404s
+				if gse, ok := logErr.(*goa.ServiceError); ok && gse.Name == "not_found" {
+					goto checkStatus
+				}
+				return logErr
 			}
-			// the log may not be available yet so we retry 404s
-			if gse, ok := logErr.(*goa.ServiceError); ok && gse.Name == "not_found" {
-				goto checkStatus
-			}
-			return logErr
-		}
 
-		if *log.Etag != lastEtag {
-			lastSize := len(lastLog)
-			lastEtag = *log.Etag
-			lastLog = *log.ResponseBody
-			if !noLog {
-				fmt.Print(lastLog[lastSize:])
+			if *log.Etag != lastEtag {
+				lastSize := len(lastLog)
+				lastEtag = *log.Etag
+				// only print new log data (due to eventual consistency issues, a shorter log may be returned)
+				if lastSize <= len(*log.ResponseBody) {
+					lastLog = *log.ResponseBody
+					fmt.Print(lastLog[lastSize:])
+				}
 			}
 		}
 

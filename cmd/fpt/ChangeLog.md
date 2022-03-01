@@ -1,6 +1,7 @@
-Unreleased Changes
-------------------
+v1.4.0 / 2022-03-01
+-------------------
 * Add support for `atob` and `btoa` JavaScript Base64 functions in `fpt script`
+* Handle eventual consistency issues with `fpt run` log output which could result in panics
 
 v1.3.0 / 2021-03-01
 -------------------
