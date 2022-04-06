@@ -1,19 +1,13 @@
 #!/usr/bin/make
 #
-# Makefile for Golang projects. Dependent on Go 1.11.x module support
+# Makefile for Flexera Policy Tool
 #
 # Features:
 # - runs tests recursively, computes code coverage report
-# - code coverage ready for travis-ci to upload and produce badges for README.md
 # - build for linux/amd64, darwin/amd64, windows/amd64
 # - produces .tgz/.zip build output
 # - produces version.go for each build with string in global variable VV, please
 #   print this using a --version option in the executable
-# - to include the build status and code coverage badge in CI use (replace NAME by what
-#   you set $(NAME) to further down, and also replace magnum.travis-ci.com by travis-ci.org for
-#   publicly accessible repos [sigh]):
-#   [![Build Status](https://magnum.travis-ci.com/rightscale/NAME.svg?token=4Q13wQTY4zqXgU7Edw3B&branch=master)](https://magnum.travis-ci.com/rightscale/NAME
-#   ![Code Coverage](https://s3.amazonaws.com/rs-code-coverage/NAME/cc_badge_master.svg)
 #
 # Top-level targets:
 # default: compile the program, you can thus use make && ./NAME -options ...
@@ -21,20 +15,11 @@
 # test: runs unit tests recursively and produces code coverage stats and shows them
 # depend: installs executable dependencies
 # clean: removes build stuff
-#
-# the upload target is used in the .travis.yml file and pushes binary archives to
-# https://$(BUCKET).s3.amazonaws.com/rsbin/$(NAME)/$(BRANCH)/$(NAME)-$(GOOS)-$(GOARCH).tgz
-# (.zip for windows)
-#
 
 NAME=fpt
 EXE:=$(NAME)$(shell go env GOEXE)
-BUCKET=rightscale-binaries
-ACL=public-read
 GOOS=$(shell go env GOOS)
 GOARCH=$(shell go env GOARCH)
-# Dependencies that need to be installed
-INSTALL_DEPEND=github.com/rlmcpherson/s3gof3r/gof3r
 
 # === below this line ideally remains unchanged, add new targets at the end ===
 
@@ -98,39 +83,12 @@ build/$(NAME)-%.zip: $(GO_SOURCE) version
 	cd build; 7z a -r $(notdir $@) $(NAME)
 	rm -r build/$(NAME)
 
-# upload assumes you have AWS_ACCESS_KEY_ID and AWS_SECRET_KEY env variables set,
-# which happens in the .travis.yml for CI
-upload:
-	@which gof3r >/dev/null || (echo 'Please "make depend"'; false)
-	(cd build; set -ex; shopt -s nullglob; \
-	  re='^(v[0-9]+)\.[0-9]+\.[0-9]+$$' ;\
-	  if [[ "$(TRAVIS_TAG)" =~ $$re ]]; then \
-	    ../version.sh > version.yml; \
-	  fi; \
-	  for f in *.tgz *.zip; do \
-	    gof3r put --no-md5 --acl=$(ACL) -b ${BUCKET} -k rsbin/$(NAME)/$(TRAVIS_COMMIT)/$$f <$$f; \
-	    if [ "$(TRAVIS_PULL_REQUEST)" = "false" ]; then \
-	      gof3r put --no-md5 --acl=$(ACL) -b ${BUCKET} -k rsbin/$(NAME)/$(TRAVIS_BRANCH)/$$f <$$f; \
-	      if [[ "$(TRAVIS_TAG)" =~ $$re ]]; then \
-	        gof3r put --no-md5 --acl=$(ACL) -b ${BUCKET} -k rsbin/$(NAME)/$${BASH_REMATCH[1]}/$$f <$$f; \
-		os_arch="$${f#$(NAME)-}"; os_arch="$${os_arch%.*}"; \
-		gof3r put --no-md5 --acl=$(ACL) -b ${BUCKET} -k rsbin/$(NAME)/version-$$os_arch.yml <version.yml; \
-	      fi; \
-	    fi; \
-	  done; \
-	  if [[ $(GOOS) == linux ]] && [[ "$(TRAVIS_TAG)" =~ $$re ]]; then \
-	    gof3r put --no-md5 --acl=$(ACL) -b ${BUCKET} -k rsbin/$(NAME)/version.yml <version.yml; \
-	  fi)
-
 # produce a version string that is embedded into the binary that captures the branch, the date
 # and the commit we're building
 version:
 	@echo -e "// +build $(NAME)_make\n\npackage main\n\nconst VV = \"$(NAME) $(TRAVIS_BRANCH) - $(DATE) - $(TRAVIS_COMMIT)\"" \
 	  >./cmd/$(NAME)/version.go
 	@echo "version.go: `tail -1 ./cmd/$(NAME)/version.go`"
-
-depend: vendor
-	for d in $(INSTALL_DEPEND); do go get $$d; done
 
 # install vendored dependencies, as needed
 vendor: go.mod go.sum
