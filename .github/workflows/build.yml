@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "^v[0-9]+.[0-9]+.[0-9]+$$"
-    branches: # TODO: remove before merge, build+upload should only occur for tags
-      - "IND-5049-switch-to-github-actions"
 
 jobs:
   build-ubuntu:
