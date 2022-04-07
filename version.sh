@@ -15,7 +15,6 @@ esac
 # collect all the latest versions tagged in Git for each major version
 declare -A versions
 while read version; do
-  echo $version # TODO: remove
   if [[ $version =~ ^v([0-9]+)\.[0-9]+\.[0-9]+$ ]]; then
     versions[${BASH_REMATCH[1]}]=$version
   fi
