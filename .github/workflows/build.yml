@@ -1,0 +1,148 @@
+name: Build and Upload
+
+on:
+  push:
+    tags:
+      - "^v[0-9]+.[0-9]+.[0-9]+$$"
+
+jobs:
+  build-ubuntu:
+    name: "Build Binary for Linux"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.17.x'
+
+    - name: Build Binary
+      run: |
+        echo -e "// go:build fpt_make\n\npackage main\n\nconst VV = \"fpt $GITHUB_REF_NAME - $(date '+%F %T') - $GITHUB_SHA\"" > ./cmd/fpt/version.go
+        rm -rf build/fpt
+        mkdir -p build/fpt
+        go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
+        chmod +x build/fpt/fpt*
+        tar -zcf fpt-linux-amd64.tgz -C build fpt
+        rm -r build/fpt
+
+    - name: Configure AWS Credentials for S3 Upload
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.RS_BINARIES_UPLOAD_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.RS_BINARIES_UPLOAD_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Upload to S3
+      run: |
+        if test -f "fpt-linux-amd64.tgz"; then
+          aws s3 cp fpt-linux-amd64.tgz s3://rightscale-binaries/rsbin/fpt/v1/fpt-linux-amd64.tgz --acl public-read
+        else
+          echo "fpt-linux-amd64.tgz does not exist in $(pwd), did not upload"
+        fi
+
+        $GITHUB_WORKSPACE/version-hardcode.sh > version.yml
+        if test -f "version.yml"; then
+          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/v1/version-linux-amd64.yml --acl public-read
+          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/version.yml --acl public-read # for the legacy user(s)
+        else
+          echo "version.yml does not exist in $(pwd), did not upload" && exit 1
+        fi
+
+  build-macos:
+    name: "Build Binary for macOS"
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.17.x'
+
+    - name: Build Binary
+      run: |
+        echo -e "// go:build fpt_make\n\npackage main\n\nconst VV = \"fpt $GITHUB_REF_NAME - $(date '+%F %T') - $GITHUB_SHA\"" > ./cmd/fpt/version.go
+        rm -rf build/fpt
+        mkdir -p build/fpt
+        go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
+        chmod +x build/fpt/fpt*
+        tar -zcf fpt-darwin-amd64.tgz -C build fpt
+        rm -r build/fpt
+
+    - name: Configure AWS Credentials for S3 Upload
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.RS_BINARIES_UPLOAD_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.RS_BINARIES_UPLOAD_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Upload to S3
+      run: |
+        if test -f "fpt-darwin-amd64.tgz"; then
+          aws s3 cp fpt-darwin-amd64.tgz s3://rightscale-binaries/rsbin/fpt/v1/fpt-darwin-amd64.tgz --acl public-read
+        else
+          echo "fpt-darwin-amd64.tgz does not exist in $(pwd), did not upload"
+        fi
+
+        $GITHUB_WORKSPACE/version-hardcode.sh > version.yml
+        if test -f "version.yml"; then
+          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/v1/version-darwin-amd64.yml --acl public-read
+        else
+          echo "version.yml does not exist in $(pwd), did not upload" && exit 1
+        fi
+
+  build-windows:
+    name: "Build Binary for Windows"
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.17.x'
+
+    - name: Build Binary
+      run: |
+        echo -e "// go:build fpt_make\n\npackage main\n\nconst VV = \"fpt $GITHUB_REF_NAME - $(date '+%F %T') - $GITHUB_SHA\"" > ./cmd/fpt/version.go
+        rm -rf build/fpt
+        export CC="x86_64-w64-mingw32-gcc"
+        export CXX="x86_64-w64-mingw32-g++"
+        mkdir -p build/fpt
+        go build -tags fpt_make -o build/fpt/fpt.exe ./cmd/fpt
+        chmod +x build/fpt/fpt.exe
+        pushd build; ls; pwd; 7z a -r ../fpt-windows-amd64.zip fpt; ls; pwd; popd
+        rm -r build/fpt
+
+    - name: Configure AWS Credentials for S3 Upload
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.RS_BINARIES_UPLOAD_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.RS_BINARIES_UPLOAD_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Upload to S3
+      run: |
+        if test -f "fpt-windows-amd64.zip"; then
+          aws s3 cp fpt-windows-amd64.zip s3://rightscale-binaries/rsbin/fpt/v1/fpt-windows-amd64.zip --acl public-read
+        else
+          echo "fpt-windows-amd64.zip does not exist in $(pwd), did not upload"
+        fi
+
+        $GITHUB_WORKSPACE/version-hardcode.sh > version.yml
+        if test -f "version.yml"; then
+          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/v1/version-windows-amd64.yml --acl public-read
+        else
+          echo "version.yml does not exist in $(pwd), did not upload" && exit 1
+        fi

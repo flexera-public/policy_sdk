@@ -27,7 +27,7 @@ cat <<EOF
 ---
 versions:
 EOF
-for major in ${!versions[@]}; do
+for major in "${!versions[@]}"; do
   # only output versions 1 and above
   if [[ $major -ge 1 ]]; then
     echo "  $major: ${versions[$major]}"
