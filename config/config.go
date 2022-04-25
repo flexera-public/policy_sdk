@@ -260,7 +260,7 @@ func (a *Account) Validate() error {
 		return fmt.Errorf("invalid host: must be of form governance-<shard number>.rightscale.com or api.eu-central-1.policy-eu.flexeraeng.com")
 	}
 	if hostRegexpDep.MatchString(a.Host) {
-		fmt.Println("WARN: API endpoint host eu-central-1.policy-eu.flexeraeng.com is deprecated and will be removed soon. Change profile API endpoint host to api.eu-central-1.policy-eu.flexeraeng.com")
+		fmt.Fprintln(os.Stderr, "Warning: API endpoint host eu-central-1.policy-eu.flexeraeng.com is deprecated and will be removed soon. Change profile API endpoint host to api.eu-central-1.policy-eu.flexeraeng.com before May 23rd")
 	}
 	return nil
 }

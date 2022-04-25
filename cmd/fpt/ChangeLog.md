@@ -1,4 +1,4 @@
-v1.5.0 / 2022-03-07
+v1.5.0 / 2022-04-26
 -------------------
 * Changed expected host pattern for Flexera One Eu to include `api.eu-central-1.policy-eu.flexeraeng.com`
 * Added warning message for deprecation of `eu-central-1.policy-eu.flexeraeng.com`
