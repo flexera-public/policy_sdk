@@ -1,3 +1,10 @@
+v1.5.0 / 2022-04-26
+-------------------
+* Changed expected host pattern for Flexera One Eu to include `api.eu-central-1.policy-eu.flexeraeng.com`
+* Added warning message for deprecation of `eu-central-1.policy-eu.flexeraeng.com`
+* Account configurations for EU profiles will need to be updated for the new value of `api.eu-central-1.policy-eu.flexeraeng.com`
+* Accounts can be updated using `fpt config account {account_name}`
+
 v1.4.0 / 2022-03-01
 -------------------
 * Add support for `atob` and `btoa` JavaScript Base64 functions in `fpt script`

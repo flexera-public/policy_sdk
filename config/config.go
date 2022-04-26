@@ -28,9 +28,10 @@ type (
 )
 
 var (
-	Config     ConfigViper
-	boolRegexp = regexp.MustCompile(`^(?i:true)$`)
-	hostRegexp = regexp.MustCompile(`^(?:governance-(\d+)\.(test.)?rightscale\.com|eu-central-1\.policy-eu\.flexeraeng\.com)$`)
+	Config        ConfigViper
+	boolRegexp    = regexp.MustCompile(`^(?i:true)$`)
+	hostRegexp    = regexp.MustCompile(`^(?:governance-(\d+)\.(test\.)?rightscale\.com|eu-central-1\.policy-eu\.flexeraeng\.com|api\.eu-central-1\.policy-eu\.flexeraeng\.com)$`)
+	hostRegexpDep = regexp.MustCompile(`^(?:eu-central-1\.policy-eu\.flexeraeng\.com)$`)
 )
 
 func init() {
@@ -256,7 +257,10 @@ func (config *ConfigViper) ShowConfiguration(output io.Writer) error {
 
 func (a *Account) Validate() error {
 	if !hostRegexp.MatchString(a.Host) {
-		return fmt.Errorf("invalid host: must be of form governance-<shard number>.rightscale.com")
+		return fmt.Errorf("invalid host: must be of form governance-<shard number>.rightscale.com or api.eu-central-1.policy-eu.flexeraeng.com")
+	}
+	if hostRegexpDep.MatchString(a.Host) {
+		fmt.Fprintln(os.Stderr, "Warning: API endpoint host eu-central-1.policy-eu.flexeraeng.com is deprecated and will be removed soon. Change profile API endpoint host to api.eu-central-1.policy-eu.flexeraeng.com before May 23rd")
 	}
 	return nil
 }
