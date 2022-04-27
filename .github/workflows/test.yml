@@ -24,4 +24,5 @@ jobs:
 
     - name: Test
       run: echo ${GITHUB_REF#refs/*/}
+      run: echo ${{github.ref_name}}
       run: make test
