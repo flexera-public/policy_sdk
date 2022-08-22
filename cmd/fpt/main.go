@@ -62,11 +62,12 @@ Example: fpt retrieve_data my_policy.pt --names instances
 
 Example: fpt script max_snapshots.pt volumes=@ec2_volumes.json max_count=50 exclude_names=["foo","bar","baz"]
 `)
-	scriptFile    = scriptCmd.Arg("file", "File may be a Policy Template or a raw JavaScript.").Required().ExistingFile()
-	scriptOptions = scriptCmd.Arg("parameters", `Script parameters must be in the form of "<name>=<value>". To specify a file as input such as a datasource retrieved via the retrieve_data command, specify @<filename> as the value. For list parameters, a JSON encoded array may be passed as the value.`).Strings()
-	scriptOut     = scriptCmd.Flag("out", "Script output file. Defaults to out.json").Short('o').Default("out.json").String()
-	scriptResult  = scriptCmd.Flag("result", "Name of variable holding final result to extract. Required if supplying a raw JavaScript.").Short('r').String()
-	scriptName    = scriptCmd.Flag("name", "Name of script to run, if multiple exist.").Short('n').String()
+	scriptFile        = scriptCmd.Arg("file", "File may be a Policy Template or a raw JavaScript.").Required().ExistingFile()
+	scriptOptions     = scriptCmd.Arg("parameters", `Script parameters must be in the form of "<name>=<value>". To specify a file as input such as a datasource retrieved via the retrieve_data command, specify @<filename> as the value. For list parameters, a JSON encoded array may be passed as the value.`).Strings()
+	scriptOut         = scriptCmd.Flag("out", "Script output file. Defaults to out.json").Short('o').Default("out.json").String()
+	scriptResult      = scriptCmd.Flag("result", "Name of variable holding final result to extract. Required if supplying a raw JavaScript.").Short('r').String()
+	scriptName        = scriptCmd.Flag("name", "Name of script to run, if multiple exist.").Short('n').String()
+	scriptMaxExecTime = scriptCmd.Flag("max-exec-time", "Maximum time (in seconds) to allow script to run.").Default("600").Int()
 
 	// ----- Configuration -----
 	configCmd = app.Command("config", "Manage Configuration")
@@ -154,7 +155,7 @@ func main() {
 			fatalError("%s\n", err.Error())
 		}
 	case scriptCmd.FullCommand():
-		err = runScript(ctx, *scriptFile, *scriptOut, *scriptResult, *scriptName, *scriptOptions)
+		err = runScript(ctx, *scriptFile, *scriptOut, *scriptResult, *scriptName, *scriptMaxExecTime, *scriptOptions)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}

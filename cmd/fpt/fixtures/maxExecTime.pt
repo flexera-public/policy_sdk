@@ -1,0 +1,31 @@
+name "Max Execution Time Test Policy"
+rs_pt_ver 20180301
+short_description "Single datasource that sleeps for 60s.  Used to test `fpt script --max-exec-time` feature"
+category "testing"
+
+
+datasource "ds_sleep" do
+  run_script $js_sleep
+end
+
+script "js_sleep", type: "javascript" do
+  result "result"
+  code <<-EOS
+var sleep_duration = 60 * 1000; // 1 minute in ms
+var start = new Date();
+while (new Date() - start < sleep_duration) {
+  // do nothing
+}
+var duration = new Date() - start;
+console.log("Slept for " + duration + " ms");
+var result = duration;
+EOS
+end
+
+policy "policy" do
+  validate $ds_sleep do
+    summary_template "Slept for {{ data }} ms"
+    detail_template "Slept for {{ data }} ms"
+    check eq(0, 1) # always fail check and create incident
+  end
+end

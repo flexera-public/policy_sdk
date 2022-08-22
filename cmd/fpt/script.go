@@ -23,7 +23,6 @@ import (
 )
 
 var (
-	maxExecTime      = 600 * time.Second
 	errHalt          = fmt.Errorf("HALT")
 	debuglogDataSize = 10 * 1024
 	q                = regexp.MustCompile(`\\(.)`)
@@ -64,7 +63,7 @@ func (s *scriptErrorList) Error() string {
 	return strings.Join(errs, "\n")
 }
 
-func runScript(ctx context.Context, file, outfile, result, name string, options []string) error {
+func runScript(ctx context.Context, file, outfile, result, name string, maxExecTime int, options []string) error {
 	rd, err := os.Open(file)
 	if err != nil {
 		return err
@@ -74,6 +73,8 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 		return err
 	}
 	src := normalizeLineEndings(string(srcBytes))
+
+	maxExecTimeSeconds := time.Duration(maxExecTime) * time.Second
 
 	params, err := parseParams(options)
 	if err != nil {
@@ -134,7 +135,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 		return err
 	}
 
-	data, err = execScript(code, params, result)
+	data, err = execScript(code, params, maxExecTimeSeconds, result)
 	if err != nil {
 		return err
 	}
@@ -156,7 +157,7 @@ func runScript(ctx context.Context, file, outfile, result, name string, options 
 	return nil
 }
 
-func execScript(code *ast.Program, params []*param, result string) (out interface{}, err error) {
+func execScript(code *ast.Program, params []*param, maxExecTime time.Duration, result string) (out interface{}, err error) {
 	defer func() {
 		if caught := recover(); caught != nil {
 			if caught == errHalt {
