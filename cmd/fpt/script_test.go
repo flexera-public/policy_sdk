@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -8,6 +9,31 @@ import (
 
 	"github.com/robertkrimen/otto/parser"
 )
+
+var (
+	ctx = context.Background()
+	err error
+
+	maxExecTimeTestTemplateFile = "fixtures/maxExecTime.pt"
+)
+
+func TestScriptMaxRunTimeError(t *testing.T) {
+	// Test with maxExecTime=1 which is < 10s script runtime
+	// Expect an error
+	err = runScript(ctx, maxExecTimeTestTemplateFile, "out.json", "", maxExecTimeTestTemplateFile, 1, []string{})
+	if err == nil {
+		t.Error("Expected error when maxExecTime=1, got nil")
+	}
+}
+
+func TestScriptMaxRunTimeSucess(t *testing.T) {
+	// Test with maxExecTime=20 which is > 10s script runtime
+	// Expect no error
+	err = runScript(ctx, maxExecTimeTestTemplateFile, "out.json", "", maxExecTimeTestTemplateFile, 20, []string{})
+	if err != nil {
+		t.Error(err)
+	}
+}
 
 func TestScriptErrorListError(t *testing.T) {
 	var (

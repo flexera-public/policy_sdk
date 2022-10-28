@@ -1,3 +1,7 @@
+v1.6.0 / 2022-08-24
+-------------------
+* Added `--max-exec-time` flag to `fpt script` command
+
 v1.5.0 / 2022-04-26
 -------------------
 * Changed expected host pattern for Flexera One Eu to include `api.eu-central-1.policy-eu.flexeraeng.com`
