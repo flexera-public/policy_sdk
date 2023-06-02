@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"strconv"
 
-	incidentaggregate "github.com/rightscale/policy_sdk/sdk/incident_aggregate"
+	incidentaggregate "github.com/flexera-public/policy_sdk/sdk/incident_aggregate"
 	goa "goa.design/goa/v3/pkg"
 )
 

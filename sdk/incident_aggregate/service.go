@@ -10,7 +10,7 @@ package incidentaggregate
 import (
 	"context"
 
-	incidentaggregateviews "github.com/rightscale/policy_sdk/sdk/incident_aggregate/views"
+	incidentaggregateviews "github.com/flexera-public/policy_sdk/sdk/incident_aggregate/views"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )

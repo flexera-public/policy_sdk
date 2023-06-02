@@ -4,11 +4,11 @@ This repository contains is a software developer kit for [Flexera Policies](http
 
 ## fpt
 
-`fpt` or [Flexera Policy Tool](https://github.com/rightscale/policy_sdk/tree/master/cmd/fpt/README.md) is a command-line client to aid in the development of custom policies.
+`fpt` or [Flexera Policy Tool](https://github.com/flexera-public/policy_sdk/tree/master/cmd/fpt/README.md) is a command-line client to aid in the development of custom policies.
 
 ## sdk
 
-The [sdk](https://github.com/rightscale/policy_sdk/tree/master/sdk) directory provides automatically generated code for interfacing with the [Policy API](https://reference.rightscale.com/governance-policies/), written in the Go language. See [client](https://github.com/rightscale/policy_sdk/tree/master/client) and cmd/fpt directories for examples of code that uses the SDK.
+The [sdk](https://github.com/flexera-public/policy_sdk/tree/master/sdk) directory provides automatically generated code for interfacing with the [Policy API](https://reference.rightscale.com/governance-policies/), written in the Go language. See [client](https://github.com/flexera-public/policy_sdk/tree/master/client) and cmd/fpt directories for examples of code that uses the SDK.
 
 ## License
 

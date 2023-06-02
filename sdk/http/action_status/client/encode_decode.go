@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	actionstatus "github.com/rightscale/policy_sdk/sdk/action_status"
-	actionstatusviews "github.com/rightscale/policy_sdk/sdk/action_status/views"
+	actionstatus "github.com/flexera-public/policy_sdk/sdk/action_status"
+	actionstatusviews "github.com/flexera-public/policy_sdk/sdk/action_status/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

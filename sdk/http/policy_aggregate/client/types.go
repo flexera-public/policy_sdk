@@ -8,8 +8,8 @@
 package client
 
 import (
-	policyaggregate "github.com/rightscale/policy_sdk/sdk/policy_aggregate"
-	policyaggregateviews "github.com/rightscale/policy_sdk/sdk/policy_aggregate/views"
+	policyaggregate "github.com/flexera-public/policy_sdk/sdk/policy_aggregate"
+	policyaggregateviews "github.com/flexera-public/policy_sdk/sdk/policy_aggregate/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

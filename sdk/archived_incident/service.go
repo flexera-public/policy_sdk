@@ -10,7 +10,7 @@ package archivedincident
 import (
 	"context"
 
-	archivedincidentviews "github.com/rightscale/policy_sdk/sdk/archived_incident/views"
+	archivedincidentviews "github.com/flexera-public/policy_sdk/sdk/archived_incident/views"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )

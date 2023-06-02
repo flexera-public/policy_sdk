@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
-	appliedpolicyviews "github.com/rightscale/policy_sdk/sdk/applied_policy/views"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	appliedpolicyviews "github.com/flexera-public/policy_sdk/sdk/applied_policy/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	policyaggregate "github.com/rightscale/policy_sdk/sdk/policy_aggregate"
-	policyaggregateviews "github.com/rightscale/policy_sdk/sdk/policy_aggregate/views"
+	policyaggregate "github.com/flexera-public/policy_sdk/sdk/policy_aggregate"
+	policyaggregateviews "github.com/flexera-public/policy_sdk/sdk/policy_aggregate/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

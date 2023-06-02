@@ -9,9 +9,9 @@ import (
 
 	"github.com/alecthomas/kingpin"
 
-	"github.com/rightscale/policy_sdk/auth"
-	"github.com/rightscale/policy_sdk/client/policy"
-	"github.com/rightscale/policy_sdk/config"
+	"github.com/flexera-public/policy_sdk/auth"
+	"github.com/flexera-public/policy_sdk/client/policy"
+	"github.com/flexera-public/policy_sdk/config"
 )
 
 var (

@@ -11,11 +11,11 @@ import (
 	"github.com/pkg/errors"
 	goa "goa.design/goa/v3/pkg"
 
-	"github.com/rightscale/policy_sdk/client/policy"
-	"github.com/rightscale/policy_sdk/config"
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
-	"github.com/rightscale/policy_sdk/sdk/incident"
-	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
+	"github.com/flexera-public/policy_sdk/client/policy"
+	"github.com/flexera-public/policy_sdk/config"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	"github.com/flexera-public/policy_sdk/sdk/incident"
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
 // Steps:

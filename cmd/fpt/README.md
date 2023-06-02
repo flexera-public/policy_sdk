@@ -4,7 +4,7 @@
 
 [![Travis CI Build Status](https://travis-ci.com/rightscale/policy_sdk.svg?branch=master)](https://travis-ci.com/rightscale/policy_sdk)
 
-See [ChangeLog.md](https://github.com/rightscale/policy_sdk/tree/master/cmd/fpt/ChangeLog.md) for changes.
+See [ChangeLog.md](https://github.com/flexera-public/policy_sdk/tree/master/cmd/fpt/ChangeLog.md) for changes.
 
 * [Installation](#installation)
   * [Configuration](#configuration)
