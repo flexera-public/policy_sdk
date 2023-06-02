@@ -8,13 +8,13 @@ import (
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 
-	"github.com/rightscale/policy_sdk/auth"
-	"github.com/rightscale/policy_sdk/sdk/applied_policy"
-	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
-	iclient "github.com/rightscale/policy_sdk/sdk/http/incident/client"
-	ptclient "github.com/rightscale/policy_sdk/sdk/http/policy_template/client"
-	"github.com/rightscale/policy_sdk/sdk/incident"
-	"github.com/rightscale/policy_sdk/sdk/policy_template"
+	"github.com/flexera-public/policy_sdk/auth"
+	"github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	apclient "github.com/flexera-public/policy_sdk/sdk/http/applied_policy/client"
+	iclient "github.com/flexera-public/policy_sdk/sdk/http/incident/client"
+	ptclient "github.com/flexera-public/policy_sdk/sdk/http/policy_template/client"
+	"github.com/flexera-public/policy_sdk/sdk/incident"
+	"github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
 const apiVersion = "1.0"

@@ -10,7 +10,7 @@ package policyaggregate
 import (
 	"context"
 
-	policyaggregateviews "github.com/rightscale/policy_sdk/sdk/policy_aggregate/views"
+	policyaggregateviews "github.com/flexera-public/policy_sdk/sdk/policy_aggregate/views"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )

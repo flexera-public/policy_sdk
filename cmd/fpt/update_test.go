@@ -13,7 +13,7 @@ import (
 	"regexp"
 	"runtime"
 
-	. "github.com/rightscale/policy_sdk/cmd/fpt"
+	. "github.com/flexera-public/policy_sdk/cmd/fpt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -155,8 +155,8 @@ versions:
 				Expect(buffer.Contents()).To(BeEquivalentTo(`There is a new v3 version of fpt (v3.4.5), to upgrade run:
     fpt update apply
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -165,8 +165,8 @@ https://github.com/rightscale/policy_sdk/releases for more information.
 				Expect(buffer.Contents()).To(BeEquivalentTo(`There is a new major version of fpt (v3.4.5), to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -177,8 +177,8 @@ https://github.com/rightscale/policy_sdk/releases for more information.
 There is a new major version of fpt (v3.4.5), to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 		})
@@ -190,8 +190,8 @@ https://github.com/rightscale/policy_sdk/releases for more information.
 The latest v2 version of fpt is v2.3.4.
 The latest v3 version of fpt is v3.4.5.
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -201,8 +201,8 @@ https://github.com/rightscale/policy_sdk/releases for more information.
 The latest v2 version of fpt is v2.3.4.
 The latest v3 version of fpt is v3.4.5; this is the version you are using!
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -213,8 +213,8 @@ The latest v2 version of fpt is v2.3.4.
 The latest v3 version of fpt is v3.4.5; you are using v3.0.0, to upgrade run:
     fpt update apply
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -225,8 +225,8 @@ The latest v2 version of fpt is v2.3.4; this is the version you are using!
 The latest v3 version of fpt is v3.4.5; you are using v2.3.4, to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -238,8 +238,8 @@ The latest v2 version of fpt is v2.3.4; you are using v2.0.0, to upgrade run:
 The latest v3 version of fpt is v3.4.5; you are using v2.0.0, to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/rightscale/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
+https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 		})

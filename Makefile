@@ -111,7 +111,7 @@ sdk:
 	rm -rf sdk
 	cp -af $(GOPATH)/src/github.com/rightscale/governance/front_service/gen sdk
 	rm -rf sdk/*/convert.go sdk/http/*/server
-	find sdk -type f -name '*.go' -exec sed -i -e 's#github.com/rightscale/governance/front_service/gen#github.com/rightscale/policy_sdk/sdk#' {} \;
+	find sdk -type f -name '*.go' -exec sed -i -e 's#github.com/rightscale/governance/front_service/gen#github.com/flexera-public/policy_sdk/sdk#' {} \;
 
 # ===== SPECIAL TARGETS FOR fpt =====
 

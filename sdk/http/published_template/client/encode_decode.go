@@ -16,8 +16,8 @@ import (
 	"net/url"
 	"strings"
 
-	publishedtemplate "github.com/rightscale/policy_sdk/sdk/published_template"
-	publishedtemplateviews "github.com/rightscale/policy_sdk/sdk/published_template/views"
+	publishedtemplate "github.com/flexera-public/policy_sdk/sdk/published_template"
+	publishedtemplateviews "github.com/flexera-public/policy_sdk/sdk/published_template/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
