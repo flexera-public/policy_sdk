@@ -5,8 +5,8 @@ package policy
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	"github.com/flexera-public/policy_sdk/sdk/incident"
+	"github.com/pkg/errors"
 )
 
 // ShowIncident an incident

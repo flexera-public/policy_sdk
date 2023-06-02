@@ -9,9 +9,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/pkg/errors"
 	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
 	apclient "github.com/flexera-public/policy_sdk/sdk/http/applied_policy/client"
+	"github.com/pkg/errors"
 	goahttp "goa.design/goa/v3/http"
 )
 

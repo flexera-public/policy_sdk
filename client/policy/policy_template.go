@@ -5,8 +5,8 @@ package policy
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
+	"github.com/pkg/errors"
 )
 
 // UploadPolicyTemplate a policy template
