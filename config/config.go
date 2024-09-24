@@ -30,7 +30,7 @@ type (
 var (
 	Config        ConfigViper
 	boolRegexp    = regexp.MustCompile(`^(?i:true)$`)
-	hostRegexp    = regexp.MustCompile(`^(?:governance-(\d+)\.(test\.)?rightscale\.com|eu-central-1\.policy-eu\.flexeraeng\.com|api\.eu-central-1\.policy-eu\.flexeraeng\.com)$`)
+	hostRegexp    = regexp.MustCompile(`^(?:governance-(\d+)\.(test\.)?rightscale\.com|eu-central-1\.policy-eu\.flexeraeng\.com|api\.eu-central-1\.policy-eu\.flexeraeng\.com|ap-southeast-2\.policy-apac\.flexeraeng\.com|api\.ap-southeast-2\.policy-apac\.flexeraeng\.com)$`)
 	hostRegexpDep = regexp.MustCompile(`^(?:eu-central-1\.policy-eu\.flexeraeng\.com)$`)
 )
 
