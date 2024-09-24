@@ -19,11 +19,11 @@ import (
 )
 
 // Steps:
-//   1. Upload policy template. If it exists already, update it.
-//   2. Apply policy template.
-//   3. Print log as we go (if --tail option)
-//   4. Print escalation status as we go (if --tail option)
-//   5. Cleanup (stop applied policy, delete policy template)
+//  1. Upload policy template. If it exists already, update it.
+//  2. Apply policy template.
+//  3. Print log as we go (if --tail option)
+//  4. Print escalation status as we go (if --tail option)
+//  5. Cleanup (stop applied policy, delete policy template)
 func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, runCredentials []string, keep bool, dryRun bool, noLog bool) error {
 	fmt.Printf("Running %s\n", file)
 	pt, err := doUpload(ctx, cli, file)
@@ -73,6 +73,17 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	}
 	ap, err := cli.CreateAppliedPolicy(ctx, p)
 	if err != nil {
+		// Instead of returning "not_found" error, return a more descriptive error message
+		// "not_found" is usually due to an issue with the credential ID(s) specified
+		if err.Error() == "not_found" {
+			// Get list of values from credentials map
+			var creds []string
+			for k := range credentials {
+				creds = append(creds, k)
+			}
+			// Update error message
+			err = fmt.Errorf("At least one credential identifier not found -- please check the credential ID(s) specified. " + strings.Join(creds, ", "))
+		}
 		return err
 	}
 	if !keep {
