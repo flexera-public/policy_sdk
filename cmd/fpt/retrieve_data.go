@@ -13,6 +13,8 @@ import (
 )
 
 func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string) error {
+
+	// If string header "Meta-Flexera", val($ds_flexera_api_hosts, "path") exists, add '# ' to comment it out
 	pt, err := doUpload(ctx, cli, file)
 	if err != nil {
 		return err
