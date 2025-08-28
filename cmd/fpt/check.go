@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rightscale/policy_sdk/client/policy"
-	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
+	"github.com/flexera-public/policy_sdk/client/policy"
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
 func policyTemplateCheckSyntax(ctx context.Context, cli policy.Client, files []string) error {

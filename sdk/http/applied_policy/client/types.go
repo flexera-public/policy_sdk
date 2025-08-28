@@ -8,8 +8,8 @@
 package client
 
 import (
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
-	appliedpolicyviews "github.com/rightscale/policy_sdk/sdk/applied_policy/views"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	appliedpolicyviews "github.com/flexera-public/policy_sdk/sdk/applied_policy/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

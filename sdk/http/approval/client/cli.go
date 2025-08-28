@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	approval "github.com/rightscale/policy_sdk/sdk/approval"
+	approval "github.com/flexera-public/policy_sdk/sdk/approval"
 	goa "goa.design/goa/v3/pkg"
 )
 

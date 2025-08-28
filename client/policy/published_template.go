@@ -9,10 +9,10 @@ package policy
 // 	"time"
 
 // 	"github.com/pkg/errors"
-// 	"github.com/rightscale/policy_sdk/auth"
-// 	"github.com/rightscale/policy_sdk/client_wrappers"
-// 	pubclient "github.com/rightscale/policy_sdk/sdk/http/published_template/client"
-// 	"github.com/rightscale/policy_sdk/sdk/published_template"
+// 	"github.com/flexera-public/policy_sdk/auth"
+// 	"github.com/flexera-public/policy_sdk/client_wrappers"
+// 	pubclient "github.com/flexera-public/policy_sdk/sdk/http/published_template/client"
+// 	"github.com/flexera-public/policy_sdk/sdk/published_template"
 // 	"goa.design/goa"
 // 	goahttp "goa.design/goa/http"
 // )

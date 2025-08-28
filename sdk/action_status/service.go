@@ -10,7 +10,7 @@ package actionstatus
 import (
 	"context"
 
-	actionstatusviews "github.com/rightscale/policy_sdk/sdk/action_status/views"
+	actionstatusviews "github.com/flexera-public/policy_sdk/sdk/action_status/views"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )

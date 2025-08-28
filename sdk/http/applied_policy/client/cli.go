@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
 	goa "goa.design/goa/v3/pkg"
 )
 

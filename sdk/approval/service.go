@@ -10,7 +10,7 @@ package approval
 import (
 	"context"
 
-	approvalviews "github.com/rightscale/policy_sdk/sdk/approval/views"
+	approvalviews "github.com/flexera-public/policy_sdk/sdk/approval/views"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 )

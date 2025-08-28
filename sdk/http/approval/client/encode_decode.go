@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	approval "github.com/rightscale/policy_sdk/sdk/approval"
-	approvalviews "github.com/rightscale/policy_sdk/sdk/approval/views"
+	approval "github.com/flexera-public/policy_sdk/sdk/approval"
+	approvalviews "github.com/flexera-public/policy_sdk/sdk/approval/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

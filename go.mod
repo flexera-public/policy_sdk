@@ -1,4 +1,4 @@
-module github.com/rightscale/policy_sdk
+module github.com/flexera-public/policy_sdk
 
 go 1.17
 

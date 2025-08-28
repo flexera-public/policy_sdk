@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/rightscale/policy_sdk/client/policy"
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
-	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
+	"github.com/flexera-public/policy_sdk/client/policy"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
 func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string) error {
