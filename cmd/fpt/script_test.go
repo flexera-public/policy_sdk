@@ -20,7 +20,7 @@ var (
 func TestScriptMaxRunTimeError(t *testing.T) {
 	// Test with maxExecTime=1 which is < 10s script runtime
 	// Expect an error
-	err = runScript(ctx, maxExecTimeTestTemplateFile, "out.json", "", maxExecTimeTestTemplateFile, 1, []string{})
+	err = runScript(ctx, maxExecTimeTestTemplateFile, "out.json", "", maxExecTimeTestTemplateFile, 1, []string{}, true)
 	if err == nil {
 		t.Error("Expected error when maxExecTime=1, got nil")
 	}
@@ -29,7 +29,7 @@ func TestScriptMaxRunTimeError(t *testing.T) {
 func TestScriptMaxRunTimeSucess(t *testing.T) {
 	// Test with maxExecTime=20 which is > 10s script runtime
 	// Expect no error
-	err = runScript(ctx, maxExecTimeTestTemplateFile, "out.json", "", maxExecTimeTestTemplateFile, 20, []string{})
+	err = runScript(ctx, maxExecTimeTestTemplateFile, "out.json", "", maxExecTimeTestTemplateFile, 20, []string{}, true)
 	if err != nil {
 		t.Error(err)
 	}
