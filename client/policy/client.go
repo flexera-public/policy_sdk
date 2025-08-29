@@ -2,7 +2,9 @@ package policy
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	goahttp "goa.design/goa/v3/http"
@@ -151,4 +153,18 @@ func (c *client) EnableMetaFixDuringRetrieveData() {
 // IsMetaFixDuringRetrieveDataEnabled returns true if the meta-fix capability is enabled
 func (c *client) IsMetaFixDuringRetrieveDataEnabled() bool {
 	return c.capabilityMetaFixDuringRetrieveData
+}
+
+// handleMissingCredentialsError updates error message to be more user friendly
+func handleMissingCredentialsError(err *error, credentials map[string]string) {
+	// check if the error is a missing credential error
+	if (*err).Error() == "credential: not found" {
+		// Get list of values from credentials map for the improved error message
+		var creds []string
+		for k, v := range credentials {
+			creds = append(creds, fmt.Sprintf("%s=%s", k, v))
+		}
+		// Update error message
+		*err = fmt.Errorf("At least one credential was not found in the current Org/Project.\nPlease check the credential ID(s) specified: " + strings.Join(creds, ", "))
+	}
 }

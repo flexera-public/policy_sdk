@@ -73,17 +73,6 @@ func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runO
 	}
 	ap, err := cli.CreateAppliedPolicy(ctx, p)
 	if err != nil {
-		// Instead of returning "not_found" error, return a more descriptive error message
-		// "not_found" is usually due to an issue with the credential ID(s) specified
-		if err.Error() == "not_found" {
-			// Get list of values from credentials map
-			var creds []string
-			for k := range credentials {
-				creds = append(creds, k)
-			}
-			// Update error message
-			err = fmt.Errorf("At least one credential identifier not found -- please check the credential ID(s) specified. " + strings.Join(creds, ", "))
-		}
 		return err
 	}
 	if !keep {

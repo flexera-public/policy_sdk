@@ -140,6 +140,7 @@ func (c *client) RetrieveData(ctx context.Context, templateID string, names []st
 
 	resp, err := c.pte.retrieveData(ctx, p)
 	if err != nil {
+		handleMissingCredentialsError(&err, p.Credentials)
 		return nil, err
 	}
 	data, ok := resp.([]*policytemplate.Data)

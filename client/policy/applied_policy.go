@@ -27,6 +27,7 @@ func (c *client) CreateAppliedPolicy(ctx context.Context, p *appliedpolicy.Creat
 
 	policyIF, err := c.ape.create(ctx, p)
 	if err != nil {
+		handleMissingCredentialsError(&err, p.Credentials)
 		return nil, err
 	}
 	policy, ok := policyIF.(*appliedpolicy.AppliedPolicy)
