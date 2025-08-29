@@ -127,11 +127,6 @@ func main() {
 		defer UpdateCheck(VV, os.Stderr)
 	}
 
-	// Enable Meta-Fix capability on client if requested
-	if rdMetaFix != nil && *rdMetaFix {
-		client.EnableMetaFixDuringRetrieveData()
-	}
-
 	switch command {
 	case upCmd.FullCommand():
 		files, err := walkPaths(*upFiles)
@@ -157,7 +152,7 @@ func main() {
 			fatalError("%s\n", err.Error())
 		}
 	case rdCmd.FullCommand():
-		err = policyTemplateRetrieveData(ctx, client, *rdFile, *rdOptions, *rdCredentials, *rdNames, *rdOD)
+		err = policyTemplateRetrieveData(ctx, client, *rdFile, *rdOptions, *rdCredentials, *rdNames, *rdOD, !*rdMetaFix)
 		if err != nil {
 			fatalError("%s\n", err.Error())
 		}

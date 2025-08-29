@@ -42,10 +42,6 @@ type (
 		RetrieveData(ctx context.Context, templateID string, names []string, options []*policytemplate.ConfigurationOptionCreateType, credentials map[string]string) ([]*policytemplate.Data, error)
 		DeletePolicyTemplate(ctx context.Context, id string) error
 
-		DisableMetaFixDuringRetrieveData()
-		EnableMetaFixDuringRetrieveData()
-		IsMetaFixDuringRetrieveDataEnabled() bool
-
 		// CreatePublishedTemplate(ctx context.Context, orgID uint, templateHref string) (*publishedtemplate.CreateResult, error)
 		// ShowPublishedTemplate(ctx context.Context, orgID uint, id string, view string) (*publishedtemplate.PublishedTemplate, error)
 		// DeletePublishedTemplate(ctx context.Context, orgID uint, id string) error
@@ -138,21 +134,6 @@ func (c *client) getToken() (*string, error) {
 		return nil, err
 	}
 	return &tok, nil
-}
-
-// DisableMetaFixDuringRetrieveData disables the meta-fix capability during retrieve data
-func (c *client) DisableMetaFixDuringRetrieveData() {
-	c.capabilityMetaFixDuringRetrieveData = false
-}
-
-// EnableMetaFixDuringRetrieveData enables the meta-fix capability during retrieve data
-func (c *client) EnableMetaFixDuringRetrieveData() {
-	c.capabilityMetaFixDuringRetrieveData = true
-}
-
-// IsMetaFixDuringRetrieveDataEnabled returns true if the meta-fix capability is enabled
-func (c *client) IsMetaFixDuringRetrieveDataEnabled() bool {
-	return c.capabilityMetaFixDuringRetrieveData
 }
 
 // handleMissingCredentialsError updates error message to be more user friendly

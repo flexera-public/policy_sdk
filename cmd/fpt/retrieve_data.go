@@ -12,10 +12,10 @@ import (
 	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
-func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string) error {
+func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string, disableMetaFix bool) error {
 
 	// If string header "Meta-Flexera", val($ds_flexera_api_hosts, "path") exists, add '# ' to comment it out
-	pt, err := doUpload(ctx, cli, file)
+	pt, err := doUpload(ctx, cli, file, disableMetaFix)
 	if err != nil {
 		return err
 	}

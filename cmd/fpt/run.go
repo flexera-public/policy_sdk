@@ -26,7 +26,7 @@ import (
 //  5. Cleanup (stop applied policy, delete policy template)
 func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, runCredentials []string, keep bool, dryRun bool, noLog bool) error {
 	fmt.Printf("Running %s\n", file)
-	pt, err := doUpload(ctx, cli, file)
+	pt, err := doUpload(ctx, cli, file, false)
 	if err != nil {
 		return err
 	}
