@@ -104,16 +104,17 @@ func (config *ConfigViper) GetAccount(id int, host string) (*Account, error) {
 // Obtain input via STDIN then print out to config file
 // Example of config file
 // login:
-//   default_account: acct1
-//   accounts:
-//     acct1:
-//       id: 67972
-//       host: us-3.rightscale.com
-//       refresh_token: abc123abc123abc123abc123abc123abc123abc1
-//     acct2:
-//       id: 60073
-//       host: us-4.rightscale.com
-//       refresh_token: zxy987zxy987zxy987zxy987xzy987zxy987xzy9
+//
+//	default_account: acct1
+//	accounts:
+//	  acct1:
+//	    id: 67972
+//	    host: us-3.rightscale.com
+//	    refresh_token: abc123abc123abc123abc123abc123abc123abc1
+//	  acct2:
+//	    id: 60073
+//	    host: us-4.rightscale.com
+//	    refresh_token: zxy987zxy987zxy987zxy987xzy987zxy987xzy9
 func (config *ConfigViper) SetAccount(name string, setDefault bool, input io.Reader, output io.Writer) error {
 	// if the default account isn't set we should set it to the account we are setting
 	if !config.IsSet("login.default_account") {
