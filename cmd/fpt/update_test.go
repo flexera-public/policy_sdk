@@ -5,7 +5,6 @@ import (
 	"archive/zip"
 	"compress/gzip"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -35,10 +34,10 @@ var _ = Describe("Update", func() {
 
 	Context("With a update versions URL", func() {
 		var (
-			buffer           *gbytes.Buffer
-			server           *httptest.Server
-			newExeContent    string
-			oldUpdateBaseUrl string
+			buffer                *gbytes.Buffer
+			server                *httptest.Server
+			newExeContent         string
+			oldUpdateGithubAPIUrl string
 		)
 
 		BeforeEach(func() {
@@ -47,58 +46,98 @@ var _ = Describe("Update", func() {
 			if runtime.GOOS == "windows" {
 				exeItem += ".exe"
 			}
-			tgzPath := regexp.MustCompile(`^/v[0-9]+\.[0-9]+\.[0-9]+/fpt-` + runtime.GOOS + `-` + runtime.GOARCH +
-				`\.tgz$`)
-			zipPath := regexp.MustCompile(`^/v[0-9]+\.[0-9]+\.[0-9]+/fpt-` + runtime.GOOS + `-` + runtime.GOARCH +
-				`\.zip$`)
+			ext := "tgz"
+			if runtime.GOOS == "windows" {
+				ext = "zip"
+			}
+			assetPattern := regexp.MustCompile(`^/fpt-` + runtime.GOOS + `-` + runtime.GOARCH + `\.` + ext + `$`)
+
 			server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				switch {
-				case r.URL.Path == "/version-"+runtime.GOOS+"-"+runtime.GOARCH+".yml":
-					w.Write([]byte(`# Latest fpt versions by major version (this file is used by fpt's update check mechanism)
----
-versions:
-  1: v1.2.3
-  2: v2.3.4
-  3: v3.4.5
-`))
-				case tgzPath.MatchString(r.URL.Path):
-					gzipWriter := gzip.NewWriter(w)
-					tarWriter := tar.NewWriter(gzipWriter)
-					if err := tarWriter.WriteHeader(&tar.Header{Name: exeItem, Size: int64(len(newExeContent))}); err != nil {
-						panic(err)
-					}
-					if _, err := io.WriteString(tarWriter, newExeContent); err != nil {
-						panic(err)
-					}
-					if err := tarWriter.Close(); err != nil {
-						panic(err)
-					}
-					if err := gzipWriter.Close(); err != nil {
-						panic(err)
-					}
-				case zipPath.MatchString(r.URL.Path):
-					zipWriter := zip.NewWriter(w)
-					exeWriter, err := zipWriter.Create(exeItem)
-					if err != nil {
-						panic(err)
-					}
-					if _, err := io.WriteString(exeWriter, newExeContent); err != nil {
-						panic(err)
-					}
-					if err := zipWriter.Close(); err != nil {
-						panic(err)
-					}
+				switch r.URL.Path {
+				case "/":
+					// Mock GitHub releases API response
+					w.Header().Set("Content-Type", "application/json")
+					assetName := "fpt-" + runtime.GOOS + "-" + runtime.GOARCH + "." + ext
+					downloadURL := server.URL + "/" + assetName
+					response := `[
+						{
+							"tag_name": "v3.4.5",
+							"draft": false,
+							"prerelease": false,
+							"assets": [
+								{
+									"name": "` + assetName + `",
+									"browser_download_url": "` + downloadURL + `"
+								}
+							]
+						},
+						{
+							"tag_name": "v2.3.4",
+							"draft": false,
+							"prerelease": false,
+							"assets": [
+								{
+									"name": "` + assetName + `",
+									"browser_download_url": "` + downloadURL + `"
+								}
+							]
+						},
+						{
+							"tag_name": "v1.2.3",
+							"draft": false,
+							"prerelease": false,
+							"assets": [
+								{
+									"name": "` + assetName + `",
+									"browser_download_url": "` + downloadURL + `"
+								}
+							]
+						}
+					]`
+					w.Write([]byte(response))
 				default:
-					w.WriteHeader(http.StatusNotFound)
+					if assetPattern.MatchString(r.URL.Path) {
+						// Serve the mock binary archive
+						if ext == "tgz" {
+							gzipWriter := gzip.NewWriter(w)
+							tarWriter := tar.NewWriter(gzipWriter)
+							if err := tarWriter.WriteHeader(&tar.Header{Name: exeItem, Size: int64(len(newExeContent))}); err != nil {
+								panic(err)
+							}
+							if _, err := io.WriteString(tarWriter, newExeContent); err != nil {
+								panic(err)
+							}
+							if err := tarWriter.Close(); err != nil {
+								panic(err)
+							}
+							if err := gzipWriter.Close(); err != nil {
+								panic(err)
+							}
+						} else {
+							zipWriter := zip.NewWriter(w)
+							exeWriter, err := zipWriter.Create(exeItem)
+							if err != nil {
+								panic(err)
+							}
+							if _, err := io.WriteString(exeWriter, newExeContent); err != nil {
+								panic(err)
+							}
+							if err := zipWriter.Close(); err != nil {
+								panic(err)
+							}
+						}
+					} else {
+						w.WriteHeader(http.StatusNotFound)
+					}
 				}
 			}))
 			newExeContent = "#!/bin/bash\necho 'This is the new version!'\n"
-			oldUpdateBaseUrl = UpdateBaseUrl
-			UpdateBaseUrl = server.URL
+			oldUpdateGithubAPIUrl = UpdateGithubAPIUrl
+			UpdateGithubAPIUrl = server.URL
 		})
 
 		AfterEach(func() {
-			UpdateBaseUrl = oldUpdateBaseUrl
+			UpdateGithubAPIUrl = oldUpdateGithubAPIUrl
 			server.Close()
 		})
 
@@ -127,13 +166,13 @@ versions:
 			It("Gets the download URL for a major version", func() {
 				url, version, err := UpdateGetDownloadUrl(1)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(url).To(Equal(server.URL + "/v1.2.3/fpt-" + runtime.GOOS + "-" + runtime.GOARCH + "." + ext))
+				Expect(url).To(Equal(server.URL + "/fpt-" + runtime.GOOS + "-" + runtime.GOARCH + "." + ext))
 				Expect(version).To(Equal(&Version{1, 2, 3}))
 			})
 
 			It("Returns an error for a nonexistent major version", func() {
 				url, version, err := UpdateGetDownloadUrl(0)
-				Expect(err).To(MatchError("Major version not available: 0"))
+				Expect(err).To(MatchError("major version not available: 0"))
 				Expect(url).To(BeEmpty())
 				Expect(version).To(BeNil())
 			})
@@ -155,8 +194,7 @@ versions:
 				Expect(buffer.Contents()).To(BeEquivalentTo(`There is a new v3 version of fpt (v3.4.5), to upgrade run:
     fpt update apply
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -165,8 +203,7 @@ https://github.com/flexera-public/policy_sdk/releases for more information.
 				Expect(buffer.Contents()).To(BeEquivalentTo(`There is a new major version of fpt (v3.4.5), to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -177,8 +214,7 @@ https://github.com/flexera-public/policy_sdk/releases for more information.
 There is a new major version of fpt (v3.4.5), to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 		})
@@ -190,8 +226,7 @@ https://github.com/flexera-public/policy_sdk/releases for more information.
 The latest v2 version of fpt is v2.3.4.
 The latest v3 version of fpt is v3.4.5.
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -201,8 +236,7 @@ https://github.com/flexera-public/policy_sdk/releases for more information.
 The latest v2 version of fpt is v2.3.4.
 The latest v3 version of fpt is v3.4.5; this is the version you are using!
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -213,8 +247,7 @@ The latest v2 version of fpt is v2.3.4.
 The latest v3 version of fpt is v3.4.5; you are using v3.0.0, to upgrade run:
     fpt update apply
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -225,8 +258,7 @@ The latest v2 version of fpt is v2.3.4; this is the version you are using!
 The latest v3 version of fpt is v3.4.5; you are using v2.3.4, to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 
@@ -238,8 +270,7 @@ The latest v2 version of fpt is v2.3.4; you are using v2.0.0, to upgrade run:
 The latest v3 version of fpt is v3.4.5; you are using v2.0.0, to upgrade run:
     fpt update apply -m 3
 
-See https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md or
-https://github.com/flexera-public/policy_sdk/releases for more information.
+See https://github.com/flexera-public/policy_sdk/releases for more information.
 `))
 			})
 		})
@@ -252,12 +283,12 @@ https://github.com/flexera-public/policy_sdk/releases for more information.
 
 			BeforeEach(func() {
 				var err error
-				tempDir, err = ioutil.TempDir("", "update")
+				tempDir, err = os.MkdirTemp("", "update")
 				if err != nil {
 					panic(err)
 				}
 				exePath = filepath.Join(tempDir, "fpt")
-				err = ioutil.WriteFile(exePath, []byte("#!/bin/bash\necho 'This is the old version!'\n"), 0755)
+				err = os.WriteFile(exePath, []byte("#!/bin/bash\necho 'This is the old version!'\n"), 0755)
 				if err != nil {
 					panic(err)
 				}
@@ -269,22 +300,30 @@ https://github.com/flexera-public/policy_sdk/releases for more information.
 
 			It("Updates to the latest version for the current major version", func() {
 				Expect(UpdateApply("fpt v2.0.0 - JUNK JUNK JUNK", buffer, 0, exePath)).To(Succeed())
-				Expect(buffer.Contents()).To(MatchRegexp(`^Downloading fpt v2\.3\.4 from %s/v2\.3\.4/fpt-%s-%s\.(?:tgz|zip)\.\.\.
+				ext := "tgz"
+				if runtime.GOOS == "windows" {
+					ext = "zip"
+				}
+				Expect(buffer.Contents()).To(MatchRegexp(`^Downloading fpt v2\.3\.4 from %s/fpt-%s-%s\.%s\.\.\.
 Successfully updated fpt to v2\.3\.4!
-$`, regexp.QuoteMeta(server.URL), runtime.GOOS, runtime.GOARCH))
+$`, regexp.QuoteMeta(server.URL), runtime.GOOS, runtime.GOARCH, ext))
 
-				exeContent, err := ioutil.ReadFile(exePath)
+				exeContent, err := os.ReadFile(exePath)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(exeContent).To(BeEquivalentTo(newExeContent))
 			})
 
 			It("Updates to the latest version for a specific major version", func() {
 				Expect(UpdateApply("fpt v2.0.0 - JUNK JUNK JUNK", buffer, 3, exePath)).To(Succeed())
-				Expect(buffer.Contents()).To(MatchRegexp(`^Downloading fpt v3\.4\.5 from %s/v3\.4\.5/fpt-%s-%s\.(?:tgz|zip)\.\.\.
+				ext := "tgz"
+				if runtime.GOOS == "windows" {
+					ext = "zip"
+				}
+				Expect(buffer.Contents()).To(MatchRegexp(`^Downloading fpt v3\.4\.5 from %s/fpt-%s-%s\.%s\.\.\.
 Successfully updated fpt to v3\.4\.5!
-$`, regexp.QuoteMeta(server.URL), runtime.GOOS, runtime.GOARCH))
+$`, regexp.QuoteMeta(server.URL), runtime.GOOS, runtime.GOARCH, ext))
 
-				exeContent, err := ioutil.ReadFile(exePath)
+				exeContent, err := os.ReadFile(exePath)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(exeContent).To(BeEquivalentTo(newExeContent))
 			})

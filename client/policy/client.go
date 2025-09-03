@@ -146,6 +146,6 @@ func handleMissingCredentialsError(err *error, credentials map[string]string) {
 			creds = append(creds, fmt.Sprintf("%s=%s", k, v))
 		}
 		// Update error message
-		*err = fmt.Errorf("At least one credential was not found in the current Org/Project.\nPlease check the credential ID(s) specified: " + strings.Join(creds, ", "))
+		*err = fmt.Errorf("At least one credential was not found in the current Org/Project.\nPlease check the credential ID(s) specified: %s", strings.Join(creds, ", "))
 	}
 }

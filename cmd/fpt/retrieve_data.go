@@ -47,7 +47,7 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 				creds = append(creds, k)
 			}
 			// Update error message
-			err = fmt.Errorf("At least one credential identifier not found -- please check the credential ID(s) specified. " + strings.Join(creds, ", "))
+			err = fmt.Errorf("At least one credential identifier not found -- please check the credential ID(s) specified. %s", strings.Join(creds, ", "))
 		}
 		return err
 	}
