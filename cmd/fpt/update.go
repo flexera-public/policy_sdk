@@ -178,7 +178,7 @@ func UpdateGetDownloadUrl(majorVersion int) (string, *Version, error) {
 	if runtime.GOOS == "windows" {
 		ext = "zip"
 	}
-	assetName := fmt.Sprintf("%s-%s-%s.%s", app.Name, runtime.GOOS, runtime.GOARCH, ext)
+	assetName := fmt.Sprintf("%s-%s-%s-%s.%s", app.Name, runtime.GOOS, runtime.GOARCH, targetVersion.String(), ext)
 
 	// find the matching asset in the release
 	for _, asset := range targetRelease.Assets {
