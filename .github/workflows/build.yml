@@ -119,6 +119,6 @@ jobs:
         draft: true # Indicator of whether or not this release is a draft
         # actions/download-artifact uses folders to store artifacts, so we need to include the wildcard to get the actual files
         files: |
-          fpt-linux-amd64-${GITHUB_REF_NAME}.tgz/fpt-linux-amd64-${GITHUB_REF_NAME}.tgz
-          fpt-darwin-amd64-${GITHUB_REF_NAME}.tgz/fpt-darwin-amd64-${GITHUB_REF_NAME}.tgz
-          fpt-windows-amd64-${GITHUB_REF_NAME}.zip/fpt-windows-amd64-${GITHUB_REF_NAME}.zip
+          fpt-linux-amd64-${{ github.ref_name }}.tgz/*
+          fpt-darwin-amd64-${{ github.ref_name }}.tgz/*
+          fpt-windows-amd64-${{ github.ref_name }}.zip/*
