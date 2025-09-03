@@ -15,11 +15,7 @@ See [ChangeLog.md](https://github.com/flexera-public/policy_sdk/tree/master/cmd/
 
 ## Installation
 
-Since `fpt` is written in Go it is compiled to a single static binary. Extract and run the executable below:
-
-* Linux: [v1/fpt-linux-amd64.tgz](https://binaries.rightscale.com/rsbin/fpt/v1/fpt-linux-amd64.tgz)
-* macOS: [v1/fpt-darwin-amd64.tgz](https://binaries.rightscale.com/rsbin/fpt/v1/fpt-darwin-amd64.tgz)
-* Windows: [v1/fpt-windows-amd64.zip](https://binaries.rightscale.com/rsbin/fpt/v1/fpt-windows-amd64.zip)
+You can find compiled binaries of `fpt` in the [Releases](https://github.com/flexera-public/policy_sdk/releases) section
 
 ### Configuration
 
