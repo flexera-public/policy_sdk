@@ -29,39 +29,14 @@ jobs:
         mkdir -p build/fpt
         go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
         chmod +x build/fpt/fpt*
-        tar -zcf fpt-linux-amd64.tgz -C build fpt
+        tar -zcf fpt-linux-amd64-${GITHUB_REF_NAME}.tgz -C build fpt
         rm -r build/fpt
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-linux-amd64.tgz
-        path: fpt-linux-amd64.tgz
-
-    - name: Configure AWS Credentials for S3 Upload
-      if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.RS_BINARIES_UPLOAD_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.RS_BINARIES_UPLOAD_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Upload to S3
-      if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events 
-      run: |
-        if test -f "fpt-linux-amd64.tgz"; then
-          aws s3 cp fpt-linux-amd64.tgz s3://rightscale-binaries/rsbin/fpt/${{ github.ref_name }}/fpt-linux-amd64.tgz --acl public-read
-        else
-          echo "fpt-linux-amd64.tgz does not exist in $(pwd), did not upload"
-        fi
-
-        $GITHUB_WORKSPACE/version-hardcode.sh > version.yml
-        if test -f "version.yml"; then
-          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/version-linux-amd64.yml --acl public-read
-          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/version.yml --acl public-read # for the legacy user(s)
-        else
-          echo "version.yml does not exist in $(pwd), did not upload" && exit 1
-        fi
+        name: fpt-linux-amd64-${{ github.ref_name }}
+        path: fpt-linux-amd64-*.tgz
 
   build-macos:
     name: "Build Binary for macOS"
@@ -84,38 +59,14 @@ jobs:
         mkdir -p build/fpt
         go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
         chmod +x build/fpt/fpt*
-        tar -zcf fpt-darwin-amd64.tgz -C build fpt
+        tar -zcf fpt-darwin-amd64-${GITHUB_REF_NAME}.tgz -C build fpt
         rm -r build/fpt
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-darwin-amd64.tgz
-        path: fpt-darwin-amd64.tgz
-
-    - name: Configure AWS Credentials for S3 Upload
-      if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.RS_BINARIES_UPLOAD_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.RS_BINARIES_UPLOAD_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Upload to S3
-      if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
-      run: |
-        if test -f "fpt-darwin-amd64.tgz"; then
-          aws s3 cp fpt-darwin-amd64.tgz s3://rightscale-binaries/rsbin/fpt/${{ github.ref_name }}/fpt-darwin-amd64.tgz --acl public-read
-        else
-          echo "fpt-darwin-amd64.tgz does not exist in $(pwd), did not upload"
-        fi
-
-        $GITHUB_WORKSPACE/version-hardcode.sh > version.yml
-        if test -f "version.yml"; then
-          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/version-darwin-amd64.yml --acl public-read
-        else
-          echo "version.yml does not exist in $(pwd), did not upload" && exit 1
-        fi
+        name: fpt-darwin-amd64-${{ github.ref_name }}
+        path: fpt-darwin-amd64-*.tgz
 
   build-windows:
     name: "Build Binary for Windows"
@@ -140,35 +91,34 @@ jobs:
         mkdir -p build/fpt
         go build -tags fpt_make -o build/fpt/fpt.exe ./cmd/fpt
         chmod +x build/fpt/fpt.exe
-        pushd build; ls; pwd; 7z a -r ../fpt-windows-amd64.zip fpt; ls; pwd; popd
+        pushd build; ls; pwd; 7z a -r ../fpt-windows-amd64-${GITHUB_REF_NAME}.zip fpt; ls; pwd; popd
         rm -r build/fpt
     
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-windows-amd64.zip
-        path: fpt-windows-amd64.zip
+        name: fpt-windows-amd64-${{ github.ref_name }}
+        path: fpt-windows-amd64-*.zip
 
-    - name: Configure AWS Credentials for S3 Upload
-      if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
-      uses: aws-actions/configure-aws-credentials@v4
+  release:
+    if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [build-ubuntu, build-macos, build-windows]
+    steps:
+    - uses: actions/download-artifact@v5
+      id: download
+
+    - name: Display structure of downloaded files
+      run: ls -R
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
       with:
-        aws-access-key-id: ${{ secrets.RS_BINARIES_UPLOAD_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.RS_BINARIES_UPLOAD_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Upload to S3
-      if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
-      run: |
-        if test -f "fpt-windows-amd64.zip"; then
-          aws s3 cp fpt-windows-amd64.zip s3://rightscale-binaries/rsbin/fpt/${{ github.ref_name }}/fpt-windows-amd64.zip --acl public-read
-        else
-          echo "fpt-windows-amd64.zip does not exist in $(pwd), did not upload"
-        fi
-
-        $GITHUB_WORKSPACE/version-hardcode.sh > version.yml
-        if test -f "version.yml"; then
-          aws s3 cp version.yml s3://rightscale-binaries/rsbin/fpt/version-windows-amd64.yml --acl public-read
-        else
-          echo "version.yml does not exist in $(pwd), did not upload" && exit 1
-        fi
+        generate_release_notes: true
+        append_body: false
+        draft: true # Indicator of whether or not this release is a draft
+        files: |
+          fpt-linux-amd64-*
+          fpt-darwin-amd64-*
+          fpt-windows-amd64-*
