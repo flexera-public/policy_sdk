@@ -5,8 +5,8 @@ package policy
 import (
 	"context"
 
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 	"github.com/pkg/errors"
-	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
 )
 
 // UploadPolicyTemplate a policy template
@@ -140,6 +140,7 @@ func (c *client) RetrieveData(ctx context.Context, templateID string, names []st
 
 	resp, err := c.pte.retrieveData(ctx, p)
 	if err != nil {
+		handleMissingCredentialsError(&err, p.Credentials)
 		return nil, err
 	}
 	data, ok := resp.([]*policytemplate.Data)

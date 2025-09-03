@@ -9,9 +9,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	apclient "github.com/flexera-public/policy_sdk/sdk/http/applied_policy/client"
 	"github.com/pkg/errors"
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
-	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
 	goahttp "goa.design/goa/v3/http"
 )
 
@@ -27,6 +27,7 @@ func (c *client) CreateAppliedPolicy(ctx context.Context, p *appliedpolicy.Creat
 
 	policyIF, err := c.ape.create(ctx, p)
 	if err != nil {
+		handleMissingCredentialsError(&err, p.Credentials)
 		return nil, err
 	}
 	policy, ok := policyIF.(*appliedpolicy.AppliedPolicy)

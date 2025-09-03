@@ -15,8 +15,8 @@ import (
 	"net/url"
 	"strings"
 
-	incidentaggregate "github.com/rightscale/policy_sdk/sdk/incident_aggregate"
-	incidentaggregateviews "github.com/rightscale/policy_sdk/sdk/incident_aggregate/views"
+	incidentaggregate "github.com/flexera-public/policy_sdk/sdk/incident_aggregate"
+	incidentaggregateviews "github.com/flexera-public/policy_sdk/sdk/incident_aggregate/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

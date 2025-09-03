@@ -11,22 +11,22 @@ import (
 	"github.com/pkg/errors"
 	goa "goa.design/goa/v3/pkg"
 
-	"github.com/rightscale/policy_sdk/client/policy"
-	"github.com/rightscale/policy_sdk/config"
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
-	"github.com/rightscale/policy_sdk/sdk/incident"
-	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
+	"github.com/flexera-public/policy_sdk/client/policy"
+	"github.com/flexera-public/policy_sdk/config"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	"github.com/flexera-public/policy_sdk/sdk/incident"
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
 // Steps:
-//   1. Upload policy template. If it exists already, update it.
-//   2. Apply policy template.
-//   3. Print log as we go (if --tail option)
-//   4. Print escalation status as we go (if --tail option)
-//   5. Cleanup (stop applied policy, delete policy template)
+//  1. Upload policy template. If it exists already, update it.
+//  2. Apply policy template.
+//  3. Print log as we go (if --tail option)
+//  4. Print escalation status as we go (if --tail option)
+//  5. Cleanup (stop applied policy, delete policy template)
 func policyTemplateRun(ctx context.Context, cli policy.Client, file string, runOptions []string, runCredentials []string, keep bool, dryRun bool, noLog bool) error {
 	fmt.Printf("Running %s\n", file)
-	pt, err := doUpload(ctx, cli, file)
+	pt, err := doUpload(ctx, cli, file, false)
 	if err != nil {
 		return err
 	}

@@ -63,7 +63,7 @@ func (s *scriptErrorList) Error() string {
 	return strings.Join(errs, "\n")
 }
 
-func runScript(ctx context.Context, file, outfile, result, name string, maxExecTime int, options []string) error {
+func runScript(ctx context.Context, file, outfile, result, name string, maxExecTime int, options []string, assumeDatasourceJSON bool) error {
 	rd, err := os.Open(file)
 	if err != nil {
 		return err
@@ -75,6 +75,11 @@ func runScript(ctx context.Context, file, outfile, result, name string, maxExecT
 	src := normalizeLineEndings(string(srcBytes))
 
 	maxExecTimeSeconds := time.Duration(maxExecTime) * time.Second
+
+	// Enhance options with automatic datasource JSON detection if enabled
+	if assumeDatasourceJSON {
+		options = enhanceOptionsWithDatasourceJSON(src, options)
+	}
 
 	params, err := parseParams(options)
 	if err != nil {
@@ -245,6 +250,73 @@ func execScript(code *ast.Program, params []*param, maxExecTime time.Duration, r
 		return nil, fmt.Errorf("failed to retrieve value of %q", result)
 	}
 	return export(r)
+}
+
+// enhanceOptionsWithDatasourceJSON checks for datasource_{datasourcename}.json files
+// and automatically uses them for script parameters if they exist and no explicit value is provided
+func enhanceOptionsWithDatasourceJSON(src string, options []string) []string {
+	// Parse existing options to see what's already provided
+	providedParams := make(map[string]bool)
+	for _, option := range options {
+		if strings.Contains(option, "=") {
+			paramName := strings.SplitN(option, "=", 2)[0]
+			providedParams[paramName] = true
+		}
+	}
+
+	// Extract script parameters from the policy template
+	scriptParams := extractScriptParameters(src)
+
+	// Build enhanced options list
+	enhancedOptions := make([]string, len(options))
+	copy(enhancedOptions, options)
+
+	// For each script parameter that wasn't explicitly provided,
+	// check if a corresponding datasource_{paramname}.json file exists
+	for _, paramName := range scriptParams {
+		if !providedParams[paramName] {
+			dsFilename := fmt.Sprintf("datasource_%s.json", paramName)
+			// print some debug information about the path we are expecting
+			fmt.Printf("Expecting datasource file: %s\n", dsFilename)
+			if _, err := os.Stat(dsFilename); err == nil {
+				// File exists, add it to options
+				enhancedOption := fmt.Sprintf("%s=@%s", paramName, dsFilename)
+				enhancedOptions = append(enhancedOptions, enhancedOption)
+				// fmt.Printf("Auto-detected datasource file: %s for parameter '%s'\n", dsFilename, paramName)
+			}
+		}
+	}
+
+	return enhancedOptions
+}
+
+// extractScriptParameters extracts parameter names from script blocks in a policy template
+func extractScriptParameters(src string) []string {
+	var allParams []string
+
+	// Check if this is a policy template (contains rs_pt_ver)
+	if strings.Contains(src, "rs_pt_ver") {
+		scripts := getScripts(src)
+		for _, script := range scripts {
+			allParams = append(allParams, script.params...)
+		}
+	} else {
+		// For raw JavaScript, we can't easily extract parameter names,
+		// so we return an empty list (no auto-detection for raw JS)
+		return []string{}
+	}
+
+	// Remove duplicates
+	paramMap := make(map[string]bool)
+	var uniqueParams []string
+	for _, param := range allParams {
+		if !paramMap[param] {
+			paramMap[param] = true
+			uniqueParams = append(uniqueParams, param)
+		}
+	}
+
+	return uniqueParams
 }
 
 func parseParams(runOptions []string) ([]*param, error) {

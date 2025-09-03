@@ -8,8 +8,8 @@
 package client
 
 import (
-	incident "github.com/rightscale/policy_sdk/sdk/incident"
-	incidentviews "github.com/rightscale/policy_sdk/sdk/incident/views"
+	incident "github.com/flexera-public/policy_sdk/sdk/incident"
+	incidentviews "github.com/flexera-public/policy_sdk/sdk/incident/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

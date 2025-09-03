@@ -5,14 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
-	"github.com/rightscale/policy_sdk/client/policy"
-	appliedpolicy "github.com/rightscale/policy_sdk/sdk/applied_policy"
-	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
+	"github.com/flexera-public/policy_sdk/client/policy"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
-func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string) error {
-	pt, err := doUpload(ctx, cli, file)
+func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file string, runOptions, runCredentials, names []string, outputD string, disableMetaFix bool) error {
+
+	// If string header "Meta-Flexera", val($ds_flexera_api_hosts, "path") exists, add '# ' to comment it out
+	pt, err := doUpload(ctx, cli, file, disableMetaFix)
 	if err != nil {
 		return err
 	}
@@ -35,6 +38,17 @@ func policyTemplateRetrieveData(ctx context.Context, cli policy.Client, file str
 	fmt.Printf("Retrieving Data from PolicyTemplate (%s)\n", pt.Href)
 	rd, err := cli.RetrieveData(ctx, pt.ID, names, options, credentials)
 	if err != nil {
+		// Instead of returning "not_found" error, return a more descriptive error message
+		// "not_found" is usually due to an issue with the credential ID(s) specified
+		if err.Error() == "not_found" {
+			// Get list of values from credentials map
+			var creds []string
+			for k := range credentials {
+				creds = append(creds, k)
+			}
+			// Update error message
+			err = fmt.Errorf("At least one credential identifier not found -- please check the credential ID(s) specified. " + strings.Join(creds, ", "))
+		}
 		return err
 	}
 	for _, d := range rd {

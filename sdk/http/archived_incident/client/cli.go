@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"strconv"
 
-	archivedincident "github.com/rightscale/policy_sdk/sdk/archived_incident"
+	archivedincident "github.com/flexera-public/policy_sdk/sdk/archived_incident"
 	goa "goa.design/goa/v3/pkg"
 )
 

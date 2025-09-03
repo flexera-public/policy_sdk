@@ -4,7 +4,7 @@ This is how to release a new version of `policy_sdk`:
 
 1. Verify that all of the tests pass:
    * Linux, macOS, and Windows: [![Travis CI Build Status](https://travis-ci.com/rightscale/policy_sdk.svg?branch=master)](https://travis-ci.com/rightscale/policy_sdk?branch=master)
-2. Make sure the [ChangeLog](https://github.com/rightscale/policy_sdk/blob/master/cmd/fpt/ChangeLog.md) and [README](https://github.com/rightscale/policy_sdk/blob/master/README.md) are up to date.
+2. Make sure the [ChangeLog](https://github.com/flexera-public/policy_sdk/blob/master/cmd/fpt/ChangeLog.md) and [README](https://github.com/flexera-public/policy_sdk/blob/master/README.md) are up to date.
 3. Create a tag of the form `vX.Y.Z` where `X`, `Y`, and `Z` are the major, minor, and patch versions respectively:
    ```bash
    git checkout master

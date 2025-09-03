@@ -8,8 +8,8 @@
 package client
 
 import (
-	policytemplate "github.com/rightscale/policy_sdk/sdk/policy_template"
-	policytemplateviews "github.com/rightscale/policy_sdk/sdk/policy_template/views"
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
+	policytemplateviews "github.com/flexera-public/policy_sdk/sdk/policy_template/views"
 	goa "goa.design/goa/v3/pkg"
 )
 

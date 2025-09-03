@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"strconv"
 
-	actionstatus "github.com/rightscale/policy_sdk/sdk/action_status"
+	actionstatus "github.com/flexera-public/policy_sdk/sdk/action_status"
 	goa "goa.design/goa/v3/pkg"
 )
 

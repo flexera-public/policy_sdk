@@ -2,19 +2,21 @@ package policy
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 
-	"github.com/rightscale/policy_sdk/auth"
-	"github.com/rightscale/policy_sdk/sdk/applied_policy"
-	apclient "github.com/rightscale/policy_sdk/sdk/http/applied_policy/client"
-	iclient "github.com/rightscale/policy_sdk/sdk/http/incident/client"
-	ptclient "github.com/rightscale/policy_sdk/sdk/http/policy_template/client"
-	"github.com/rightscale/policy_sdk/sdk/incident"
-	"github.com/rightscale/policy_sdk/sdk/policy_template"
+	"github.com/flexera-public/policy_sdk/auth"
+	appliedpolicy "github.com/flexera-public/policy_sdk/sdk/applied_policy"
+	apclient "github.com/flexera-public/policy_sdk/sdk/http/applied_policy/client"
+	iclient "github.com/flexera-public/policy_sdk/sdk/http/incident/client"
+	ptclient "github.com/flexera-public/policy_sdk/sdk/http/policy_template/client"
+	"github.com/flexera-public/policy_sdk/sdk/incident"
+	policytemplate "github.com/flexera-public/policy_sdk/sdk/policy_template"
 )
 
 const apiVersion = "1.0"
@@ -46,12 +48,13 @@ type (
 	}
 
 	client struct {
-		host      string
-		projectID uint
-		ts        auth.TokenSource
-		ape       appliedPolicyEndpoints
-		ie        incidentEndpoints
-		pte       policyTemplateEndpoints
+		host                                string
+		projectID                           uint
+		ts                                  auth.TokenSource
+		ape                                 appliedPolicyEndpoints
+		ie                                  incidentEndpoints
+		pte                                 policyTemplateEndpoints
+		capabilityMetaFixDuringRetrieveData bool
 	}
 
 	// appliedPolicyEndpoints implements the applied policy pkg client wrapper
@@ -83,7 +86,8 @@ type (
 )
 
 // NewClient returns a new client for RightScale Policy service.
-//   host should be the API host, such as governance-3.rightscale.com
+//
+//	host should be the API host, such as governance-3.rightscale.com
 func NewClient(host string, projectID uint, ts auth.TokenSource, debug bool) Client {
 	var doer goahttp.Doer = &http.Client{Timeout: time.Duration(300) * time.Second}
 	// if debug {
@@ -130,4 +134,18 @@ func (c *client) getToken() (*string, error) {
 		return nil, err
 	}
 	return &tok, nil
+}
+
+// handleMissingCredentialsError updates error message to be more user friendly
+func handleMissingCredentialsError(err *error, credentials map[string]string) {
+	// check if the error is a missing credential error
+	if (*err).Error() == "credential: not found" {
+		// Get list of values from credentials map for the improved error message
+		var creds []string
+		for k, v := range credentials {
+			creds = append(creds, fmt.Sprintf("%s=%s", k, v))
+		}
+		// Update error message
+		*err = fmt.Errorf("At least one credential was not found in the current Org/Project.\nPlease check the credential ID(s) specified: " + strings.Join(creds, ", "))
+	}
 }

@@ -30,7 +30,7 @@ type (
 var (
 	Config        ConfigViper
 	boolRegexp    = regexp.MustCompile(`^(?i:true)$`)
-	hostRegexp    = regexp.MustCompile(`^(?:governance-(\d+)\.(test\.)?rightscale\.com|eu-central-1\.policy-eu\.flexeraeng\.com|api\.eu-central-1\.policy-eu\.flexeraeng\.com)$`)
+	hostRegexp    = regexp.MustCompile(`^(?:governance-(\d+)\.(test\.)?rightscale\.com|eu-central-1\.policy-eu\.flexeraeng\.com|api\.eu-central-1\.policy-eu\.flexeraeng\.com|api\.ap-southeast-2\.policy-apac\.flexeraeng\.com)$`)
 	hostRegexpDep = regexp.MustCompile(`^(?:eu-central-1\.policy-eu\.flexeraeng\.com)$`)
 )
 
@@ -104,16 +104,17 @@ func (config *ConfigViper) GetAccount(id int, host string) (*Account, error) {
 // Obtain input via STDIN then print out to config file
 // Example of config file
 // login:
-//   default_account: acct1
-//   accounts:
-//     acct1:
-//       id: 67972
-//       host: us-3.rightscale.com
-//       refresh_token: abc123abc123abc123abc123abc123abc123abc1
-//     acct2:
-//       id: 60073
-//       host: us-4.rightscale.com
-//       refresh_token: zxy987zxy987zxy987zxy987xzy987zxy987xzy9
+//
+//	default_account: acct1
+//	accounts:
+//	  acct1:
+//	    id: 67972
+//	    host: us-3.rightscale.com
+//	    refresh_token: abc123abc123abc123abc123abc123abc123abc1
+//	  acct2:
+//	    id: 60073
+//	    host: us-4.rightscale.com
+//	    refresh_token: zxy987zxy987zxy987zxy987xzy987zxy987xzy9
 func (config *ConfigViper) SetAccount(name string, setDefault bool, input io.Reader, output io.Writer) error {
 	// if the default account isn't set we should set it to the account we are setting
 	if !config.IsSet("login.default_account") {
@@ -257,7 +258,7 @@ func (config *ConfigViper) ShowConfiguration(output io.Writer) error {
 
 func (a *Account) Validate() error {
 	if !hostRegexp.MatchString(a.Host) {
-		return fmt.Errorf("invalid host: must be of form governance-<shard number>.rightscale.com or api.eu-central-1.policy-eu.flexeraeng.com")
+		return fmt.Errorf("invalid host: must be of form governance-3.rightscale.com, governance-4.rightscale.com, api.eu-central-1.policy-eu.flexeraeng.com, or api.ap-southeast-2.policy-apac.flexeraeng.com")
 	}
 	if hostRegexpDep.MatchString(a.Host) {
 		fmt.Fprintln(os.Stderr, "Warning: API endpoint host eu-central-1.policy-eu.flexeraeng.com is deprecated and will be removed soon. Change profile API endpoint host to api.eu-central-1.policy-eu.flexeraeng.com before May 23rd")
