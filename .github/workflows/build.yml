@@ -29,14 +29,14 @@ jobs:
         mkdir -p build/fpt
         go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
         chmod +x build/fpt/fpt*
-        tar -zcf fpt-linux-amd64-${GITHUB_REF_NAME}.tgz -C build fpt
+        tar -zcf "fpt-linux-amd64-${GITHUB_REF_NAME}.tgz" -C build fpt
         rm -r build/fpt
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-linux-amd64-${{ github.ref_name }}
-        path: fpt-linux-amd64-*.tgz
+        name: fpt-linux-amd64-${{ github.ref_name }}.tgz
+        path: fpt-linux-amd64-${{ github.ref_name }}.tgz
 
   build-macos:
     name: "Build Binary for macOS"
@@ -65,8 +65,8 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-darwin-amd64-${{ github.ref_name }}
-        path: fpt-darwin-amd64-*.tgz
+        name: fpt-darwin-amd64-${{ github.ref_name }}.tgz
+        path: fpt-darwin-amd64-${{ github.ref_name }}.tgz
 
   build-windows:
     name: "Build Binary for Windows"
@@ -97,8 +97,8 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-windows-amd64-${{ github.ref_name }}
-        path: fpt-windows-amd64-*.zip
+        name: fpt-windows-amd64-${{ github.ref_name }}.zip
+        path: fpt-windows-amd64-${{ github.ref_name }}.zip
 
   release:
     if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
@@ -119,6 +119,6 @@ jobs:
         append_body: false
         draft: true # Indicator of whether or not this release is a draft
         files: |
-          fpt-linux-amd64-*
-          fpt-darwin-amd64-*
-          fpt-windows-amd64-*
+          fpt-linux-amd64-${GITHUB_REF_NAME}.tgz
+          fpt-darwin-amd64-${GITHUB_REF_NAME}.tgz
+          fpt-windows-amd64-${GITHUB_REF_NAME}.zip
