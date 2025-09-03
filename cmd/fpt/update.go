@@ -4,9 +4,9 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -16,7 +16,6 @@ import (
 	"strconv"
 
 	"github.com/inconshreveable/go-update"
-	"gopkg.in/yaml.v2"
 )
 
 type Version struct {
@@ -30,15 +29,30 @@ type LatestVersions struct {
 	majorVersion int
 }
 
+// GitHubRelease represents a GitHub release from the API
+type GitHubRelease struct {
+	TagName    string        `json:"tag_name"`
+	Assets     []GitHubAsset `json:"assets"`
+	Draft      bool          `json:"draft"`
+	Prerelease bool          `json:"prerelease"`
+}
+
+// GitHubAsset represents an asset attached to a GitHub release
+type GitHubAsset struct {
+	Name               string `json:"name"`
+	BrowserDownloadURL string `json:"browser_download_url"`
+}
+
 const (
-	UpdateGithubBaseUrl      = "https://github.com/flexera-public/policy_sdk"
-	UpdateGithubReleasesUrl  = UpdateGithubBaseUrl + "/releases"
-	UpdateGithubChangeLogUrl = UpdateGithubBaseUrl + "/blob/master/cmd/fpt/ChangeLog.md"
+	UpdateGithubBaseUrl     = "https://github.com/flexera-public/policy_sdk"
+	UpdateGithubReleasesUrl = UpdateGithubBaseUrl + "/releases"
 )
 
 var (
-	UpdateBaseUrl = "https://binaries.rightscale.com/rsbin/fpt"
+	UpdateGithubAPIUrl = "https://api.github.com/repos/flexera-public/policy_sdk/releases"
+)
 
+var (
 	vvString      = regexp.MustCompile(`^` + regexp.QuoteMeta(app.Name) + ` (v[0-9]+\.[0-9]+\.[0-9]+) -`)
 	versionString = regexp.MustCompile(`^v([0-9]+)\.([0-9]+)\.([0-9]+)$`)
 )
@@ -55,54 +69,125 @@ func UpdateGetCurrentVersion(vv string) *Version {
 	return version
 }
 
-// UpdateGetVersionUrl gets the URL for the version.yml file for fpt from the rsbin bucket.
-func UpdateGetVersionUrl() string {
-	return UpdateBaseUrl + "/version-" + runtime.GOOS + "-" + runtime.GOARCH + ".yml"
-}
-
-// UpdateGetLatestVersions gets the latest versions struct by downloading and parsing the version.yml file for fpt
-// from the rsbin bucket. See version.sh and the Makefile upload target for how this file is created.
+// UpdateGetLatestVersions gets the latest versions struct by downloading and parsing GitHub releases.
 func UpdateGetLatestVersions() (*LatestVersions, error) {
-	// get the version.yml file over HTTP(S)
-	res, err := http.Get(UpdateGetVersionUrl())
+	// get the releases from GitHub API
+	res, err := http.Get(UpdateGithubAPIUrl)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("Unexpected HTTP response getting %s: %s", UpdateGetVersionUrl(), res.Status)
+		return nil, fmt.Errorf("unexpected HTTP response getting %s: %s", UpdateGithubAPIUrl, res.Status)
 	}
-	versions, err := ioutil.ReadAll(res.Body)
+	releasesData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	// parse the version.yml file into a LatestVersions struct and return the result and any errors
-	var latest LatestVersions
-	err = yaml.UnmarshalStrict(versions, &latest)
-	return &latest, err
+	// parse the GitHub releases JSON response
+	var releases []GitHubRelease
+	err = json.Unmarshal(releasesData, &releases)
+	if err != nil {
+		return nil, err
+	}
+
+	// convert GitHub releases to LatestVersions struct
+	latest := &LatestVersions{
+		Versions: make(map[int]*Version),
+	}
+
+	for _, release := range releases {
+		// skip draft and prerelease versions
+		if release.Draft || release.Prerelease {
+			continue
+		}
+
+		// parse version from tag name
+		version, err := NewVersion(release.TagName)
+		if err != nil {
+			// skip releases with invalid version tags
+			continue
+		}
+
+		// keep only the latest version for each major version
+		if existing, exists := latest.Versions[version.Major]; !exists || version.GreaterThan(existing) {
+			latest.Versions[version.Major] = version
+		}
+	}
+
+	return latest, nil
 }
 
 // UpdateGetDownloadUrl gets the download URL of the latest version for a major version on the current operating system
 // and architecture.
 func UpdateGetDownloadUrl(majorVersion int) (string, *Version, error) {
-	latest, err := UpdateGetLatestVersions()
+	// get the releases from GitHub API
+	res, err := http.Get(UpdateGithubAPIUrl)
+	if err != nil {
+		return "", nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		return "", nil, fmt.Errorf("unexpected HTTP response getting %s: %s", UpdateGithubAPIUrl, res.Status)
+	}
+	releasesData, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", nil, err
 	}
 
-	version, ok := latest.Versions[majorVersion]
-	if !ok {
-		return "", nil, fmt.Errorf("Major version not available: %d", majorVersion)
+	// parse the GitHub releases JSON response
+	var releases []GitHubRelease
+	err = json.Unmarshal(releasesData, &releases)
+	if err != nil {
+		return "", nil, err
 	}
 
+	// find the latest version for the specified major version
+	var targetVersion *Version
+	var targetRelease *GitHubRelease
+
+	for _, release := range releases {
+		// skip draft and prerelease versions
+		if release.Draft || release.Prerelease {
+			continue
+		}
+
+		// parse version from tag name
+		version, err := NewVersion(release.TagName)
+		if err != nil {
+			// skip releases with invalid version tags
+			continue
+		}
+
+		// check if this is the major version we're looking for
+		if version.Major == majorVersion {
+			if targetVersion == nil || version.GreaterThan(targetVersion) {
+				targetVersion = version
+				targetRelease = &release
+			}
+		}
+	}
+
+	if targetVersion == nil {
+		return "", nil, fmt.Errorf("major version not available: %d", majorVersion)
+	}
+
+	// construct the expected asset name
 	ext := "tgz"
 	if runtime.GOOS == "windows" {
 		ext = "zip"
 	}
+	assetName := fmt.Sprintf("%s-%s-%s.%s", app.Name, runtime.GOOS, runtime.GOARCH, ext)
 
-	return fmt.Sprintf("%s/%s/%s-%s-%s.%s", UpdateBaseUrl, version, app.Name, runtime.GOOS, runtime.GOARCH, ext),
-		version, nil
+	// find the matching asset in the release
+	for _, asset := range targetRelease.Assets {
+		if asset.Name == assetName {
+			return asset.BrowserDownloadURL, targetVersion, nil
+		}
+	}
+
+	return "", nil, fmt.Errorf("asset not found for platform %s-%s in release %s", runtime.GOOS, runtime.GOARCH, targetVersion)
 }
 
 // UpdateCheck checks if there is there are any updates available for the running current version of fpt and prints
@@ -142,8 +227,7 @@ func UpdateCheck(vv string, output io.Writer) {
 
 	// print informational URLs if there is any update available
 	if updateAvailable {
-		fmt.Fprintf(output, "\nSee %s or\n%s for more information.\n", UpdateGithubChangeLogUrl,
-			UpdateGithubReleasesUrl)
+		fmt.Fprintf(output, "\nSee %s for more information.\n", UpdateGithubReleasesUrl)
 	}
 }
 
@@ -159,7 +243,7 @@ func UpdateList(vv string, output io.Writer) error {
 
 	// sort the major versions so we can iterate through them in order
 	majors := make([]int, 0, len(latest.Versions))
-	for major, _ := range latest.Versions {
+	for major := range latest.Versions {
 		majors = append(majors, int(major))
 	}
 	sort.Ints(majors)
@@ -198,7 +282,7 @@ func UpdateList(vv string, output io.Writer) error {
 			fmt.Fprintf(output, ".\n")
 		}
 	}
-	fmt.Fprintf(output, "\nSee %s or\n%s for more information.\n", UpdateGithubChangeLogUrl, UpdateGithubReleasesUrl)
+	fmt.Fprintf(output, "\nSee %s for more information.\n", UpdateGithubReleasesUrl)
 
 	return nil
 }
@@ -229,7 +313,7 @@ func UpdateApply(vv string, output io.Writer, majorVersion int, targetPath strin
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		return fmt.Errorf("Unexpected HTTP response getting %s: %s", url, res.Status)
+		return fmt.Errorf("unexpected HTTP response getting %s: %s", url, res.Status)
 	}
 
 	// the new executable will need to be read from this reader which will come from somewhere inside the downloaded
@@ -272,7 +356,7 @@ func UpdateApply(vv string, output io.Writer, majorVersion int, targetPath strin
 		}
 	case ".zip":
 		// create a temporary file to store the zip archive file
-		archive, err := ioutil.TempFile("", path.Base(url)+".")
+		archive, err := os.CreateTemp("", path.Base(url)+".")
 		if err != nil {
 			return err
 		}
@@ -318,7 +402,7 @@ func UpdateApply(vv string, output io.Writer, majorVersion int, targetPath strin
 
 	// make sure we actually found the executable file in the archive
 	if exe == nil {
-		return fmt.Errorf("Could not find %s in archive: %s", exeName, url)
+		return fmt.Errorf("could not find %s in archive: %s", exeName, url)
 	}
 
 	// attempt to apply the new executable so it replaces the old one
@@ -340,7 +424,7 @@ func UpdateApply(vv string, output io.Writer, majorVersion int, targetPath strin
 func NewVersion(version string) (*Version, error) {
 	submatches := versionString.FindStringSubmatch(version)
 	if submatches == nil {
-		return nil, fmt.Errorf("Invalid version string: %s", version)
+		return nil, fmt.Errorf("invalid version string: %s", version)
 	}
 	major, _ := strconv.ParseUint(submatches[1], 0, 0)
 	minor, _ := strconv.ParseUint(submatches[2], 0, 0)
@@ -416,7 +500,7 @@ func (v *Version) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // MajorVersion gets the latest major version from a latest versions struct.
 func (l *LatestVersions) MajorVersion() int {
 	if l.majorVersion == 0 {
-		for major, _ := range l.Versions {
+		for major := range l.Versions {
 			if major > l.majorVersion {
 				l.majorVersion = major
 			}

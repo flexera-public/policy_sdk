@@ -2,9 +2,9 @@
 
 `fpt` is a command line tool to aid in the development and testing of [Flexera Policies](https://docs.rightscale.com/policies/). The tool is able to syntax check, upload, and run Policies.
 
-[![Travis CI Build Status](https://travis-ci.com/rightscale/policy_sdk.svg?branch=master)](https://travis-ci.com/rightscale/policy_sdk)
+[![Build and Upload](https://github.com/flexera-public/policy_sdk/actions/workflows/build.yml/badge.svg?event=push)](https://github.com/flexera-public/policy_sdk/actions/workflows/build.yml)
 
-See [ChangeLog.md](https://github.com/flexera-public/policy_sdk/tree/master/cmd/fpt/ChangeLog.md) for changes.
+See [Releases](https://github.com/flexera-public/policy_sdk/releases) for changes.
 
 * [Installation](#installation)
   * [Configuration](#configuration)
@@ -86,6 +86,7 @@ fpt script [<flags>] <file> [<parameters>...]
 This tool is maintained by [Douglas Thrift (douglaswth)](https://github.com/douglaswth),
 [Peter Schroeter (psschroeter)](https://github.com/psschroeter),
 [Avinash Bhashyam (avinashbhashyam-rs)](https://github.com/avinashbhashyam-rs)
+[Bryan Karaffa](https://github.com/bryankaraffa)
 
 ## License
 
