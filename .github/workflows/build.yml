@@ -11,6 +11,9 @@ jobs:
   build-ubuntu:
     name: "Build Binary for Linux"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     defaults:
       run:
         shell: bash
@@ -27,20 +30,23 @@ jobs:
         echo -e "// go:build fpt_make\n\npackage main\n\nconst VV = \"fpt $GITHUB_REF_NAME - $(date '+%F %T') - $GITHUB_SHA\"" > ./cmd/fpt/version.go
         rm -rf build/fpt
         mkdir -p build/fpt
-        go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
+        GOOS=linux GOARCH=${{ matrix.arch }} go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
         chmod +x build/fpt/fpt*
-        tar -zcf "fpt-linux-amd64-${GITHUB_REF_NAME}.tgz" -C build fpt
+        tar -zcf "fpt-linux-${{ matrix.arch }}-${GITHUB_REF_NAME}.tgz" -C build fpt
         rm -r build/fpt
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-linux-amd64-${{ github.ref_name }}.tgz
-        path: fpt-linux-amd64-${{ github.ref_name }}.tgz
+        name: fpt-linux-${{ matrix.arch }}-${{ github.ref_name }}.tgz
+        path: fpt-linux-${{ matrix.arch }}-${{ github.ref_name }}.tgz
 
   build-macos:
     name: "Build Binary for macOS"
     runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     defaults:
       run:
         shell: bash
@@ -57,20 +63,23 @@ jobs:
         echo -e "// go:build fpt_make\n\npackage main\n\nconst VV = \"fpt $GITHUB_REF_NAME - $(date '+%F %T') - $GITHUB_SHA\"" > ./cmd/fpt/version.go
         rm -rf build/fpt
         mkdir -p build/fpt
-        go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
+        GOOS=darwin GOARCH=${{ matrix.arch }} go build -tags fpt_make -o build/fpt/fpt ./cmd/fpt
         chmod +x build/fpt/fpt*
-        tar -zcf fpt-darwin-amd64-${GITHUB_REF_NAME}.tgz -C build fpt
+        tar -zcf fpt-darwin-${{ matrix.arch }}-${GITHUB_REF_NAME}.tgz -C build fpt
         rm -r build/fpt
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-darwin-amd64-${{ github.ref_name }}.tgz
-        path: fpt-darwin-amd64-${{ github.ref_name }}.tgz
+        name: fpt-darwin-${{ matrix.arch }}-${{ github.ref_name }}.tgz
+        path: fpt-darwin-${{ matrix.arch }}-${{ github.ref_name }}.tgz
 
   build-windows:
     name: "Build Binary for Windows"
     runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     defaults:
       run:
         shell: bash
@@ -86,19 +95,17 @@ jobs:
       run: |
         echo -e "// go:build fpt_make\n\npackage main\n\nconst VV = \"fpt $GITHUB_REF_NAME - $(date '+%F %T') - $GITHUB_SHA\"" > ./cmd/fpt/version.go
         rm -rf build/fpt
-        export CC="x86_64-w64-mingw32-gcc"
-        export CXX="x86_64-w64-mingw32-g++"
         mkdir -p build/fpt
-        go build -tags fpt_make -o build/fpt/fpt.exe ./cmd/fpt
+        GOOS=windows GOARCH=${{ matrix.arch }} go build -tags fpt_make -o build/fpt/fpt.exe ./cmd/fpt
         chmod +x build/fpt/fpt.exe
-        pushd build; ls; pwd; 7z a -r ../fpt-windows-amd64-${GITHUB_REF_NAME}.zip fpt; ls; pwd; popd
+        pushd build; ls; pwd; 7z a -r ../fpt-windows-${{ matrix.arch }}-${GITHUB_REF_NAME}.zip fpt; ls; pwd; popd
         rm -r build/fpt
     
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fpt-windows-amd64-${{ github.ref_name }}.zip
-        path: fpt-windows-amd64-${{ github.ref_name }}.zip
+        name: fpt-windows-${{ matrix.arch }}-${{ github.ref_name }}.zip
+        path: fpt-windows-${{ matrix.arch }}-${{ github.ref_name }}.zip
 
   release:
     if: startsWith(github.ref, 'refs/tags/v') # Only upload on tag push events
@@ -122,5 +129,8 @@ jobs:
         # actions/download-artifact uses folders to store artifacts, so we need to include the wildcard to get the actual files
         files: |
           fpt-linux-amd64-${{ github.ref_name }}.tgz/*
+          fpt-linux-arm64-${{ github.ref_name }}.tgz/*
           fpt-darwin-amd64-${{ github.ref_name }}.tgz/*
+          fpt-darwin-arm64-${{ github.ref_name }}.tgz/*
           fpt-windows-amd64-${{ github.ref_name }}.zip/*
+          fpt-windows-arm64-${{ github.ref_name }}.zip/*
